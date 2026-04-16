@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="perf_obligation_tree" model="ir.ui.view">
+        <field name="name">perf.obligation.list</field>
+        <field name="model">perf.obligation</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="perf_type" />
+                <field name="total_amount" />
+                <field name="company_id" groups="base.group_multi_company" />
+                <field name="description" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="perf_obligation_form" model="ir.ui.view">
+        <field name="name">perf.obligation.form</field>
+        <field name="model">perf.obligation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header />
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_move_lines"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-list"
+                        >
+                            <field
+                                name="move_line_count"
+                                widget="statinfo"
+                                string="Journal Items"
+                            />
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="perf_type" />
+                            <field name="total_amount" />
+                        </group>
+                        <group>
+                            <field name="create_date" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                        </group>
+                        <group>
+                            <field name="description" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="perf_obligation_search" model="ir.ui.view">
+        <field name="name">perf.obligation.search</field>
+        <field name="model">perf.obligation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <filter
+                    name="income"
+                    string="Income"
+                    domain="[('perf_type', '=', 'income')]"
+                />
+                <filter
+                    name="expense"
+                    string="Expense"
+                    domain="[('perf_type', '=', 'expense')]"
+                />
+                <group expand="0" string="Group By">
+                    <filter
+                        name="group_by_type"
+                        string="Type"
+                        context="{'group_by': 'perf_type'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_perf_obligation" model="ir.actions.act_window">
+        <field name="name">Performance Obligations</field>
+        <field name="res_model">perf.obligation</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Performance Obligation
+            </p>
+        </field>
+    </record>
+</odoo>

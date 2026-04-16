@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="perf_obligation_recognize_form" model="ir.ui.view">
+        <field name="name">perf.obligation.recognize.form</field>
+        <field name="model">perf.obligation.recognize</field>
+        <field name="arch" type="xml">
+            <form string="Recognize Income/Expense">
+                <group>
+                    <group>
+                        <field name="perf_obligation_id" />
+                        <field name="perf_type" />
+                        <field name="currency_id" invisible="1" />
+                        <field name="total_amount" />
+                    </group>
+                    <group>
+                        <field name="date" />
+                        <field name="amount_to_recognize" />
+                        <field name="description" />
+                    </group>
+                </group>
+                <footer>
+                    <button
+                        name="action_confirm"
+                        string="Confirm"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_perf_obligation_recognize" model="ir.actions.act_window">
+        <field name="name">Recognize Income/Expense</field>
+        <field name="res_model">perf.obligation.recognize</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_perf_obligation" />
+        <field name="binding_view_types">form</field>
+        <field name="context">{'default_perf_obligation_id': active_id}</field>
+    </record>
+</odoo>
