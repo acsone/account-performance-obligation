@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="seq_perf_obligation" model="ir.sequence">
+        <field name="name">Performance Obligation</field>
+        <field name="code">perf.obligation</field>
+        <field name="prefix">PO/</field>
+        <field name="padding">6</field>
+        <field name="company_id" eval="False" />
+    </record>
+</odoo>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="res_config_settings_view_form_perf_obligation" model="ir.ui.view">
+        <field name="name">
+            res.config.settings.form.perf.obligation
+        </field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='default_accounts']" position="after">
+                <block title="Performance Obligations" id="perf_obligation_settings">
+                    <setting
+                        string="Income Recognition"
+                        help="Configure accounts and journal for income recognition."
+                    >
+                        <div class="content-group">
+                            <div class="row mt-2">
+                                <label
+                                    for="po_income_journal_id"
+                                    class="col-lg-4 o_light_label"
+                                    string="Journal"
+                                />
+                                <field
+                                    name="po_income_journal_id"
+                                    domain="[('type', '=', 'general'), ('active', '=', True)]"
+                                />
+                            </div>
+                            <div class="row">
+                                <label
+                                    for="po_income_credit_bs_account_id"
+                                    class="col-lg-4 o_light_label"
+                                    string="Deferral Account (Balance Sheet)"
+                                />
+                                <field
+                                    name="po_income_credit_bs_account_id"
+                                    domain="[('account_type', '=', 'liability_current'), ('deprecated', '=', False)]"
+                                />
+                            </div>
+                            <div class="row">
+                                <label
+                                    for="po_income_debit_bs_account_id"
+                                    class="col-lg-4 o_light_label"
+                                    string="Accrual Account (Balance Sheet)"
+                                />
+                                <field
+                                    name="po_income_debit_bs_account_id"
+                                    domain="[('account_type', '=', 'asset_current'), ('deprecated', '=', False)]"
+                                />
+                            </div>
+                            <div class="row">
+                                <label
+                                    for="po_income_pl_account_id"
+                                    class="col-lg-4 o_light_label"
+                                    string="Counterpart Account (P&amp;L)"
+                                />
+                                <field
+                                    name="po_income_pl_account_id"
+                                    domain="[('internal_group', 'in', ('expense', 'income')), ('deprecated', '=', False)]"
+                                />
+                            </div>
+                        </div>
+                    </setting>
+                    <setting
+                        string="Expense Recognition"
+                        help="Configure accounts and journal for expense recognition."
+                    >
+                        <div class="content-group">
+                            <div class="row mt-2">
+                                <label
+                                    for="po_expense_journal_id"
+                                    class="col-lg-4 o_light_label"
+                                    string="Journal"
+                                />
+                                <field
+                                    name="po_expense_journal_id"
+                                    domain="[('type', '=', 'general'), ('active', '=', True)]"
+                                />
+                            </div>
+                            <div class="row">
+                                <label
+                                    for="po_expense_debit_bs_account_id"
+                                    class="col-lg-4 o_light_label"
+                                    string="Deferral Account (Balance Sheet)"
+                                />
+                                <field
+                                    name="po_expense_debit_bs_account_id"
+                                    domain="[('account_type', '=', 'asset_current'), ('deprecated', '=', False)]"
+                                />
+                            </div>
+                            <div class="row">
+                                <label
+                                    for="po_expense_credit_bs_account_id"
+                                    class="col-lg-4 o_light_label"
+                                    string="Accrual Account (Balance Sheet)"
+                                />
+                                <field
+                                    name="po_expense_credit_bs_account_id"
+                                    domain="[('account_type', '=', 'liability_current'), ('deprecated', '=', False)]"
+                                />
+                            </div>
+                            <div class="row">
+                                <label
+                                    for="po_expense_pl_account_id"
+                                    class="col-lg-4 o_light_label"
+                                    string="Counterpart Account (P&amp;L)"
+                                />
+                                <field
+                                    name="po_expense_pl_account_id"
+                                    domain="[('internal_group', 'in', ('expense', 'income')), ('deprecated', '=', False)]"
+                                />
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>
