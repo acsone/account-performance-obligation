@@ -44,6 +44,7 @@
                             <field name="name" />
                             <field name="perf_type" />
                             <field name="total_amount" />
+                            <field name="recognition_at_date_method" />
                         </group>
                         <group>
                             <field name="create_date" />

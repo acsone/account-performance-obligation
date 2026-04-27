@@ -192,18 +192,18 @@ class PerfObligationCommon(TransactionCase):
     def _create_wizard(
         self,
         obligation,
-        amount,
+        amount=None,
         date="2025-01-31",
         description="Reco test",
     ):
-        return self.env["perf.obligation.recognize"].create(
-            {
-                "perf_obligation_id": obligation.id,
-                "amount_to_recognize": amount,
-                "date": date,
-                "description": description,
-            }
-        )
+        vals = {
+            "perf_obligation_id": obligation.id,
+            "date": date,
+            "description": description,
+        }
+        if amount is not None:
+            vals["amount_to_recognize"] = amount
+        return self.env["perf.obligation.recognize"].create(vals)
 
     def _filter_lines(self, lines, account):
         """Filter move lines by account (ruff E741 safe)."""
