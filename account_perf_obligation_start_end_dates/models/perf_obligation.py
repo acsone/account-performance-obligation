@@ -92,23 +92,30 @@ class PerfObligation(models.Model):
         return min(amount, self.total_amount)
 
     # ------------------------------------------------------------------
-    # Forecast
+    # Schedule
     # ------------------------------------------------------------------
 
-    def _supports_forecast(self):
-        """Forecasting is supported when a recognition method is configured
-        and an end date is set."""
-        self.ensure_one()
-        return self._supports_recognition_at_date() and self.end_date
+    @api.depends("recognition_at_date_method", "start_date", "end_date")
+    def _compute_supports_schedule(self):
+        for rec in self:
+            rec.supports_schedule = rec._supports_schedule()
 
-    def _get_forecast_start_date(self):
-        """Return the date from which forecast entries should start.
+    def _supports_schedule(self):
+        """Scheduling is supported when a recognition method is configured
+        and both start and end dates are set."""
+        self.ensure_one()
+        return (
+            self._supports_recognition_at_date() and self.start_date and self.end_date
+        )
+
+    def _get_schedule_start_date(self):
+        """Return the date from which schedule entries should start.
 
         This is the latest of:
         - the obligation's start date
         - the last posted recognition entry date
 
-        This ensures we don't generate forecasts before the obligation
+        This ensures we don't generate schedules before the obligation
         period begins or for periods already covered by posted entries.
         """
         self.ensure_one()
@@ -118,36 +125,36 @@ class PerfObligation(models.Model):
             start = max(start, last_posted)
         return start
 
-    def _get_forecast_dates(self):
-        """Return last day of each month from forecast start to end_date.
+    def _get_schedule_dates(self):
+        """Return last day of each month from schedule start to end_date.
 
-        Forecast starts after the later of today and the last posted
-        recognition entry. If end_date falls before month-end, it is
-        used as the last forecast date.
+        Schedule starts from the obligation's start date, or after the
+        last posted recognition entry if one exists. If end_date falls
+        before month-end, it is used as the last schedule date.
         """
         self.ensure_one()
         if not self.end_date:
             raise ValidationError(
                 _(
-                    "An end date is required to generate forecast entries "
+                    "An end date is required to generate schedule entries "
                     "on performance obligation %(name)s.",
                     name=self.display_name,
                 )
             )
 
-        forecast_start = self._get_forecast_start_date()
+        schedule_start = self._get_schedule_start_date()
 
-        if forecast_start >= self.end_date:
+        if schedule_start >= self.end_date:
             return []
 
         dates = []
-        current = forecast_start.replace(day=1)
+        current = schedule_start.replace(day=1)
         while current <= self.end_date:
             month_end = current.replace(
                 day=calendar.monthrange(current.year, current.month)[1]
             )
-            # Skip month-ends that are on or before the forecast start
-            if month_end <= forecast_start:
+            # Skip month-ends that are on or before the schedule start
+            if month_end <= schedule_start:
                 current += relativedelta(months=1)
                 continue
             dates.append(min(month_end, self.end_date))

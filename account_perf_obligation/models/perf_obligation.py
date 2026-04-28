@@ -64,6 +64,14 @@ class PerfObligation(models.Model):
         readonly=True,
     )
     description = fields.Text()
+    supports_schedule = fields.Boolean(
+        compute="_compute_supports_schedule",
+    )
+
+    @api.depends("recognition_at_date_method")
+    def _compute_supports_schedule(self):
+        for rec in self:
+            rec.supports_schedule = rec._supports_schedule()
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -422,11 +430,11 @@ class PerfObligation(models.Model):
         }
 
     # ------------------------------------------------------------------
-    # Forecast generation
+    # Schedule generation
     # ------------------------------------------------------------------
 
-    def _get_forecast_dates(self):
-        """Return the list of dates for which forecast recognition entries
+    def _get_schedule_dates(self):
+        """Return the list of dates for which recognition schedule entries
         should be generated.
 
         Override this method to provide actual dates.
@@ -435,28 +443,28 @@ class PerfObligation(models.Model):
         self.ensure_one()
         raise NotImplementedError
 
-    def _supports_forecast(self):
-        """Return whether this obligation supports forecast generation.
+    def _supports_schedule(self):
+        """Return whether this obligation supports schedule generation.
 
         Override in modules that provide date ranges.
         """
         self.ensure_one()
         return False
 
-    def action_generate_forecast(self):
+    def action_generate_schedule(self):
         """Delete existing draft recognition moves and regenerate
-        forecast entries for each month-end in the obligation period."""
+        schedule entries."""
         for po in self:
-            if not po._supports_forecast():
+            if not po._supports_schedule():
                 raise ValidationError(
                     _(
-                        "Forecast generation is not supported "
+                        "Schedule generation is not supported "
                         "on performance obligation %(name)s.",
                         name=po.display_name,
                     )
                 )
             po._delete_draft_recognition_moves()
-            po._generate_forecast_moves()
+            po._generate_schedule_moves()
 
     def _get_last_posted_recognition_date(self):
         """Return the date of the last posted recognition move for this
@@ -494,23 +502,23 @@ class PerfObligation(models.Model):
         if draft_moves:
             draft_moves.unlink()
 
-    def _generate_forecast_moves(self):
-        """Generate draft recognition entries for each forecast date."""
+    def _generate_schedule_moves(self):
+        """Generate draft recognition entries for each schedule date."""
         self.ensure_one()
-        dates = self._get_forecast_dates()
+        dates = self._get_schedule_dates()
         perf_type_label = dict(self._fields["perf_type"].selection).get(
             self.perf_type, self.perf_type
         )
 
-        for forecast_date in dates:
-            amount = self._compute_amount_to_recognize_at_date(forecast_date)
+        for schedule_date in dates:
+            amount = self._compute_amount_to_recognize_at_date(schedule_date)
             description = _(
                 "%(type)s recognition %(date)s",
                 type=perf_type_label,
-                date=forecast_date,
+                date=schedule_date,
             )
             self._recognize(
                 amount_to_recognize=amount,
-                date=forecast_date,
+                date=schedule_date,
                 description=description,
             )

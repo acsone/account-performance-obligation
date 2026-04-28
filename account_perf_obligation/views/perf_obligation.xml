@@ -24,11 +24,11 @@
             <form>
                 <header>
                     <button
-                        name="action_generate_forecast"
-                        string="Generate Forecast Entries"
+                        name="action_generate_schedule"
+                        string="Generate Schedule Entries"
                         type="object"
                         class="btn-primary"
-                        invisible="not recognition_at_date_method"
+                        invisible="not supports_schedule"
                     />
                 </header>
                 <sheet>

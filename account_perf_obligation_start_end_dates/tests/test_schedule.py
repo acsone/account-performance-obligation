@@ -9,7 +9,7 @@ from odoo.exceptions import ValidationError
 from .common import PerfObligationDatesCommon
 
 
-class TestForecast(PerfObligationDatesCommon):
+class TestSchedule(PerfObligationDatesCommon):
     def _mock_today(self, today):
         """Return a context manager that mocks fields.Date.context_today.
 
@@ -22,103 +22,115 @@ class TestForecast(PerfObligationDatesCommon):
         )
 
     # =========================================================
-    # Supports forecast
+    # Supports schedule
     # =========================================================
 
-    def test_supports_forecast_false_without_method(self):
+    def test_supports_schedule_false_without_method(self):
         po = self._create_obligation(total_amount=1000.0)
-        self.assertFalse(po._supports_forecast())
+        self.assertFalse(po._supports_schedule())
+        self.assertFalse(po.supports_schedule)
 
-    def test_supports_forecast_true_with_daily(self):
+    def test_supports_schedule_true_with_daily(self):
         po = self._create_obligation(
             recognition_at_date_method="daily",
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
-        self.assertTrue(po._supports_forecast())
+        self.assertTrue(po._supports_schedule())
+        self.assertTrue(po.supports_schedule)
 
-    def test_supports_forecast_false_without_end_date(self):
-        """Method configured but no end_date -> no forecast support."""
+    def test_supports_schedule_false_without_end_date(self):
+        """Method configured but no end_date -> no schedule support."""
         po = self._create_obligation(
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
         # No recognition method set
-        self.assertFalse(po._supports_forecast())
+        self.assertFalse(po._supports_schedule())
+        self.assertFalse(po.supports_schedule)
+
+    def test_supports_schedule_false_without_start_date(self):
+        """Method and end_date set but no start_date -> no schedule support."""
+        po = self._create_obligation(
+            end_date=date(2026, 3, 31),
+        )
+        po.recognition_at_date_method = False
+        self.assertFalse(po._supports_schedule())
+        self.assertFalse(po.supports_schedule)
 
     # =========================================================
-    # Forecast dates
+    # Schedule dates
     # =========================================================
 
-    def test_forecast_dates_quarterly(self):
+    def test_schedule_dates_quarterly(self):
         """3-month obligation generates 3 month-end dates."""
         po = self._create_obligation(
             recognition_at_date_method="daily",
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
-        dates = po._get_forecast_dates()
+        dates = po._get_schedule_dates()
         self.assertEqual(
             dates,
             [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 31)],
         )
 
-    def test_forecast_dates_mid_month_start(self):
+    def test_schedule_dates_mid_month_start(self):
         """Start mid-month still gets month-end for first month."""
         po = self._create_obligation(
             recognition_at_date_method="daily",
             start_date=date(2026, 1, 15),
             end_date=date(2026, 3, 31),
         )
-        dates = po._get_forecast_dates()
+        dates = po._get_schedule_dates()
         self.assertEqual(
             dates,
             [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 31)],
         )
 
-    def test_forecast_dates_end_before_month_end(self):
+    def test_schedule_dates_end_before_month_end(self):
         """End date before month-end uses end_date as last date."""
         po = self._create_obligation(
             recognition_at_date_method="daily",
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 15),
         )
-        dates = po._get_forecast_dates()
+        dates = po._get_schedule_dates()
         self.assertEqual(
             dates,
             [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 15)],
         )
 
-    def test_forecast_dates_single_month(self):
+    def test_schedule_dates_single_month(self):
         po = self._create_obligation(
             recognition_at_date_method="daily",
             start_date=date(2026, 3, 1),
             end_date=date(2026, 3, 31),
         )
-        dates = po._get_forecast_dates()
+        dates = po._get_schedule_dates()
         self.assertEqual(dates, [date(2026, 3, 31)])
 
-    def test_forecast_dates_leap_year(self):
+    def test_schedule_dates_leap_year(self):
         """February in a leap year ends on 29th."""
         po = self._create_obligation(
             recognition_at_date_method="daily",
             start_date=date(2028, 1, 1),
             end_date=date(2028, 2, 29),
         )
-        dates = po._get_forecast_dates()
+        dates = po._get_schedule_dates()
         self.assertEqual(
             dates,
             [date(2028, 1, 31), date(2028, 2, 29)],
         )
 
-    def test_forecast_dates_year_boundary(self):
+    def test_schedule_dates_year_boundary(self):
         """Dates spanning a year boundary."""
         po = self._create_obligation(
             recognition_at_date_method="daily",
             start_date=date(2026, 11, 1),
             end_date=date(2027, 2, 28),
         )
-        dates = po._get_forecast_dates()
+        dates = po._get_schedule_dates()
         self.assertEqual(
             dates,
             [
@@ -129,7 +141,7 @@ class TestForecast(PerfObligationDatesCommon):
             ],
         )
 
-    def test_forecast_dates_skips_posted_months(self):
+    def test_schedule_dates_skips_posted_months(self):
         """Months with posted recognition entries are skipped."""
         po = self._create_obligation(
             perf_type="income",
@@ -152,9 +164,9 @@ class TestForecast(PerfObligationDatesCommon):
         with self._mock_today(date(2026, 1, 31)):
             move.action_post()
 
-        # forecast_start = max(Jan 1, Jan 31) = Jan 31
-        # -> skip Jan month-end (== forecast_start)
-        dates = po._get_forecast_dates()
+        # schedule_start = max(Jan 1, Jan 31) = Jan 31
+        # -> skip Jan month-end (== schedule_start)
+        dates = po._get_schedule_dates()
         self.assertEqual(
             dates,
             [
@@ -166,7 +178,7 @@ class TestForecast(PerfObligationDatesCommon):
             ],
         )
 
-    def test_forecast_dates_empty_when_fully_recognized(self):
+    def test_schedule_dates_empty_when_fully_recognized(self):
         """Returns empty list when last posted entry covers end_date."""
         po = self._create_obligation(
             perf_type="income",
@@ -187,15 +199,15 @@ class TestForecast(PerfObligationDatesCommon):
         with self._mock_today(date(2026, 3, 31)):
             move.action_post()
 
-        dates = po._get_forecast_dates()
+        dates = po._get_schedule_dates()
         self.assertEqual(dates, [])
 
     # =========================================================
-    # Forecast generation
+    # Schedule generation
     # =========================================================
 
-    def test_generate_forecast_income_no_invoice(self):
-        """Generate forecast for income with no prior invoice."""
+    def test_generate_schedule_income_no_invoice(self):
+        """Generate schedule for income with no prior invoice."""
         po = self._create_obligation(
             perf_type="income",
             total_amount=900.0,
@@ -203,7 +215,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
-        po.action_generate_forecast()
+        po.action_generate_schedule()
 
         draft_moves = po._get_draft_recognition_moves()
         self.assertEqual(len(draft_moves), 3)
@@ -221,8 +233,8 @@ class TestForecast(PerfObligationDatesCommon):
             for line in move.line_ids:
                 self.assertEqual(line.perf_obligation_id, po)
 
-    def test_generate_forecast_expense(self):
-        """Generate forecast entries for expense obligation."""
+    def test_generate_schedule_expense(self):
+        """Generate schedule entries for expense obligation."""
         po = self._create_obligation(
             perf_type="expense",
             total_amount=600.0,
@@ -230,7 +242,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 2, 28),
         )
-        po.action_generate_forecast()
+        po.action_generate_schedule()
 
         draft_moves = po._get_draft_recognition_moves()
         self.assertEqual(len(draft_moves), 2)
@@ -238,8 +250,8 @@ class TestForecast(PerfObligationDatesCommon):
         for move in draft_moves:
             self.assertEqual(move.journal_id, self.exp_reco_journal)
 
-    def test_generate_forecast_with_invoice_at_beginning(self):
-        """Forecast with invoice posted at the beginning generates
+    def test_generate_schedule_with_invoice_at_beginning(self):
+        """Schedule with invoice posted at the beginning generates
         deferral entries."""
         po = self._create_obligation(
             perf_type="income",
@@ -256,13 +268,13 @@ class TestForecast(PerfObligationDatesCommon):
             ],
             date="2026-01-01",
         )
-        po.action_generate_forecast()
+        po.action_generate_schedule()
 
         draft_moves = po._get_draft_recognition_moves()
         self.assertEqual(len(draft_moves), 3)
 
-    def test_generate_forecast_replaces_existing_drafts(self):
-        """Calling action_generate_forecast twice replaces previous drafts."""
+    def test_generate_schedule_replaces_existing_drafts(self):
+        """Calling action_generate_schedule twice replaces previous drafts."""
         po = self._create_obligation(
             perf_type="income",
             total_amount=900.0,
@@ -270,16 +282,16 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
-        po.action_generate_forecast()
+        po.action_generate_schedule()
         first_move_ids = set(po._get_draft_recognition_moves().ids)
 
-        po.action_generate_forecast()
+        po.action_generate_schedule()
         second_move_ids = set(po._get_draft_recognition_moves().ids)
 
         self.assertFalse(first_move_ids & second_move_ids)
         self.assertEqual(len(second_move_ids), 3)
 
-    def test_generate_forecast_preserves_posted_moves(self):
+    def test_generate_schedule_preserves_posted_moves(self):
         """Posted recognition moves are not deleted on regeneration."""
         po = self._create_obligation(
             perf_type="income",
@@ -306,8 +318,8 @@ class TestForecast(PerfObligationDatesCommon):
         self.assertTrue(posted_move.exists())
         self.assertEqual(posted_move.state, "posted")
 
-        # Regenerate forecast
-        po.action_generate_forecast()
+        # Regenerate schedule
+        po.action_generate_schedule()
 
         # Draft moves generated for remaining months only
         draft_moves = po._get_draft_recognition_moves()
@@ -317,15 +329,16 @@ class TestForecast(PerfObligationDatesCommon):
             [date(2026, 2, 28), date(2026, 3, 31)],
         )
 
-    def test_generate_forecast_unsupported_raises(self):
-        """Forecast on obligation without method raises."""
+    def test_generate_schedule_unsupported_raises(self):
+        """Schedule on obligation without method raises."""
         po = self._create_obligation(total_amount=1000.0)
-        with self.assertRaises(ValidationError) as ctx:
-            po.action_generate_forecast()
-        self.assertRegex(str(ctx.exception), r"Forecast generation is not supported")
+        with self.assertRaisesRegex(
+            ValidationError, r"Schedule generation is not supported"
+        ):
+            po.action_generate_schedule()
 
-    def test_forecast_ref_contains_obligation_name(self):
-        """Forecast move ref contains the obligation reference."""
+    def test_schedule_ref_contains_obligation_name(self):
+        """Schedule move ref contains the obligation reference."""
         po = self._create_obligation(
             perf_type="income",
             total_amount=300.0,
@@ -333,13 +346,13 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 1, 31),
         )
-        po.action_generate_forecast()
+        po.action_generate_schedule()
 
         draft_moves = po._get_draft_recognition_moves()
         self.assertEqual(len(draft_moves), 1)
         self.assertIn(po.name, draft_moves.ref)
 
-    def test_generate_forecast_all_months(self):
+    def test_generate_schedule_all_months(self):
         """All months from start_date to end_date are generated."""
         po = self._create_obligation(
             perf_type="income",
@@ -348,7 +361,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
-        po.action_generate_forecast()
+        po.action_generate_schedule()
 
         draft_moves = po._get_draft_recognition_moves()
         draft_dates = sorted(draft_moves.mapped("date"))

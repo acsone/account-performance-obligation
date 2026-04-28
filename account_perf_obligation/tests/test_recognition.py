@@ -681,18 +681,19 @@ class TestRecognition(PerfObligationCommon):
         self.assertFalse(po._supports_recognition_at_date())
 
     # =========================================================
-    # Forecast (base)
+    # Schedule (base)
     # =========================================================
 
-    def test_supports_forecast_false_by_default(self):
-        """Base obligation does not support forecast."""
+    def test_supports_schedule_false_by_default(self):
+        """Base obligation does not support schedule."""
         po = self._create_obligation(total_amount=1000.0)
-        self.assertFalse(po._supports_forecast())
+        self.assertFalse(po._supports_schedule())
+        self.assertFalse(po.supports_schedule)
 
-    def test_forecast_without_support_raises(self):
-        """Forecast on base obligation raises ValidationError."""
+    def test_schedule_without_support_raises(self):
+        """Schedule on base obligation raises ValidationError."""
         po = self._create_obligation(total_amount=1000.0)
         with self.assertRaisesRegex(
-            ValidationError, r"Forecast generation is not supported"
+            ValidationError, r"Schedule generation is not supported"
         ):
-            po.action_generate_forecast()
+            po.action_generate_schedule()

@@ -20,7 +20,7 @@ A wizard allows manual recognition: given a cumulative target amount to recogniz
 at a given date, the module computes the adjustment needed and generates the
 appropriate accrual or deferral journal entry.
 
-A **Generate Forecast Entries** action allows generating all future
+A **Generate Schedule Entries** action allows generating all future
 recognition journal entries in draft (with ``auto_post = at_date``),
 based on the configured recognition method. Calling this action again
 deletes existing draft entries and regenerates them, preserving any
@@ -50,8 +50,9 @@ Usage
 #. From the obligation form, use the **Recognize Income/Expense** action
    to open the recognition wizard
 #. Enter the cumulative amount to recognize at the given date, and a description
-#. Confirm: the module posts the accrual/deferral journal entry automatically
-#. Alternatively, use the **Generate Forecast Entries** button to
+#. Confirm: the module creates a draft accrual or deferral journal entry
+   (with ``auto_post = at_date``)
+#. Alternatively, use the **Generate Schedule Entries** button to
    automatically create draft recognition entries for each period
    until the end of the obligation
 #. Use the **Journal Items** smart button to review all entries
