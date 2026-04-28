@@ -102,13 +102,20 @@ class PerfObligation(models.Model):
         return self._supports_recognition_at_date() and self.end_date
 
     def _get_forecast_start_date(self):
-        """
-        Don't generate forecasts before the obligation period begins
+        """Return the date from which forecast entries should start.
+
+        This is the latest of:
+        - the obligation's start date
+        - the last posted recognition entry date
+
+        This ensures we don't generate forecasts before the obligation
+        period begins or for periods already covered by posted entries.
         """
         self.ensure_one()
-        start = super()._get_forecast_start_date()
-        if self.start_date:
-            start = max(start, self.start_date)
+        start = self.start_date
+        last_posted = self._get_last_posted_recognition_date()
+        if last_posted:
+            start = max(start, last_posted)
         return start
 
     def _get_forecast_dates(self):

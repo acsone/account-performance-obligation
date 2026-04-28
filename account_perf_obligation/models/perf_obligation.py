@@ -474,24 +474,6 @@ class PerfObligation(models.Model):
         )
         return moves.date if moves else None
 
-    def _get_forecast_start_date(self):
-        """Return the date from which forecast entries should start.
-
-        This is the latest of:
-        - today
-        - the last posted recognition entry date
-
-        This ensures we don't generate forecasts for periods already
-        covered by posted entries or that are in the past.
-        """
-        self.ensure_one()
-        today = fields.Date.context_today(self)
-        last_posted = self._get_last_posted_recognition_date()
-        start = today
-        if last_posted:
-            start = max(start, last_posted)
-        return start
-
     def _get_draft_recognition_moves(self):
         """Return draft recognition moves for this obligation."""
         self.ensure_one()

@@ -13,8 +13,8 @@ the amount to recognize at any given date using the **daily pro-rata** method.
 
 It also provides the date range needed for **forecast generation**:
 the **Generate Forecast Entries** button (from the base module) generates
-draft recognition entries for each remaining month-end until the end date,
-skipping periods already covered by posted entries or in the past.
+draft recognition entries for each month-end from start date until the end
+date, skipping periods already covered by posted entries.
 
 The architecture is designed so that alternative computation methods
 (e.g. full-month based) can be easily added by extending the selection
@@ -33,8 +33,8 @@ Usage
    the selected date and the obligation period, but can be modified
    before confirmation
 #. Use the **Generate Forecast Entries** button to create draft
-   recognition entries for each future month-end until the end date;
-   already-posted entries and past periods are preserved and skipped;
+   recognition entries for each month-end until the end date;
+   already-posted entries are preserved and skipped;
    calling the button again replaces existing drafts
 
 Extensibility

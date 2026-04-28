@@ -4,12 +4,18 @@
 from datetime import date
 from unittest.mock import patch
 
+from odoo.exceptions import ValidationError
+
 from .common import PerfObligationDatesCommon
 
 
 class TestForecast(PerfObligationDatesCommon):
     def _mock_today(self, today):
-        """Return a context manager that mocks fields.Date.context_today."""
+        """Return a context manager that mocks fields.Date.context_today.
+
+        Only needed to allow posting moves with auto_post='at_date'
+        whose date is in the future relative to the real today.
+        """
         return patch(
             "odoo.fields.Date.context_today",
             return_value=today,
@@ -51,8 +57,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
-        with self._mock_today(date(2025, 12, 1)):
-            dates = po._get_forecast_dates()
+        dates = po._get_forecast_dates()
         self.assertEqual(
             dates,
             [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 31)],
@@ -65,8 +70,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 15),
             end_date=date(2026, 3, 31),
         )
-        with self._mock_today(date(2025, 12, 1)):
-            dates = po._get_forecast_dates()
+        dates = po._get_forecast_dates()
         self.assertEqual(
             dates,
             [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 31)],
@@ -79,8 +83,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 15),
         )
-        with self._mock_today(date(2025, 12, 1)):
-            dates = po._get_forecast_dates()
+        dates = po._get_forecast_dates()
         self.assertEqual(
             dates,
             [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 15)],
@@ -92,8 +95,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 3, 1),
             end_date=date(2026, 3, 31),
         )
-        with self._mock_today(date(2025, 12, 1)):
-            dates = po._get_forecast_dates()
+        dates = po._get_forecast_dates()
         self.assertEqual(dates, [date(2026, 3, 31)])
 
     def test_forecast_dates_leap_year(self):
@@ -103,8 +105,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2028, 1, 1),
             end_date=date(2028, 2, 29),
         )
-        with self._mock_today(date(2027, 12, 1)):
-            dates = po._get_forecast_dates()
+        dates = po._get_forecast_dates()
         self.assertEqual(
             dates,
             [date(2028, 1, 31), date(2028, 2, 29)],
@@ -117,8 +118,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 11, 1),
             end_date=date(2027, 2, 28),
         )
-        with self._mock_today(date(2026, 10, 1)):
-            dates = po._get_forecast_dates()
+        dates = po._get_forecast_dates()
         self.assertEqual(
             dates,
             [
@@ -126,25 +126,6 @@ class TestForecast(PerfObligationDatesCommon):
                 date(2026, 12, 31),
                 date(2027, 1, 31),
                 date(2027, 2, 28),
-            ],
-        )
-
-    def test_forecast_dates_skips_past_months(self):
-        """Months where month-end is before or on today are skipped."""
-        po = self._create_obligation(
-            recognition_at_date_method="daily",
-            start_date=date(2026, 1, 1),
-            end_date=date(2026, 6, 30),
-        )
-        with self._mock_today(date(2026, 3, 15)):
-            dates = po._get_forecast_dates()
-        self.assertEqual(
-            dates,
-            [
-                date(2026, 3, 31),
-                date(2026, 4, 30),
-                date(2026, 5, 31),
-                date(2026, 6, 30),
             ],
         )
 
@@ -158,25 +139,22 @@ class TestForecast(PerfObligationDatesCommon):
             end_date=date(2026, 6, 30),
         )
         # Manually recognize Jan and post
-        with self._mock_today(date(2025, 12, 1)):
-            wizard = self._create_wizard(
-                po,
-                amount=po._compute_amount_to_recognize_at_date(date(2026, 1, 31)),
-                date="2026-01-31",
-                description="Jan",
-            )
-            result = wizard.action_confirm()
-            move = self.env["account.move"].browse(result["res_id"])
+        wizard = self._create_wizard(
+            po,
+            amount=po._compute_amount_to_recognize_at_date(date(2026, 1, 31)),
+            date="2026-01-31",
+            description="Jan",
+        )
+        result = wizard.action_confirm()
+        move = self.env["account.move"].browse(result["res_id"])
 
         # Mock today to the move date so Odoo allows posting
         with self._mock_today(date(2026, 1, 31)):
             move.action_post()
 
-        # Today is Jan 15, but last posted is Jan 31
-        # forecast_start = max(Jan 15, Jan 31, Jan 1) = Jan 31
+        # forecast_start = max(Jan 1, Jan 31) = Jan 31
         # -> skip Jan month-end (== forecast_start)
-        with self._mock_today(date(2026, 1, 15)):
-            dates = po._get_forecast_dates()
+        dates = po._get_forecast_dates()
         self.assertEqual(
             dates,
             [
@@ -188,15 +166,28 @@ class TestForecast(PerfObligationDatesCommon):
             ],
         )
 
-    def test_forecast_dates_empty_when_all_past(self):
-        """Returns empty list when end_date is in the past."""
+    def test_forecast_dates_empty_when_fully_recognized(self):
+        """Returns empty list when last posted entry covers end_date."""
         po = self._create_obligation(
+            perf_type="income",
+            total_amount=900.0,
             recognition_at_date_method="daily",
-            start_date=date(2020, 1, 1),
-            end_date=date(2020, 3, 31),
+            start_date=date(2026, 1, 1),
+            end_date=date(2026, 3, 31),
         )
-        with self._mock_today(date(2026, 1, 1)):
-            dates = po._get_forecast_dates()
+        # Recognize up to end_date and post
+        wizard = self._create_wizard(
+            po,
+            amount=po._compute_amount_to_recognize_at_date(date(2026, 3, 31)),
+            date="2026-03-31",
+            description="Full",
+        )
+        result = wizard.action_confirm()
+        move = self.env["account.move"].browse(result["res_id"])
+        with self._mock_today(date(2026, 3, 31)):
+            move.action_post()
+
+        dates = po._get_forecast_dates()
         self.assertEqual(dates, [])
 
     # =========================================================
@@ -212,8 +203,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
-        with self._mock_today(date(2025, 12, 1)):
-            po.action_generate_forecast()
+        po.action_generate_forecast()
 
         draft_moves = po._get_draft_recognition_moves()
         self.assertEqual(len(draft_moves), 3)
@@ -240,8 +230,7 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 2, 28),
         )
-        with self._mock_today(date(2025, 12, 1)):
-            po.action_generate_forecast()
+        po.action_generate_forecast()
 
         draft_moves = po._get_draft_recognition_moves()
         self.assertEqual(len(draft_moves), 2)
@@ -267,8 +256,7 @@ class TestForecast(PerfObligationDatesCommon):
             ],
             date="2026-01-01",
         )
-        with self._mock_today(date(2025, 12, 1)):
-            po.action_generate_forecast()
+        po.action_generate_forecast()
 
         draft_moves = po._get_draft_recognition_moves()
         self.assertEqual(len(draft_moves), 3)
@@ -282,12 +270,11 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
-        with self._mock_today(date(2025, 12, 1)):
-            po.action_generate_forecast()
-            first_move_ids = set(po._get_draft_recognition_moves().ids)
+        po.action_generate_forecast()
+        first_move_ids = set(po._get_draft_recognition_moves().ids)
 
-            po.action_generate_forecast()
-            second_move_ids = set(po._get_draft_recognition_moves().ids)
+        po.action_generate_forecast()
+        second_move_ids = set(po._get_draft_recognition_moves().ids)
 
         self.assertFalse(first_move_ids & second_move_ids)
         self.assertEqual(len(second_move_ids), 3)
@@ -301,16 +288,15 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
-        with self._mock_today(date(2025, 12, 1)):
-            # Manually recognize Jan and post it
-            wizard = self._create_wizard(
-                po,
-                amount=po._compute_amount_to_recognize_at_date(date(2026, 1, 31)),
-                date="2026-01-31",
-                description="Jan manual",
-            )
-            result = wizard.action_confirm()
-            posted_move = self.env["account.move"].browse(result["res_id"])
+        # Manually recognize Jan and post it
+        wizard = self._create_wizard(
+            po,
+            amount=po._compute_amount_to_recognize_at_date(date(2026, 1, 31)),
+            date="2026-01-31",
+            description="Jan manual",
+        )
+        result = wizard.action_confirm()
+        posted_move = self.env["account.move"].browse(result["res_id"])
 
         # Mock today to the move date so Odoo allows posting
         with self._mock_today(date(2026, 1, 31)):
@@ -320,9 +306,8 @@ class TestForecast(PerfObligationDatesCommon):
         self.assertTrue(posted_move.exists())
         self.assertEqual(posted_move.state, "posted")
 
-        # Now generate forecast (today still before obligation end)
-        with self._mock_today(date(2025, 12, 1)):
-            po.action_generate_forecast()
+        # Regenerate forecast
+        po.action_generate_forecast()
 
         # Draft moves generated for remaining months only
         draft_moves = po._get_draft_recognition_moves()
@@ -331,6 +316,13 @@ class TestForecast(PerfObligationDatesCommon):
             draft_dates,
             [date(2026, 2, 28), date(2026, 3, 31)],
         )
+
+    def test_generate_forecast_unsupported_raises(self):
+        """Forecast on obligation without method raises."""
+        po = self._create_obligation(total_amount=1000.0)
+        with self.assertRaises(ValidationError) as ctx:
+            po.action_generate_forecast()
+        self.assertRegex(str(ctx.exception), r"Forecast generation is not supported")
 
     def test_forecast_ref_contains_obligation_name(self):
         """Forecast move ref contains the obligation reference."""
@@ -341,15 +333,14 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 1, 31),
         )
-        with self._mock_today(date(2025, 12, 1)):
-            po.action_generate_forecast()
+        po.action_generate_forecast()
 
         draft_moves = po._get_draft_recognition_moves()
         self.assertEqual(len(draft_moves), 1)
         self.assertIn(po.name, draft_moves.ref)
 
-    def test_generate_forecast_partial_month_coverage(self):
-        """Today is mid-month: current month-end is still included."""
+    def test_generate_forecast_all_months(self):
+        """All months from start_date to end_date are generated."""
         po = self._create_obligation(
             perf_type="income",
             total_amount=300.0,
@@ -357,13 +348,11 @@ class TestForecast(PerfObligationDatesCommon):
             start_date=date(2026, 1, 1),
             end_date=date(2026, 3, 31),
         )
-        with self._mock_today(date(2026, 2, 15)):
-            po.action_generate_forecast()
+        po.action_generate_forecast()
 
         draft_moves = po._get_draft_recognition_moves()
         draft_dates = sorted(draft_moves.mapped("date"))
-        # Jan is past, Feb 28 > Feb 15 so included, Mar included
         self.assertEqual(
             draft_dates,
-            [date(2026, 2, 28), date(2026, 3, 31)],
+            [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 31)],
         )
