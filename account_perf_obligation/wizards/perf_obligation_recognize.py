@@ -23,7 +23,7 @@ class PerfObligationRecognize(models.TransientModel):
         comodel_name="res.currency",
         related="perf_obligation_id.company_id.currency_id",
     )
-    total_amount = fields.Float(
+    total_amount = fields.Monetary(
         related="perf_obligation_id.total_amount",
         string="Total Amount to Recognize",
     )
@@ -32,7 +32,7 @@ class PerfObligationRecognize(models.TransientModel):
         required=True,
         default=fields.Date.context_today,
     )
-    amount_to_recognize = fields.Float(
+    amount_to_recognize = fields.Monetary(
         string="Amount to Recognize at Date",
         required=True,
         help="The cumulative amount that should be recognized as of the "
