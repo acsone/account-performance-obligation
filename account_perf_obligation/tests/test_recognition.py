@@ -1,7 +1,7 @@
 # Copyright 2026 ACSONE SA/NV
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
-from odoo import Command
+from odoo import Command, fields
 from odoo.exceptions import UserError, ValidationError
 
 from .common import PerfObligationCommon
@@ -657,3 +657,21 @@ class TestRecognition(PerfObligationCommon):
         self.assertAlmostEqual(debit_bs.credit, 100)
         self.assertAlmostEqual(pl.debit, 100)
         self._assert_bs(po, "2026-04-30", self.exp_debit_bs, 0, self.exp_credit_bs, 0)
+
+    # =========================================================
+    # Recognition at date (base dispatch)
+    # =========================================================
+
+    def test_no_recognition_method_raises(self):
+        """Without recognition method, _compute_amount_to_recognize_at_date
+        raises ValidationError."""
+        po = self._create_obligation(total_amount=1000.0)
+        self.assertFalse(po.recognition_at_date_method)
+        with self.assertRaises(ValidationError):
+            po._compute_amount_to_recognize_at_date(fields.Date.today())
+
+    def test_supports_recognition_at_date_false_by_default(self):
+        """Without recognition method, _supports_recognition_at_date
+        returns False."""
+        po = self._create_obligation(total_amount=1000.0)
+        self.assertFalse(po._supports_recognition_at_date())

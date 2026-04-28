@@ -47,6 +47,11 @@ class PerfObligation(models.Model):
         string="Total Amount to Recognize",
         required=True,
     )
+    recognition_at_date_method = fields.Selection(
+        selection=[],
+        help="Method used to compute the amount to recognize at a given date. "
+        "Leave empty for manual recognition only.",
+    )
     move_line_ids = fields.One2many(
         comodel_name="account.move.line",
         inverse_name="perf_obligation_id",
@@ -130,6 +135,47 @@ class PerfObligation(models.Model):
                 )
             )
         return RecognitionConfig(**values)
+
+    # ------------------------------------------------------------------
+    # Recognition at date
+    # ------------------------------------------------------------------
+
+    def _supports_recognition_at_date(self):
+        """Return whether this obligation supports automatic recognition
+        at date computation.
+
+        Override this method to add support for other recognition methods.
+        """
+        self.ensure_one()
+        return bool(self.recognition_at_date_method)
+
+    def _compute_amount_to_recognize_at_date(self, date):
+        """Compute the cumulative amount to recognize at the given date.
+
+        Dispatches to the method matching ``recognition_at_date_method``.
+        Raises if no recognition method is configured.
+        """
+        self.ensure_one()
+        if not self._supports_recognition_at_date():
+            raise ValidationError(
+                _(
+                    "No recognition at date method configured "
+                    "on performance obligation %(name)s.",
+                    name=self.display_name,
+                )
+            )
+        method_name = f"_compute_amount_to_recognize_{self.recognition_at_date_method}"
+        compute_method = getattr(self, method_name, None)
+        if compute_method is None:
+            raise ValidationError(
+                _(
+                    "Unknown recognition method '%(method)s' "
+                    "on performance obligation %(name)s.",
+                    method=self.recognition_at_date_method,
+                    name=self.display_name,
+                )
+            )
+        return compute_method(date)
 
     # ------------------------------------------------------------------
     # Balance helpers

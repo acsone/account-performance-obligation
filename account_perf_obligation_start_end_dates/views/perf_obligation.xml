@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="perf_obligation_form_inherit_dates" model="ir.ui.view">
+        <field name="name">perf.obligation.form.inherit.dates</field>
+        <field name="model">perf.obligation</field>
+        <field name="inherit_id" ref="account_perf_obligation.perf_obligation_form" />
+        <field name="arch" type="xml">
+            <field name="recognition_at_date_method" position="after">
+                <field name="is_start_date_required" invisible="1" />
+                <field name="is_end_date_required" invisible="1" />
+                <field
+                    name="start_date"
+                    invisible="not is_start_date_required"
+                    required="is_start_date_required"
+                />
+                <field
+                    name="end_date"
+                    invisible="not is_end_date_required"
+                    required="is_end_date_required"
+                />
+            </field>
+        </field>
+    </record>
+
+    <record id="perf_obligation_tree_inherit_dates" model="ir.ui.view">
+        <field name="name">perf.obligation.list.inherit.dates</field>
+        <field name="model">perf.obligation</field>
+        <field name="inherit_id" ref="account_perf_obligation.perf_obligation_tree" />
+        <field name="arch" type="xml">
+            <field name="total_amount" position="after">
+                <field name="recognition_at_date_method" optional="hide" />
+                <field name="start_date" optional="show" />
+                <field name="end_date" optional="show" />
+            </field>
+        </field>
+    </record>
+</odoo>
