@@ -659,7 +659,7 @@ class TestRecognition(PerfObligationCommon):
         self._assert_bs(po, "2026-04-30", self.exp_debit_bs, 0, self.exp_credit_bs, 0)
 
     # =========================================================
-    # Recognition at date (base dispatch)
+    # Recognition at date (base)
     # =========================================================
 
     def test_no_recognition_method_raises(self):
@@ -675,3 +675,18 @@ class TestRecognition(PerfObligationCommon):
         returns False."""
         po = self._create_obligation(total_amount=1000.0)
         self.assertFalse(po._supports_recognition_at_date())
+
+    # =========================================================
+    # Forecast (base)
+    # =========================================================
+
+    def test_supports_forecast_false_by_default(self):
+        """Base obligation does not support forecast."""
+        po = self._create_obligation(total_amount=1000.0)
+        self.assertFalse(po._supports_forecast())
+
+    def test_forecast_without_support_raises(self):
+        """Forecast on base obligation raises ValidationError."""
+        po = self._create_obligation(total_amount=1000.0)
+        with self.assertRaises(ValidationError):
+            po.action_generate_forecast()

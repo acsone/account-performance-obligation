@@ -22,7 +22,15 @@
         <field name="model">perf.obligation</field>
         <field name="arch" type="xml">
             <form>
-                <header />
+                <header>
+                    <button
+                        name="action_generate_forecast"
+                        string="Generate Forecast Entries"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not recognition_at_date_method"
+                    />
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button

@@ -1,6 +1,10 @@
 # Copyright 2026 ACSONE SA/NV
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
+import calendar
+
+from dateutil.relativedelta import relativedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.tools import float_round
@@ -86,3 +90,59 @@ class PerfObligation(models.Model):
         amount = float_round(daily_amount * elapsed_days, precision_digits=precision)
         # Safety cap: never exceed total
         return min(amount, self.total_amount)
+
+    # ------------------------------------------------------------------
+    # Forecast
+    # ------------------------------------------------------------------
+
+    def _supports_forecast(self):
+        """Forecasting is supported when a recognition method is configured
+        and an end date is set."""
+        self.ensure_one()
+        return self._supports_recognition_at_date() and self.end_date
+
+    def _get_forecast_start_date(self):
+        """
+        Don't generate forecasts before the obligation period begins
+        """
+        self.ensure_one()
+        start = super()._get_forecast_start_date()
+        if self.start_date:
+            start = max(start, self.start_date)
+        return start
+
+    def _get_forecast_dates(self):
+        """Return last day of each month from forecast start to end_date.
+
+        Forecast starts after the later of today and the last posted
+        recognition entry. If end_date falls before month-end, it is
+        used as the last forecast date.
+        """
+        self.ensure_one()
+        if not self.end_date:
+            raise ValidationError(
+                _(
+                    "An end date is required to generate forecast entries "
+                    "on performance obligation %(name)s.",
+                    name=self.display_name,
+                )
+            )
+
+        forecast_start = self._get_forecast_start_date()
+
+        if forecast_start >= self.end_date:
+            return []
+
+        dates = []
+        current = forecast_start.replace(day=1)
+        while current <= self.end_date:
+            month_end = current.replace(
+                day=calendar.monthrange(current.year, current.month)[1]
+            )
+            # Skip month-ends that are on or before the forecast start
+            if month_end <= forecast_start:
+                current += relativedelta(months=1)
+                continue
+            dates.append(min(month_end, self.end_date))
+            current += relativedelta(months=1)
+        return dates

@@ -420,3 +420,115 @@ class PerfObligation(models.Model):
             "credit": credit,
             "perf_obligation_id": self.id,
         }
+
+    # ------------------------------------------------------------------
+    # Forecast generation
+    # ------------------------------------------------------------------
+
+    def _get_forecast_dates(self):
+        """Return the list of dates for which forecast recognition entries
+        should be generated.
+
+        Override this method to provide actual dates.
+        Must return a list of date objects, sorted ascending.
+        """
+        self.ensure_one()
+        raise NotImplementedError
+
+    def _supports_forecast(self):
+        """Return whether this obligation supports forecast generation.
+
+        Override in modules that provide date ranges.
+        """
+        self.ensure_one()
+        return False
+
+    def action_generate_forecast(self):
+        """Delete existing draft recognition moves and regenerate
+        forecast entries for each month-end in the obligation period."""
+        for po in self:
+            if not po._supports_forecast():
+                raise ValidationError(
+                    _(
+                        "Forecast generation is not supported "
+                        "on performance obligation %(name)s.",
+                        name=po.display_name,
+                    )
+                )
+            po._delete_draft_recognition_moves()
+            po._generate_forecast_moves()
+
+    def _get_last_posted_recognition_date(self):
+        """Return the date of the last posted recognition move for this
+        obligation, or None if there are no posted recognition moves."""
+        self.ensure_one()
+        config = self._get_recognition_config()
+        moves = self.env["account.move"].search(
+            [
+                ("journal_id", "=", config.journal.id),
+                ("state", "=", "posted"),
+                ("line_ids.perf_obligation_id", "=", self.id),
+            ],
+            order="date desc",
+            limit=1,
+        )
+        return moves.date if moves else None
+
+    def _get_forecast_start_date(self):
+        """Return the date from which forecast entries should start.
+
+        This is the latest of:
+        - today
+        - the last posted recognition entry date
+
+        This ensures we don't generate forecasts for periods already
+        covered by posted entries or that are in the past.
+        """
+        self.ensure_one()
+        today = fields.Date.context_today(self)
+        last_posted = self._get_last_posted_recognition_date()
+        start = today
+        if last_posted:
+            start = max(start, last_posted)
+        return start
+
+    def _get_draft_recognition_moves(self):
+        """Return draft recognition moves for this obligation."""
+        self.ensure_one()
+        config = self._get_recognition_config()
+        return self.env["account.move"].search(
+            [
+                ("journal_id", "=", config.journal.id),
+                ("state", "=", "draft"),
+                ("line_ids.perf_obligation_id", "=", self.id),
+            ]
+        )
+
+    def _delete_draft_recognition_moves(self):
+        """Delete all draft recognition journal entries linked to this
+        obligation."""
+        self.ensure_one()
+        draft_moves = self._get_draft_recognition_moves()
+        if draft_moves:
+            draft_moves.unlink()
+
+    def _generate_forecast_moves(self):
+        """Generate draft recognition entries for each forecast date."""
+        self.ensure_one()
+        dates = self._get_forecast_dates()
+        perf_type_label = dict(self._fields["perf_type"].selection).get(
+            self.perf_type, self.perf_type
+        )
+
+        for forecast_date in dates:
+            amount = self._compute_amount_to_recognize_at_date(forecast_date)
+            description = _(
+                "%(type)s recognition %(date)s",
+                type=perf_type_label,
+                date=forecast_date,
+            )
+            self._recognize(
+                amount_to_recognize=amount,
+                date=forecast_date,
+                description=description,
+            )
