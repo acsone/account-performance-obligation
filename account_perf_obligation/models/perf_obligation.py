@@ -25,6 +25,10 @@ class PerfObligation(models.Model):
         required=True,
         default=lambda self: self.env.company,
     )
+    currency_id = fields.Many2one(
+        comodel_name="res.currency",
+        related="company_id.currency_id",
+    )
     perf_type = fields.Selection(
         selection=[
             ("income", "Income"),
@@ -39,7 +43,7 @@ class PerfObligation(models.Model):
         readonly=True,
         string="Reference",
     )
-    total_amount = fields.Float(
+    total_amount = fields.Monetary(
         string="Total Amount to Recognize",
         required=True,
     )
