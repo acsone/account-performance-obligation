@@ -15,7 +15,9 @@ class TestStartEndDates(PerfObligationDatesCommon):
 
     def test_start_after_end_raises(self):
         """Start date after end date raises ValidationError."""
-        with self.assertRaises(ValidationError):
+        with self.assertRaisesRegex(
+            ValidationError, r"start date must be before or equal to"
+        ):
             self._create_obligation(
                 recognition_at_date_method="daily",
                 start_date=date(2026, 6, 1),
@@ -24,14 +26,18 @@ class TestStartEndDates(PerfObligationDatesCommon):
 
     def test_method_without_dates_raises(self):
         """Daily method without dates raises ValidationError."""
-        with self.assertRaises(ValidationError):
+        with self.assertRaisesRegex(
+            ValidationError, r"Start and end dates are required"
+        ):
             self._create_obligation(
                 recognition_at_date_method="daily",
             )
 
     def test_method_with_only_start_raises(self):
         """Daily method with only start date raises."""
-        with self.assertRaises(ValidationError):
+        with self.assertRaisesRegex(
+            ValidationError, r"Start and end dates are required"
+        ):
             self._create_obligation(
                 recognition_at_date_method="daily",
                 start_date=date(2026, 1, 1),
