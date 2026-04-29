@@ -452,19 +452,28 @@ class PerfObligation(models.Model):
         return False
 
     def action_generate_schedule(self):
-        """Delete existing draft recognition moves and regenerate
-        schedule entries."""
+        """UI action to regenerate recognition schedule entries."""
         for po in self:
-            if not po._supports_schedule():
-                raise ValidationError(
-                    _(
-                        "Schedule generation is not supported "
-                        "on performance obligation %(name)s.",
-                        name=po.display_name,
-                    )
+            po._regenerate_schedule()
+
+    def _regenerate_schedule(self):
+        """Delete existing draft recognition moves and regenerate
+        schedule entries.
+
+        Can be called programmatically. Raises if the obligation
+        does not support schedule generation.
+        """
+        self.ensure_one()
+        if not self._supports_schedule():
+            raise ValidationError(
+                _(
+                    "Schedule generation is not supported "
+                    "on performance obligation %(name)s.",
+                    name=self.display_name,
                 )
-            po._delete_draft_recognition_moves()
-            po._generate_schedule_moves()
+            )
+        self._delete_draft_recognition_moves()
+        self._generate_schedule_moves()
 
     def _get_last_posted_recognition_date(self):
         """Return the date of the last posted recognition move for this
