@@ -64,6 +64,14 @@ class PerfObligation(models.Model):
         readonly=True,
     )
     description = fields.Text()
+    supports_schedule = fields.Boolean(
+        compute="_compute_supports_schedule",
+    )
+
+    @api.depends("recognition_at_date_method")
+    def _compute_supports_schedule(self):
+        for rec in self:
+            rec.supports_schedule = rec._supports_schedule()
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -420,3 +428,106 @@ class PerfObligation(models.Model):
             "credit": credit,
             "perf_obligation_id": self.id,
         }
+
+    # ------------------------------------------------------------------
+    # Schedule generation
+    # ------------------------------------------------------------------
+
+    def _get_schedule_dates(self):
+        """Return the list of dates for which recognition schedule entries
+        should be generated.
+
+        Override this method to provide actual dates.
+        Must return a list of date objects, sorted ascending.
+        """
+        self.ensure_one()
+        raise NotImplementedError
+
+    def _supports_schedule(self):
+        """Return whether this obligation supports schedule generation.
+
+        Override in modules that provide date ranges.
+        """
+        self.ensure_one()
+        return False
+
+    def action_generate_schedule(self):
+        """UI action to regenerate recognition schedule entries."""
+        for po in self:
+            po._regenerate_schedule()
+
+    def _regenerate_schedule(self):
+        """Delete existing draft recognition moves and regenerate
+        schedule entries.
+
+        Can be called programmatically. Raises if the obligation
+        does not support schedule generation.
+        """
+        self.ensure_one()
+        if not self._supports_schedule():
+            raise ValidationError(
+                _(
+                    "Schedule generation is not supported "
+                    "on performance obligation %(name)s.",
+                    name=self.display_name,
+                )
+            )
+        self._delete_draft_recognition_moves()
+        self._generate_schedule_moves()
+
+    def _get_last_posted_recognition_date(self):
+        """Return the date of the last posted recognition move for this
+        obligation, or None if there are no posted recognition moves."""
+        self.ensure_one()
+        config = self._get_recognition_config()
+        moves = self.env["account.move"].search(
+            [
+                ("journal_id", "=", config.journal.id),
+                ("state", "=", "posted"),
+                ("line_ids.perf_obligation_id", "=", self.id),
+            ],
+            order="date desc",
+            limit=1,
+        )
+        return moves.date if moves else None
+
+    def _get_draft_recognition_moves(self):
+        """Return draft recognition moves for this obligation."""
+        self.ensure_one()
+        config = self._get_recognition_config()
+        return self.env["account.move"].search(
+            [
+                ("journal_id", "=", config.journal.id),
+                ("state", "=", "draft"),
+                ("line_ids.perf_obligation_id", "=", self.id),
+            ]
+        )
+
+    def _delete_draft_recognition_moves(self):
+        """Delete all draft recognition journal entries linked to this
+        obligation."""
+        self.ensure_one()
+        draft_moves = self._get_draft_recognition_moves()
+        if draft_moves:
+            draft_moves.unlink()
+
+    def _generate_schedule_moves(self):
+        """Generate draft recognition entries for each schedule date."""
+        self.ensure_one()
+        dates = self._get_schedule_dates()
+        perf_type_label = dict(self._fields["perf_type"].selection).get(
+            self.perf_type, self.perf_type
+        )
+
+        for schedule_date in dates:
+            amount = self._compute_amount_to_recognize_at_date(schedule_date)
+            description = _(
+                "%(type)s recognition %(date)s",
+                type=perf_type_label,
+                date=schedule_date,
+            )
+            self._recognize(
+                amount_to_recognize=amount,
+                date=schedule_date,
+                description=description,
+            )

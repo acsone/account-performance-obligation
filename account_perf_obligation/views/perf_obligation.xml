@@ -22,7 +22,15 @@
         <field name="model">perf.obligation</field>
         <field name="arch" type="xml">
             <form>
-                <header />
+                <header>
+                    <button
+                        name="action_generate_schedule"
+                        string="Generate Schedule Entries"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not supports_schedule"
+                    />
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button

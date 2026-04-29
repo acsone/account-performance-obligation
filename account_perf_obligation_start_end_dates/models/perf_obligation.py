@@ -1,6 +1,10 @@
 # Copyright 2026 ACSONE SA/NV
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
+import calendar
+
+from dateutil.relativedelta import relativedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.tools import float_round
@@ -86,3 +90,73 @@ class PerfObligation(models.Model):
         amount = float_round(daily_amount * elapsed_days, precision_digits=precision)
         # Safety cap: never exceed total
         return min(amount, self.total_amount)
+
+    # ------------------------------------------------------------------
+    # Schedule
+    # ------------------------------------------------------------------
+
+    @api.depends("recognition_at_date_method", "start_date", "end_date")
+    def _compute_supports_schedule(self):
+        for rec in self:
+            rec.supports_schedule = rec._supports_schedule()
+
+    def _supports_schedule(self):
+        """Scheduling is supported when a recognition method is configured
+        and both start and end dates are set."""
+        self.ensure_one()
+        return (
+            self._supports_recognition_at_date() and self.start_date and self.end_date
+        )
+
+    def _get_schedule_start_date(self):
+        """Return the date from which schedule entries should start.
+
+        This is the latest of:
+        - the obligation's start date
+        - the last posted recognition entry date
+
+        This ensures we don't generate schedules before the obligation
+        period begins or for periods already covered by posted entries.
+        """
+        self.ensure_one()
+        start = self.start_date
+        last_posted = self._get_last_posted_recognition_date()
+        if last_posted:
+            start = max(start, last_posted)
+        return start
+
+    def _get_schedule_dates(self):
+        """Return last day of each month from schedule start to end_date.
+
+        Schedule starts from the obligation's start date, or after the
+        last posted recognition entry if one exists. If end_date falls
+        before month-end, it is used as the last schedule date.
+        """
+        self.ensure_one()
+        if not self.end_date:
+            raise ValidationError(
+                _(
+                    "An end date is required to generate schedule entries "
+                    "on performance obligation %(name)s.",
+                    name=self.display_name,
+                )
+            )
+
+        schedule_start = self._get_schedule_start_date()
+
+        if schedule_start >= self.end_date:
+            return []
+
+        dates = []
+        current = schedule_start.replace(day=1)
+        while current <= self.end_date:
+            month_end = current.replace(
+                day=calendar.monthrange(current.year, current.month)[1]
+            )
+            # Skip month-ends that are on or before the schedule start
+            if month_end <= schedule_start:
+                current += relativedelta(months=1)
+                continue
+            dates.append(min(month_end, self.end_date))
+            current += relativedelta(months=1)
+        return dates

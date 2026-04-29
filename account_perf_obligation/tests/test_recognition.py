@@ -64,13 +64,13 @@ class TestRecognition(PerfObligationCommon):
     def test_amount_exceeds_total_raises(self):
         po = self._create_obligation(perf_type="income", total_amount=1000)
         wizard = self._create_wizard(po, 1500)
-        with self.assertRaises(ValidationError):
+        with self.assertRaisesRegex(ValidationError, r"cannot exceed"):
             wizard.action_confirm()
 
     def test_negative_amount_raises(self):
         po = self._create_obligation(perf_type="income", total_amount=1000)
         wizard = self._create_wizard(po, -100)
-        with self.assertRaises(ValidationError):
+        with self.assertRaisesRegex(ValidationError, r"cannot be negative"):
             wizard.action_confirm()
 
     def test_no_adjustment_needed_raises(self):
@@ -83,7 +83,7 @@ class TestRecognition(PerfObligationCommon):
             ],
         )
         wizard = self._create_wizard(po, 1000)
-        with self.assertRaises(UserError):
+        with self.assertRaisesRegex(UserError, r"No adjustment is needed"):
             wizard.action_confirm()
 
     def test_missing_config_raises(self):
@@ -91,7 +91,9 @@ class TestRecognition(PerfObligationCommon):
         self.company.po_income_journal_id = False
         po = self._create_obligation(perf_type="income", total_amount=100)
         wizard = self._create_wizard(po, 50)
-        with self.assertRaises(ValidationError):
+        with self.assertRaisesRegex(
+            ValidationError, r"Missing performance obligation configuration"
+        ):
             wizard.action_confirm()
 
     def test_recognize_same_amount_twice_raises(self):
@@ -100,7 +102,7 @@ class TestRecognition(PerfObligationCommon):
         w1 = self._create_wizard(po, 500, date="2026-01-31", description="Jan")
         w1.action_confirm()
         w2 = self._create_wizard(po, 500, date="2026-02-28", description="Feb")
-        with self.assertRaises(UserError):
+        with self.assertRaisesRegex(UserError, r"No adjustment is needed"):
             w2.action_confirm()
 
     # =========================================================
@@ -659,7 +661,7 @@ class TestRecognition(PerfObligationCommon):
         self._assert_bs(po, "2026-04-30", self.exp_debit_bs, 0, self.exp_credit_bs, 0)
 
     # =========================================================
-    # Recognition at date (base dispatch)
+    # Recognition at date (base)
     # =========================================================
 
     def test_no_recognition_method_raises(self):
@@ -667,7 +669,9 @@ class TestRecognition(PerfObligationCommon):
         raises ValidationError."""
         po = self._create_obligation(total_amount=1000.0)
         self.assertFalse(po.recognition_at_date_method)
-        with self.assertRaises(ValidationError):
+        with self.assertRaisesRegex(
+            ValidationError, r"No recognition at date method configured"
+        ):
             po._compute_amount_to_recognize_at_date(fields.Date.today())
 
     def test_supports_recognition_at_date_false_by_default(self):
@@ -675,3 +679,21 @@ class TestRecognition(PerfObligationCommon):
         returns False."""
         po = self._create_obligation(total_amount=1000.0)
         self.assertFalse(po._supports_recognition_at_date())
+
+    # =========================================================
+    # Schedule (base)
+    # =========================================================
+
+    def test_supports_schedule_false_by_default(self):
+        """Base obligation does not support schedule."""
+        po = self._create_obligation(total_amount=1000.0)
+        self.assertFalse(po._supports_schedule())
+        self.assertFalse(po.supports_schedule)
+
+    def test_schedule_without_support_raises(self):
+        """Schedule on base obligation raises ValidationError."""
+        po = self._create_obligation(total_amount=1000.0)
+        with self.assertRaisesRegex(
+            ValidationError, r"Schedule generation is not supported"
+        ):
+            po.action_generate_schedule()
