@@ -85,7 +85,7 @@ class PerfObligationScheduleExpense(models.Model):
                         CASE WHEN aa.account_type LIKE 'expense%%'
                         THEN aml.balance ELSE 0 END
                     )
-                    - SUM(
+                    + SUM(
                         CASE WHEN aa.account_type IN (
                             'asset_current', 'liability_current'
                         )
@@ -120,7 +120,7 @@ class PerfObligationScheduleExpense(models.Model):
                         PARTITION BY aml.perf_obligation_id
                         ORDER BY aml.date, aml.move_id
                     )
-                    - SUM(SUM(
+                    + SUM(SUM(
                         CASE WHEN aa.account_type IN (
                             'asset_current', 'liability_current'
                         )
