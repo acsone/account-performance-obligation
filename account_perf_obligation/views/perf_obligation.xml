@@ -126,9 +126,9 @@
                                         decoration-success="state == 'posted'"
                                     />
                                     <field name="currency_id" column_invisible="1" />
-                                    <field name="invoiced_amount" />
+                                    <field name="billed_amount" />
                                     <field name="deferred_accrued_amount" />
-                                    <field name="total_invoiced_amount" />
+                                    <field name="total_billed_amount" />
                                     <field name="total_recognized_amount" />
                                     <field name="recognized_amount" optional="hide" />
                                     <field

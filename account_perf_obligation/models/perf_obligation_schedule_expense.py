@@ -33,8 +33,8 @@ class PerfObligationScheduleExpense(models.Model):
         readonly=True,
         currency_field="currency_id",
     )
-    invoiced_amount = fields.Monetary(
-        string="Invoiced",
+    billed_amount = fields.Monetary(
+        string="Billed",
         readonly=True,
         currency_field="currency_id",
     )
@@ -53,8 +53,8 @@ class PerfObligationScheduleExpense(models.Model):
         readonly=True,
         currency_field="currency_id",
     )
-    total_invoiced_amount = fields.Monetary(
-        string="Total Invoiced",
+    total_billed_amount = fields.Monetary(
+        string="Total Billed",
         readonly=True,
         currency_field="currency_id",
     )
@@ -90,7 +90,7 @@ class PerfObligationScheduleExpense(models.Model):
                             'asset_current', 'liability_current'
                         )
                         THEN aml.balance ELSE 0 END
-                    ) AS invoiced_amount,
+                    ) AS billed_amount,
                     SUM(
                         CASE WHEN aa.account_type IN (
                             'asset_current', 'liability_current'
@@ -128,7 +128,7 @@ class PerfObligationScheduleExpense(models.Model):
                     )) OVER (
                         PARTITION BY aml.perf_obligation_id
                         ORDER BY aml.date, aml.move_id
-                    ) AS total_invoiced_amount
+                    ) AS total_billed_amount
                 FROM account_move_line aml
                 JOIN account_account aa ON aa.id = aml.account_id
                 JOIN perf_obligation po ON po.id = aml.perf_obligation_id
