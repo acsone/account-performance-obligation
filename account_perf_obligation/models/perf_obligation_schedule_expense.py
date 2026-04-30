@@ -39,7 +39,7 @@ class PerfObligationScheduleExpense(models.Model):
         currency_field="currency_id",
     )
     deferred_accrued_amount = fields.Monetary(
-        string="Deferred (+) / Accrued (-)",
+        string="Deferred (-) / Accrued (+)",
         readonly=True,
         currency_field="currency_id",
     )
@@ -49,7 +49,7 @@ class PerfObligationScheduleExpense(models.Model):
         currency_field="currency_id",
     )
     total_deferred_accrued_amount = fields.Monetary(
-        string="Total Deferred (+) / Accrued (-)",
+        string="Total Deferred (-) / Accrued (+)",
         readonly=True,
         currency_field="currency_id",
     )
@@ -91,7 +91,7 @@ class PerfObligationScheduleExpense(models.Model):
                         )
                         THEN aml.balance ELSE 0 END
                     ) AS billed_amount,
-                    SUM(
+                    -SUM(
                         CASE WHEN aa.account_type IN (
                             'asset_current', 'liability_current'
                         )
@@ -104,7 +104,7 @@ class PerfObligationScheduleExpense(models.Model):
                         PARTITION BY aml.perf_obligation_id
                         ORDER BY aml.date, aml.move_id
                     ) AS total_recognized_amount,
-                    SUM(SUM(
+                    -SUM(SUM(
                         CASE WHEN aa.account_type IN (
                             'asset_current', 'liability_current'
                         )

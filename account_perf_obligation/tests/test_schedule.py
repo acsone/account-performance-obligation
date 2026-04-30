@@ -6,9 +6,9 @@ from .common import PerfObligationCommon
 
 
 class TestSchedule(PerfObligationCommon):
-    def test_expense_schedule_without_bill_has_zero_invoiced_amount(self):
+    def test_expense_schedule_without_bill_has_zero_billed_amount(self):
         """Recognizing expense before receiving the bill creates an accrual,
-        but the invoiced/billed amount must remain zero.
+        but the billed amount must remain zero.
         """
         po = self._create_obligation(perf_type="expense", total_amount=1000)
 
@@ -35,10 +35,10 @@ class TestSchedule(PerfObligationCommon):
         self.assertTrue(schedule_line)
 
         self.assertAlmostEqual(schedule_line.recognized_amount, 100)
-        self.assertAlmostEqual(schedule_line.deferred_accrued_amount, -100)
+        self.assertAlmostEqual(schedule_line.deferred_accrued_amount, 100)
 
-        # No vendor bill exists yet, so invoiced/billed must be zero.
-        self.assertAlmostEqual(schedule_line.invoiced_amount, 0)
-        self.assertAlmostEqual(schedule_line.total_invoiced_amount, 0)
+        # No vendor bill exists yet, so billed must be zero.
+        self.assertAlmostEqual(schedule_line.billed_amount, 0)
+        self.assertAlmostEqual(schedule_line.total_billed_amount, 0)
         self.assertAlmostEqual(schedule_line.total_recognized_amount, 100)
-        self.assertAlmostEqual(schedule_line.total_deferred_accrued_amount, -100)
+        self.assertAlmostEqual(schedule_line.total_deferred_accrued_amount, 100)
