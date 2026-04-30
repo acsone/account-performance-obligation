@@ -12,14 +12,13 @@
                 <field name="is_end_date_required" invisible="1" />
                 <field
                     name="start_date"
-                    invisible="not is_start_date_required"
+                    string="Recognition Period"
+                    widget="daterange"
+                    options="{'end_date_field': 'end_date'}"
+                    invisible="not is_start_date_required and not is_end_date_required"
                     required="is_start_date_required"
                 />
-                <field
-                    name="end_date"
-                    invisible="not is_end_date_required"
-                    required="is_end_date_required"
-                />
+                <field name="end_date" invisible="1" required="is_end_date_required" />
             </field>
         </field>
     </record>

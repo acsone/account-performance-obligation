@@ -39,7 +39,7 @@ class PerfObligationScheduleExpense(models.Model):
         currency_field="currency_id",
     )
     deferred_accrued_amount = fields.Monetary(
-        string="Deferred / Accrued",
+        string="Deferred (+) / Accrued (-)",
         readonly=True,
         currency_field="currency_id",
     )
@@ -49,7 +49,7 @@ class PerfObligationScheduleExpense(models.Model):
         currency_field="currency_id",
     )
     total_deferred_accrued_amount = fields.Monetary(
-        string="Total Deferred / Accrued",
+        string="Total Deferred (+) / Accrued (-)",
         readonly=True,
         currency_field="currency_id",
     )

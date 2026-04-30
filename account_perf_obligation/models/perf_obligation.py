@@ -19,11 +19,13 @@ class RecognitionConfig:
 class PerfObligation(models.Model):
     _name = "perf.obligation"
     _description = "Performance Obligation"
+    _inherit = ["mail.thread"]
 
     company_id = fields.Many2one(
         comodel_name="res.company",
         required=True,
         default=lambda self: self.env.company,
+        tracking=True,
     )
     currency_id = fields.Many2one(
         comodel_name="res.currency",
@@ -36,21 +38,25 @@ class PerfObligation(models.Model):
         ],
         string="Type",
         required=True,
+        tracking=True,
     )
     name = fields.Char(
         copy=False,
         default="/",
         readonly=True,
         string="Reference",
+        tracking=True,
     )
     total_amount = fields.Monetary(
         string="Total Amount to Recognize",
         required=True,
+        tracking=True,
     )
     recognition_at_date_method = fields.Selection(
         selection=[],
         help="Method used to compute the amount to recognize at a given date. "
         "Leave empty for manual recognition only.",
+        tracking=True,
     )
     move_line_ids = fields.One2many(
         comodel_name="account.move.line",
@@ -63,9 +69,12 @@ class PerfObligation(models.Model):
         string="Journal Items Count",
         readonly=True,
     )
-    description = fields.Text()
+    description = fields.Text(
+        tracking=True,
+    )
     supports_schedule = fields.Boolean(
         compute="_compute_supports_schedule",
+        readonly=True,
     )
     schedule_income_line_ids = fields.One2many(
         comodel_name="perf.obligation.schedule.income",
