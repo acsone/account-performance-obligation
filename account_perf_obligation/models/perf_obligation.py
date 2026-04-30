@@ -67,6 +67,18 @@ class PerfObligation(models.Model):
     supports_schedule = fields.Boolean(
         compute="_compute_supports_schedule",
     )
+    schedule_income_line_ids = fields.One2many(
+        comodel_name="perf.obligation.schedule.income",
+        inverse_name="perf_obligation_id",
+        string="Income Recognition Schedule",
+        readonly=True,
+    )
+    schedule_expense_line_ids = fields.One2many(
+        comodel_name="perf.obligation.schedule.expense",
+        inverse_name="perf_obligation_id",
+        string="Expense Recognition Schedule",
+        readonly=True,
+    )
 
     @api.depends("recognition_at_date_method")
     def _compute_supports_schedule(self):

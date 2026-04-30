@@ -65,6 +65,62 @@
                             <field name="description" />
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Recognition Schedule" name="schedule">
+                            <field
+                                name="schedule_income_line_ids"
+                                invisible="perf_type != 'income'"
+                                nolabel="1"
+                            >
+                                <list create="false" edit="false" delete="false">
+                                    <field name="date" />
+                                    <field name="move_id" />
+                                    <field
+                                        name="state"
+                                        widget="badge"
+                                        decoration-info="state == 'draft'"
+                                        decoration-success="state == 'posted'"
+                                    />
+                                    <field name="currency_id" column_invisible="1" />
+                                    <field name="invoiced_amount" />
+                                    <field name="deferred_accrued_amount" />
+                                    <field name="total_invoiced_amount" />
+                                    <field name="total_recognized_amount" />
+                                    <field name="recognized_amount" optional="hide" />
+                                    <field
+                                        name="total_deferred_accrued_amount"
+                                        optional="hide"
+                                    />
+                                </list>
+                            </field>
+                            <field
+                                name="schedule_expense_line_ids"
+                                invisible="perf_type != 'expense'"
+                                nolabel="1"
+                            >
+                                <list create="false" edit="false" delete="false">
+                                    <field name="date" />
+                                    <field name="move_id" />
+                                    <field
+                                        name="state"
+                                        widget="badge"
+                                        decoration-info="state == 'draft'"
+                                        decoration-success="state == 'posted'"
+                                    />
+                                    <field name="currency_id" column_invisible="1" />
+                                    <field name="invoiced_amount" />
+                                    <field name="deferred_accrued_amount" />
+                                    <field name="total_invoiced_amount" />
+                                    <field name="total_recognized_amount" />
+                                    <field name="recognized_amount" optional="hide" />
+                                    <field
+                                        name="total_deferred_accrued_amount"
+                                        optional="hide"
+                                    />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
