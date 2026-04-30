@@ -25,6 +25,7 @@
                                 <field
                                     name="po_income_journal_id"
                                     domain="[('type', '=', 'general'), ('active', '=', True)]"
+                                    context="{'default_type': 'general'}"
                                 />
                             </div>
                             <div class="row">
@@ -36,6 +37,7 @@
                                 <field
                                     name="po_income_credit_bs_account_id"
                                     domain="[('account_type', '=', 'liability_current'), ('deprecated', '=', False)]"
+                                    context="{'default_account_type': 'liability_current'}"
                                 />
                             </div>
                             <div class="row">
@@ -47,6 +49,7 @@
                                 <field
                                     name="po_income_debit_bs_account_id"
                                     domain="[('account_type', '=', 'asset_current'), ('deprecated', '=', False)]"
+                                    context="{'default_account_type': 'asset_current'}"
                                 />
                             </div>
                             <div class="row">
@@ -57,7 +60,7 @@
                                 />
                                 <field
                                     name="po_income_pl_account_id"
-                                    domain="[('internal_group', 'in', ('expense', 'income')), ('deprecated', '=', False)]"
+                                    domain="[('internal_group', '=', 'income'), ('deprecated', '=', False)]"
                                 />
                             </div>
                         </div>
@@ -76,6 +79,7 @@
                                 <field
                                     name="po_expense_journal_id"
                                     domain="[('type', '=', 'general'), ('active', '=', True)]"
+                                    context="{'default_type': 'general'}"
                                 />
                             </div>
                             <div class="row">
@@ -87,6 +91,7 @@
                                 <field
                                     name="po_expense_debit_bs_account_id"
                                     domain="[('account_type', '=', 'asset_current'), ('deprecated', '=', False)]"
+                                    context="{'default_account_type': 'asset_current'}"
                                 />
                             </div>
                             <div class="row">
@@ -98,6 +103,7 @@
                                 <field
                                     name="po_expense_credit_bs_account_id"
                                     domain="[('account_type', '=', 'liability_current'), ('deprecated', '=', False)]"
+                                    context="{'default_account_type': 'liability_current'}"
                                 />
                             </div>
                             <div class="row">
@@ -108,7 +114,7 @@
                                 />
                                 <field
                                     name="po_expense_pl_account_id"
-                                    domain="[('internal_group', 'in', ('expense', 'income')), ('deprecated', '=', False)]"
+                                    domain="[('internal_group', '=', 'expense'), ('deprecated', '=', False)]"
                                 />
                             </div>
                         </div>
