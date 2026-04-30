@@ -88,6 +88,14 @@ class PerfObligation(models.Model):
         string="Expense Recognition Schedule",
         readonly=True,
     )
+    schedule_needs_regeneration = fields.Boolean(
+        default=False,
+        index=True,
+        copy=False,
+        help="Set to True when the obligation's schedule may be "
+        "out of date and needs to be regenerated. Cleared when "
+        "regeneration completes.",
+    )
 
     @api.depends("recognition_at_date_method")
     def _compute_supports_schedule(self):
@@ -99,7 +107,9 @@ class PerfObligation(models.Model):
         for vals in vals_list:
             if "name" not in vals or vals["name"] == "/":
                 vals["name"] = self.env["ir.sequence"].next_by_code("perf.obligation")
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._mark_for_regeneration()
+        return records
 
     def _compute_move_line_count(self):
         if not self.ids:
@@ -493,8 +503,10 @@ class PerfObligation(models.Model):
                     name=self.display_name,
                 )
             )
+        self = self.with_context(perf_obligation_in_regeneration=True)
         self._delete_draft_recognition_moves()
         self._generate_schedule_moves()
+        self.write({"schedule_needs_regeneration": False})
 
     def _get_last_posted_recognition_date(self):
         """Return the date of the last posted recognition move for this
@@ -567,3 +579,54 @@ class PerfObligation(models.Model):
             aggregates=["date:min", "date:max"],
         )
         return min_date, max_date
+
+    @api.model
+    def _get_schedule_regenerate_trigger_fields(self):
+        """Return the list of fields whose modification should trigger
+        schedule regeneration.
+
+        Override this method in modules that add fields impacting
+        the schedule (e.g. start_date, end_date).
+        """
+        return ["total_amount", "recognition_at_date_method"]
+
+    def write(self, vals):
+        res = super().write(vals)
+        trigger_fields = self._get_schedule_regenerate_trigger_fields()
+        if any(field in vals for field in trigger_fields):
+            self._mark_for_regeneration()
+        return res
+
+    def _mark_for_regeneration(self):
+        """Flag obligations as needing schedule regeneration.
+
+        No-op if:
+        - the obligation does not support schedule generation, OR
+        - we are currently inside a regeneration (context flag set).
+
+        The flag is consumed by `_process_pending_regenerations()`,
+        either manually via the list action or automatically by an
+        extension module (e.g. account_perf_obligation_auto_schedule).
+        """
+        if self.env.context.get("perf_obligation_in_regeneration"):
+            return
+        to_mark = self.filtered(lambda po: po._supports_schedule())
+        if to_mark:
+            to_mark.with_context(perf_obligation_in_regeneration=True).write(
+                {"schedule_needs_regeneration": True}
+            )
+
+    def _process_pending_regenerations(self):
+        for po in self:
+            if not po.schedule_needs_regeneration:
+                continue
+            if not po._supports_schedule():
+                po.with_context(perf_obligation_in_regeneration=True).write(
+                    {"schedule_needs_regeneration": False}
+                )
+                continue
+            po._regenerate_schedule()
+
+    def action_process_pending_regenerations(self):
+        """List-view action: regenerate flagged obligations."""
+        self._process_pending_regenerations()

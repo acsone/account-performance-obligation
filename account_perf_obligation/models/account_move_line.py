@@ -38,3 +38,27 @@ class AccountMoveLine(models.Model):
                     account=account.display_name,
                 )
             )
+
+    def _get_perf_obligations_to_mark(self):
+        if self.env.context.get("perf_obligation_in_regeneration"):
+            return self.env["perf.obligation"]
+        return self.perf_obligation_id
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        lines = super().create(vals_list)
+        lines._get_perf_obligations_to_mark()._mark_for_regeneration()
+        return lines
+
+    def write(self, vals):
+        before = self._get_perf_obligations_to_mark()
+        res = super().write(vals)
+        after = self._get_perf_obligations_to_mark()
+        (before | after)._mark_for_regeneration()
+        return res
+
+    def unlink(self):
+        obligations = self._get_perf_obligations_to_mark()
+        res = super().unlink()
+        obligations.exists()._mark_for_regeneration()
+        return res

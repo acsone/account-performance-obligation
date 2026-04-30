@@ -161,6 +161,12 @@
                     string="Expense"
                     domain="[('perf_type', '=', 'expense')]"
                 />
+                <separator />
+                <filter
+                    name="needs_regeneration"
+                    string="Needs Regeneration"
+                    domain="[('schedule_needs_regeneration', '=', True)]"
+                />
                 <group expand="0" string="Group By">
                     <filter
                         name="group_by_type"
@@ -169,6 +175,17 @@
                     />
                 </group>
             </search>
+        </field>
+    </record>
+
+    <record id="action_process_pending_regenerations_server" model="ir.actions.server">
+        <field name="name">Process Pending Regenerations</field>
+        <field name="model_id" ref="model_perf_obligation" />
+        <field name="binding_model_id" ref="model_perf_obligation" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            records.action_process_pending_regenerations()
         </field>
     </record>
 
