@@ -33,13 +33,13 @@ class PerfObligationScheduleExpense(models.Model):
         readonly=True,
         currency_field="currency_id",
     )
-    invoiced_amount = fields.Monetary(
-        string="Invoiced",
+    billed_amount = fields.Monetary(
+        string="Billed",
         readonly=True,
         currency_field="currency_id",
     )
     deferred_accrued_amount = fields.Monetary(
-        string="Deferred / Accrued",
+        string="Deferred (-) / Accrued (+)",
         readonly=True,
         currency_field="currency_id",
     )
@@ -49,12 +49,12 @@ class PerfObligationScheduleExpense(models.Model):
         currency_field="currency_id",
     )
     total_deferred_accrued_amount = fields.Monetary(
-        string="Total Deferred / Accrued",
+        string="Total Deferred (-) / Accrued (+)",
         readonly=True,
         currency_field="currency_id",
     )
-    total_invoiced_amount = fields.Monetary(
-        string="Total Invoiced",
+    total_billed_amount = fields.Monetary(
+        string="Total Billed",
         readonly=True,
         currency_field="currency_id",
     )
@@ -85,13 +85,13 @@ class PerfObligationScheduleExpense(models.Model):
                         CASE WHEN aa.account_type LIKE 'expense%%'
                         THEN aml.balance ELSE 0 END
                     )
-                    - SUM(
+                    + SUM(
                         CASE WHEN aa.account_type IN (
                             'asset_current', 'liability_current'
                         )
                         THEN aml.balance ELSE 0 END
-                    ) AS invoiced_amount,
-                    SUM(
+                    ) AS billed_amount,
+                    -SUM(
                         CASE WHEN aa.account_type IN (
                             'asset_current', 'liability_current'
                         )
@@ -104,7 +104,7 @@ class PerfObligationScheduleExpense(models.Model):
                         PARTITION BY aml.perf_obligation_id
                         ORDER BY aml.date, aml.move_id
                     ) AS total_recognized_amount,
-                    SUM(SUM(
+                    -SUM(SUM(
                         CASE WHEN aa.account_type IN (
                             'asset_current', 'liability_current'
                         )
@@ -120,7 +120,7 @@ class PerfObligationScheduleExpense(models.Model):
                         PARTITION BY aml.perf_obligation_id
                         ORDER BY aml.date, aml.move_id
                     )
-                    - SUM(SUM(
+                    + SUM(SUM(
                         CASE WHEN aa.account_type IN (
                             'asset_current', 'liability_current'
                         )
@@ -128,7 +128,7 @@ class PerfObligationScheduleExpense(models.Model):
                     )) OVER (
                         PARTITION BY aml.perf_obligation_id
                         ORDER BY aml.date, aml.move_id
-                    ) AS total_invoiced_amount
+                    ) AS total_billed_amount
                 FROM account_move_line aml
                 JOIN account_account aa ON aa.id = aml.account_id
                 JOIN perf_obligation po ON po.id = aml.perf_obligation_id
