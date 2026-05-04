@@ -164,7 +164,7 @@ class TestSchedule(PerfObligationDatesCommon):
         with self._mock_today(date(2026, 1, 31)):
             move.action_post()
 
-        # schedule_start = max(Jan 1, Jan 31) = Jan 31
+        # schedule_start = last_posted = Jan 31 (no max with start_date now)
         # -> skip Jan month-end (== schedule_start)
         dates = po._get_schedule_dates()
         self.assertEqual(
@@ -368,4 +368,114 @@ class TestSchedule(PerfObligationDatesCommon):
         self.assertEqual(
             draft_dates,
             [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 31)],
+        )
+
+    def test_schedule_dates_with_invoice_before_start(self):
+        """Schedule starts at min(first move date, start_date) when no
+        posted recognition exists.
+
+        An invoice posted before start_date should extend the schedule
+        backwards so that the early period gets a recognition entry too.
+        """
+        po = self._create_obligation(
+            perf_type="income",
+            total_amount=900.0,
+            recognition_at_date_method="daily",
+            start_date=date(2026, 2, 1),
+            end_date=date(2026, 4, 30),
+        )
+        # Invoice posted in January, before start_date
+        self._create_and_post_move(
+            self.sale_journal,
+            [
+                (self.receivable_account, 900, 0, False),
+                (self.income_account, 0, 900, po),
+            ],
+            date="2026-01-15",
+        )
+        dates = po._get_schedule_dates()
+        # schedule_start = min(Jan 15, Feb 1) = Jan 15
+        # -> Jan month-end is included
+        self.assertEqual(
+            dates,
+            [
+                date(2026, 1, 31),
+                date(2026, 2, 28),
+                date(2026, 3, 31),
+                date(2026, 4, 30),
+            ],
+        )
+
+    def test_schedule_dates_with_invoice_after_end(self):
+        """Schedule ends at max(last move date, end_date).
+
+        An invoice posted after end_date should extend the schedule
+        forward so that the late period gets a recognition entry too.
+        """
+        po = self._create_obligation(
+            perf_type="income",
+            total_amount=900.0,
+            recognition_at_date_method="daily",
+            start_date=date(2026, 1, 1),
+            end_date=date(2026, 2, 28),
+        )
+        # Invoice posted in March, after end_date
+        self._create_and_post_move(
+            self.sale_journal,
+            [
+                (self.receivable_account, 900, 0, False),
+                (self.income_account, 0, 900, po),
+            ],
+            date="2026-03-15",
+        )
+        dates = po._get_schedule_dates()
+        # schedule_end = max(Mar 15, Feb 28) = Mar 15
+        self.assertEqual(
+            dates,
+            [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 15)],
+        )
+
+    def test_schedule_dates_posted_reco_takes_precedence_over_early_invoice(
+        self,
+    ):
+        """When a posted recognition exists, schedule_start uses it
+        directly and ignores any earlier movement.
+
+        This avoids regenerating drafts for periods already covered
+        by posted entries, even if there are movements before start_date.
+        """
+        po = self._create_obligation(
+            perf_type="income",
+            total_amount=900.0,
+            recognition_at_date_method="daily",
+            start_date=date(2026, 2, 1),
+            end_date=date(2026, 4, 30),
+        )
+        # Invoice before start_date
+        self._create_and_post_move(
+            self.sale_journal,
+            [
+                (self.receivable_account, 900, 0, False),
+                (self.income_account, 0, 900, po),
+            ],
+            date="2026-01-15",
+        )
+        # Posted reco for Feb 28
+        wizard = self._create_wizard(
+            po,
+            amount=po._compute_amount_to_recognize_at_date(date(2026, 2, 28)),
+            date="2026-02-28",
+            description="Feb reco",
+        )
+        result = wizard.action_confirm()
+        move = self.env["account.move"].browse(result["res_id"])
+        with self._mock_today(date(2026, 2, 28)):
+            move.action_post()
+
+        dates = po._get_schedule_dates()
+        # schedule_start = last_posted = Feb 28 (NOT Jan 15)
+        # -> Jan month-end NOT included, Feb 28 skipped (== start)
+        self.assertEqual(
+            dates,
+            [date(2026, 3, 31), date(2026, 4, 30)],
         )

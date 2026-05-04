@@ -108,29 +108,46 @@ class PerfObligation(models.Model):
             self._supports_recognition_at_date() and self.start_date and self.end_date
         )
 
-    def _get_schedule_start_date(self):
+    def _get_schedule_start_date(self, min_move_date=None):
         """Return the date from which schedule entries should start.
 
-        This is the latest of:
-        - the obligation's start date
-        - the last posted recognition entry date
+        - If a posted recognition entry exists, start right after it.
+        - Otherwise, start at min(first move line date, start_date) so that
+          schedule covers any movement posted before the obligation period.
 
-        This ensures we don't generate schedules before the obligation
-        period begins or for periods already covered by posted entries.
+        :param min_move_date: optional pre-computed min date of move lines
+            linked to this obligation.
         """
         self.ensure_one()
-        start = self.start_date
         last_posted = self._get_last_posted_recognition_date()
         if last_posted:
-            start = max(start, last_posted)
-        return start
+            return last_posted
+        if min_move_date:
+            return min(min_move_date, self.start_date)
+        return self.start_date
+
+    def _get_schedule_end_date(self, max_move_date=None):
+        """Return the date until which schedule entries should be generated.
+
+        Takes max(last move line date, end_date) so that schedule covers any
+        movement posted after the obligation period.
+
+        :param max_move_date: optional pre-computed max date of move lines
+            linked to this obligation.
+        """
+        self.ensure_one()
+        if max_move_date:
+            return max(max_move_date, self.end_date)
+        return self.end_date
 
     def _get_schedule_dates(self):
-        """Return last day of each month from schedule start to end_date.
+        """Return last day of each month from schedule start to schedule end.
 
-        Schedule starts from the obligation's start date, or after the
-        last posted recognition entry if one exists. If end_date falls
-        before month-end, it is used as the last schedule date.
+        Schedule starts from the obligation's start date (or before if a
+        movement was posted earlier), or after the last posted recognition
+        entry if one exists. Schedule ends at end_date, extended to cover
+        any movement posted after end_date. If a month boundary falls
+        beyond, the actual schedule end date is used.
         """
         self.ensure_one()
         if not self.end_date:
@@ -142,21 +159,22 @@ class PerfObligation(models.Model):
                 )
             )
 
-        schedule_start = self._get_schedule_start_date()
+        min_move_date, max_move_date = self._get_move_lines_date_range()
+        schedule_start = self._get_schedule_start_date(min_move_date)
+        schedule_end = self._get_schedule_end_date(max_move_date)
 
-        if schedule_start >= self.end_date:
+        if schedule_start > schedule_end:
             return []
 
         dates = []
         current = schedule_start.replace(day=1)
-        while current <= self.end_date:
+        while current <= schedule_end:
             month_end = current.replace(
                 day=calendar.monthrange(current.year, current.month)[1]
             )
-            # Skip month-ends that are on or before the schedule start
             if month_end <= schedule_start:
                 current += relativedelta(months=1)
                 continue
-            dates.append(min(month_end, self.end_date))
+            dates.append(min(month_end, schedule_end))
             current += relativedelta(months=1)
         return dates
