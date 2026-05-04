@@ -552,3 +552,18 @@ class PerfObligation(models.Model):
                 date=schedule_date,
                 description=description,
             )
+
+    def _get_move_lines_date_range(self):
+        """Return (min_date, max_date) of journal items linked to this
+        obligation (draft or posted), or (False, False) if no lines.
+        """
+        self.ensure_one()
+        [(min_date, max_date)] = self.env["account.move.line"]._read_group(
+            domain=[
+                ("perf_obligation_id", "=", self.id),
+                ("parent_state", "in", ("draft", "posted")),
+            ],
+            groupby=[],
+            aggregates=["date:min", "date:max"],
+        )
+        return min_date, max_date
