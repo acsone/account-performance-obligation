@@ -173,7 +173,14 @@ class PerfObligation(models.Model):
                     fields=", ".join(missing),
                 )
             )
-        return RecognitionConfig(**values)
+        rc = RecognitionConfig(**values)
+        if self.total_amount < 0:
+            # swap debit and credit accounts
+            rc.debit_bs_account, rc.credit_bs_account = (
+                rc.credit_bs_account,
+                rc.debit_bs_account,
+            )
+        return rc
 
     # ------------------------------------------------------------------
     # Recognition at date
@@ -283,12 +290,19 @@ class PerfObligation(models.Model):
         self.ensure_one()
         precision = self.company_id.currency_id.rounding
 
-        if float_compare(amount_to_recognize, 0, precision_rounding=precision) < 0:
-            raise ValidationError(_("The amount to recognize cannot be negative."))
+        if float_compare(
+            amount_to_recognize, 0, precision_rounding=precision
+        ) != float_compare(self.total_amount, 0, precision_rounding=precision):
+            raise ValidationError(
+                _(
+                    "The amount to recognize must have the same sign as "
+                    "the performance obligation amount."
+                )
+            )
         if (
             float_compare(
-                amount_to_recognize,
-                self.total_amount,
+                abs(amount_to_recognize),
+                abs(self.total_amount),
                 precision_rounding=precision,
             )
             > 0
