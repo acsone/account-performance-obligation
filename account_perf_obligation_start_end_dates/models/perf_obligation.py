@@ -180,8 +180,8 @@ class PerfObligation(models.Model):
         return dates
 
     @api.model
-    def _get_schedule_regenerate_trigger_fields(self):
-        return super()._get_schedule_regenerate_trigger_fields() + [
+    def _get_recognition_trigger_fields(self):
+        return super()._get_recognition_trigger_fields() + [
             "start_date",
             "end_date",
         ]

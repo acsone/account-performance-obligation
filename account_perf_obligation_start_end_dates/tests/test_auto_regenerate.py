@@ -46,7 +46,7 @@ class TestAutoRegenerate(PerfObligationDatesCommon):
         """The dates module extends the trigger field list with
         start_date and end_date."""
         po = self._make_po()
-        fields_list = po._get_schedule_regenerate_trigger_fields()
+        fields_list = po._get_recognition_trigger_fields()
         self.assertIn("start_date", fields_list)
         self.assertIn("end_date", fields_list)
         self.assertIn("total_amount", fields_list)

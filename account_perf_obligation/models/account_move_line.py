@@ -42,18 +42,18 @@ class AccountMoveLine(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         lines = super().create(vals_list)
-        lines.perf_obligation_id._mark_for_regeneration()
+        lines.perf_obligation_id._mark_needs_recognition()
         return lines
 
     def write(self, vals):
         before = self.perf_obligation_id
         res = super().write(vals)
         after = self.perf_obligation_id
-        (before | after)._mark_for_regeneration()
+        (before | after)._mark_needs_recognition()
         return res
 
     def unlink(self):
         obligations = self.perf_obligation_id
         res = super().unlink()
-        obligations.exists()._mark_for_regeneration()
+        obligations._mark_needs_recognition()
         return res

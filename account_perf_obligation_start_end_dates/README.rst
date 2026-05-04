@@ -69,6 +69,6 @@ To implement a different recognition formula:
    needs additional constraints beyond start date and last posted entry
 
 To make additional fields flag the obligation when modified, override
-``_get_schedule_regenerate_trigger_fields()`` and add the field names
+``_get_recognition_trigger_fields()`` and add the field names
 to the returned list. This module already adds ``start_date`` and
 ``end_date`` to the base list.

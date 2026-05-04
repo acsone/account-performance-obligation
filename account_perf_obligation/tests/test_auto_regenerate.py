@@ -13,9 +13,9 @@ class TestAutoRegenerate(PerfObligationCommon):
     so `_supports_schedule()` always returns False here. These tests
     therefore cover:
 
-    - that `_mark_for_regeneration` is a no-op without schedule support
+    - that `_mark_needs_recognition` is a no-op without schedule support
     - that the `perf_obligation_in_regeneration` context flag prevents
-      marking
+      marking via `_mark_needs_recognition`
     - that `_process_pending_regenerations` correctly skips obligations
       that don't support scheduling and clears their flag
     - that the list-view action wires through to the processing method
@@ -43,27 +43,27 @@ class TestAutoRegenerate(PerfObligationCommon):
     def test_trigger_fields_default(self):
         """Base trigger fields include total_amount and method."""
         po = self._create_obligation()
-        fields_list = po._get_schedule_regenerate_trigger_fields()
+        fields_list = po._get_recognition_trigger_fields()
         self.assertIn("total_amount", fields_list)
         self.assertIn("recognition_at_date_method", fields_list)
 
     # =========================================================
-    # _mark_for_regeneration: no-op cases
+    # _mark_needs_recognition: no-op cases
     # =========================================================
 
     def test_mark_noop_when_schedule_unsupported(self):
-        """_mark_for_regeneration is a no-op when the obligation does
+        """_mark_needs_recognition is a no-op when the obligation does
         not support scheduling (the base case)."""
         po = self._create_obligation()
         self.assertFalse(po._supports_schedule())
-        po._mark_for_regeneration()
+        po._mark_needs_recognition()
         self.assertFalse(po.schedule_needs_regeneration)
 
     def test_mark_noop_in_regeneration_context(self):
-        """_mark_for_regeneration is a no-op when the
+        """_mark_needs_recognition is a no-op when the
         perf_obligation_in_regeneration context flag is set."""
         po = self._create_obligation()
-        po.with_context(perf_obligation_in_regeneration=True)._mark_for_regeneration()
+        po.with_context(perf_obligation_in_regeneration=True)._mark_needs_recognition()
         self.assertFalse(po.schedule_needs_regeneration)
 
     # =========================================================

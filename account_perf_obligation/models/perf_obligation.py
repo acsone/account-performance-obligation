@@ -108,7 +108,7 @@ class PerfObligation(models.Model):
             if "name" not in vals or vals["name"] == "/":
                 vals["name"] = self.env["ir.sequence"].next_by_code("perf.obligation")
         records = super().create(vals_list)
-        records._mark_for_regeneration()
+        records._mark_needs_recognition()
         return records
 
     def _compute_move_line_count(self):
@@ -485,27 +485,28 @@ class PerfObligation(models.Model):
     def action_generate_schedule(self):
         """UI action to regenerate recognition schedule entries."""
         for po in self:
+            if not po._supports_schedule():
+                raise ValidationError(
+                    _(
+                        "Schedule generation is not supported "
+                        "on performance obligation %(name)s.",
+                        name=po.display_name,
+                    )
+                )
             po._regenerate_schedule()
 
     def _regenerate_schedule(self):
         """Delete existing draft recognition moves and regenerate
-        schedule entries.
+        schedule entries, then clear the regeneration flag.
 
-        Can be called programmatically. Raises if the obligation
-        does not support schedule generation.
+        If the obligation no longer supports schedule generation,
+        just clear the flag.
         """
         self.ensure_one()
-        if not self._supports_schedule():
-            raise ValidationError(
-                _(
-                    "Schedule generation is not supported "
-                    "on performance obligation %(name)s.",
-                    name=self.display_name,
-                )
-            )
         self = self.with_context(perf_obligation_in_regeneration=True)
-        self._delete_draft_recognition_moves()
-        self._generate_schedule_moves()
+        if self._supports_schedule():
+            self._delete_draft_recognition_moves()
+            self._generate_schedule_moves()
         self.write({"schedule_needs_regeneration": False})
 
     def _get_last_posted_recognition_date(self):
@@ -581,7 +582,7 @@ class PerfObligation(models.Model):
         return min_date, max_date
 
     @api.model
-    def _get_schedule_regenerate_trigger_fields(self):
+    def _get_recognition_trigger_fields(self):
         """Return the list of fields whose modification should trigger
         schedule regeneration.
 
@@ -592,36 +593,35 @@ class PerfObligation(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        trigger_fields = self._get_schedule_regenerate_trigger_fields()
+        trigger_fields = self._get_recognition_trigger_fields()
         if any(field in vals for field in trigger_fields):
-            self._mark_for_regeneration()
+            self._mark_needs_recognition()
         return res
 
-    def _mark_for_regeneration(self):
-        """Flag obligations as needing schedule regeneration.
+    def _mark_needs_recognition(self, account_date=None):
+        """Mark obligations as needing recognition review.
 
-        No-op if:
-        - we are currently inside a regeneration (context flag set), or
-        - the obligation does not support schedule generation.
+        Called whenever something changes that may affect the recognized
+        amounts on an obligation: configuration changes, linked journal
+        items being created/modified/removed, etc.
+
+        :param account_date: optional earliest date from which recognition
+            needs to be reviewed.
+
+        For obligations that support schedule generation, this delegates
+        to `_mark_for_regeneration` to flag the schedule for rebuild.
         """
-        if self.env.context.get("perf_obligation_in_regeneration"):
-            return self.browse()
-        to_mark = self.filtered(lambda po: po._supports_schedule())
-        if to_mark:
-            to_mark.with_context(perf_obligation_in_regeneration=True).write(
-                {"schedule_needs_regeneration": True}
-            )
-        return to_mark
+        if not self.env.context.get("perf_obligation_in_regeneration"):
+            self.filtered(lambda po: po._supports_schedule())._mark_for_regeneration()
+
+    def _mark_for_regeneration(self):
+        """Flag this obligation's schedule for regeneration."""
+        self.with_context(perf_obligation_in_regeneration=True).write(
+            {"schedule_needs_regeneration": True}
+        )
 
     def _process_pending_regenerations(self):
-        for po in self:
-            if not po.schedule_needs_regeneration:
-                continue
-            if not po._supports_schedule():
-                po.with_context(perf_obligation_in_regeneration=True).write(
-                    {"schedule_needs_regeneration": False}
-                )
-                continue
+        for po in self.filtered("schedule_needs_regeneration"):
             po._regenerate_schedule()
 
     def action_process_pending_regenerations(self):

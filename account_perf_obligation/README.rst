@@ -107,23 +107,41 @@ processed asynchronously via ``queue_job``.
 Extensibility
 =============
 
-The list of fields whose modification flags an obligation for
-regeneration is returned by
-``_get_schedule_regenerate_trigger_fields()`` on ``perf.obligation``.
-Override this method in extension modules to add fields that should
-also invalidate the draft schedule.
+The list of fields whose modification flags an obligation as needing
+recognition review is returned by ``_get_recognition_trigger_fields()``
+on ``perf.obligation``. Override this method in extension modules to
+add fields that should also invalidate the schedule.
 
-The marking entry point is ``_mark_for_regeneration()``, called from:
+Two methods drive the marking flow on ``perf.obligation``:
+
+- ``_mark_needs_recognition(account_date=None)`` is the public entry
+  point, called whenever something changes that may affect the
+  recognized amounts on an obligation: configuration changes, linked
+  journal items being created, modified or removed, etc. The optional
+  ``account_date`` parameter indicates the earliest date from which
+  recognition needs to be reviewed (reserved for future extensions
+  that may track per-date review state).
+
+- ``_mark_for_regeneration()`` is the schedule-specific marker called
+  internally by ``_mark_needs_recognition`` when the obligation
+  supports scheduling. It sets ``schedule_needs_regeneration`` to
+  ``True`` and returns the recordset of obligations actually flagged.
+  It is a no-op when the ``perf_obligation_in_regeneration`` context
+  flag is set, which is automatically the case while
+  ``_regenerate_schedule()`` is running, preventing recursive marking.
+
+The marking entry point ``_mark_needs_recognition`` is called from:
 
 - ``perf.obligation.create`` and ``perf.obligation.write``
   (when a trigger field changes)
 - ``account.move.line.create``, ``write`` and ``unlink``
   (for any line linked to an obligation)
 
-This method is a no-op when:
+Extension modules typically override:
 
-- the obligation does not support scheduling
-  (``_supports_schedule()`` returns ``False``), or
-- the ``perf_obligation_in_regeneration`` context flag is set,
-  which is automatically the case while ``_regenerate_schedule()``
-  is running, preventing recursive marking.
+- ``_get_recognition_trigger_fields()`` to add new trigger fields
+- ``_mark_needs_recognition()`` to add side effects on any change
+  affecting recognition (e.g. set a "needs review from" date field)
+- ``_mark_for_regeneration()`` to react specifically to schedule
+  invalidation (this is what ``account_perf_obligation_auto_schedule``
+  does to enqueue an asynchronous job)
