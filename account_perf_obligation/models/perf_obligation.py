@@ -601,20 +601,17 @@ class PerfObligation(models.Model):
         """Flag obligations as needing schedule regeneration.
 
         No-op if:
-        - the obligation does not support schedule generation, OR
-        - we are currently inside a regeneration (context flag set).
-
-        The flag is consumed by `_process_pending_regenerations()`,
-        either manually via the list action or automatically by an
-        extension module (e.g. account_perf_obligation_auto_schedule).
+        - we are currently inside a regeneration (context flag set), or
+        - the obligation does not support schedule generation.
         """
         if self.env.context.get("perf_obligation_in_regeneration"):
-            return
+            return self.browse()
         to_mark = self.filtered(lambda po: po._supports_schedule())
         if to_mark:
             to_mark.with_context(perf_obligation_in_regeneration=True).write(
                 {"schedule_needs_regeneration": True}
             )
+        return to_mark
 
     def _process_pending_regenerations(self):
         for po in self:
