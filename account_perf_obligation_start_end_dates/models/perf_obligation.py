@@ -178,3 +178,10 @@ class PerfObligation(models.Model):
             dates.append(min(month_end, schedule_end))
             current += relativedelta(months=1)
         return dates
+
+    @api.model
+    def _get_recognition_trigger_fields(self):
+        return super()._get_recognition_trigger_fields() + [
+            "start_date",
+            "end_date",
+        ]
