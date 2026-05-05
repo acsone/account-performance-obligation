@@ -89,7 +89,10 @@ class PerfObligation(models.Model):
         daily_amount = self.total_amount / total_days
         amount = float_round(daily_amount * elapsed_days, precision_digits=precision)
         # Safety cap: never exceed total
-        return min(amount, self.total_amount)
+        if self.total_amount > 0:
+            return min(amount, self.total_amount)
+        else:
+            return max(amount, self.total_amount)
 
     # ------------------------------------------------------------------
     # Schedule

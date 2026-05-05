@@ -77,6 +77,22 @@ Usage
 #. Use the **Journal Items** smart button to review all entries
    linked to the obligation
 
+Negative obligations
+====================
+
+The ``total_amount`` field may be negative to model revenue reversals
+(credit notes) or negative expense corrections.
+
+When ``total_amount`` is negative the debit and credit balance-sheet
+accounts configured on the company are **swapped** automatically by the
+recognition engine, so the same accounting logic produces mirror-image
+entries without any additional configuration.
+
+The ``amount_to_recognize`` passed to the wizard must carry the **same
+sign** as ``total_amount`` (or be zero, which always represents full
+deferral regardless of sign). Passing a value whose absolute amount
+exceeds that of ``total_amount`` is still rejected.
+
 Automatic schedule regeneration
 ===============================
 
