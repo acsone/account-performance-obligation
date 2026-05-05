@@ -79,24 +79,26 @@ class PerfObligationScheduleExpense(models.Model):
                     rc.currency_id,
                     SUM(
                         CASE WHEN aa.account_type LIKE 'expense%%'
-                             AND aj.type = 'general'
                         THEN aml.balance ELSE 0 END
                     ) AS recognized_amount,
                     SUM(
                         CASE WHEN aa.account_type LIKE 'expense%%'
-                             AND aj.type != 'general'
+                        THEN aml.balance ELSE 0 END
+                    )
+                    + SUM(
+                        CASE WHEN aa.account_type IN (
+                            'asset_current', 'liability_current'
+                        )
                         THEN aml.balance ELSE 0 END
                     ) AS billed_amount,
                     -SUM(
                         CASE WHEN aa.account_type IN (
-                                'asset_current', 'liability_current'
-                             )
-                             AND aj.type = 'general'
+                            'asset_current', 'liability_current'
+                        )
                         THEN aml.balance ELSE 0 END
                     ) AS deferred_accrued_amount,
                     SUM(SUM(
                         CASE WHEN aa.account_type LIKE 'expense%%'
-                             AND aj.type = 'general'
                         THEN aml.balance ELSE 0 END
                     )) OVER (
                         PARTITION BY aml.perf_obligation_id
@@ -104,9 +106,8 @@ class PerfObligationScheduleExpense(models.Model):
                     ) AS total_recognized_amount,
                     -SUM(SUM(
                         CASE WHEN aa.account_type IN (
-                                'asset_current', 'liability_current'
-                             )
-                             AND aj.type = 'general'
+                            'asset_current', 'liability_current'
+                        )
                         THEN aml.balance ELSE 0 END
                     )) OVER (
                         PARTITION BY aml.perf_obligation_id
@@ -114,7 +115,15 @@ class PerfObligationScheduleExpense(models.Model):
                     ) AS total_deferred_accrued_amount,
                     SUM(SUM(
                         CASE WHEN aa.account_type LIKE 'expense%%'
-                             AND aj.type != 'general'
+                        THEN aml.balance ELSE 0 END
+                    )) OVER (
+                        PARTITION BY aml.perf_obligation_id
+                        ORDER BY aml.date, aml.move_id
+                    )
+                    + SUM(SUM(
+                        CASE WHEN aa.account_type IN (
+                            'asset_current', 'liability_current'
+                        )
                         THEN aml.balance ELSE 0 END
                     )) OVER (
                         PARTITION BY aml.perf_obligation_id
@@ -122,7 +131,6 @@ class PerfObligationScheduleExpense(models.Model):
                     ) AS total_billed_amount
                 FROM account_move_line aml
                 JOIN account_account aa ON aa.id = aml.account_id
-                JOIN account_journal aj ON aj.id = aml.journal_id
                 JOIN perf_obligation po ON po.id = aml.perf_obligation_id
                 JOIN res_company rc ON rc.id = po.company_id
                 WHERE aml.parent_state IN ('draft', 'posted')
