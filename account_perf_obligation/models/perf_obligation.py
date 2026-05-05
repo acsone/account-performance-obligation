@@ -290,13 +290,18 @@ class PerfObligation(models.Model):
         self.ensure_one()
         precision = self.company_id.currency_id.rounding
 
-        if float_compare(
+        amount_sign = float_compare(
             amount_to_recognize, 0, precision_rounding=precision
-        ) != float_compare(self.total_amount, 0, precision_rounding=precision):
+        )
+        total_sign = float_compare(self.total_amount, 0, precision_rounding=precision)
+
+        if amount_sign != 0 and amount_sign != total_sign:
             raise ValidationError(
                 _(
                     "The amount to recognize must have the same sign as "
-                    "the performance obligation amount."
+                    "the performance obligation amount "
+                    "on performance obligation %(name)s.",
+                    name=self.display_name,
                 )
             )
         if (
@@ -311,9 +316,10 @@ class PerfObligation(models.Model):
                 _(
                     "The amount to recognize (%(amount)s) cannot exceed "
                     "the total amount on the performance obligation "
-                    "(%(total)s).",
+                    "(%(total)s) on performance obligation %(name)s.",
                     amount=amount_to_recognize,
                     total=self.total_amount,
+                    name=self.display_name,
                 )
             )
 
