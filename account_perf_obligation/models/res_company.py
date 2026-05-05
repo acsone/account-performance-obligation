@@ -19,12 +19,12 @@ class ResCompany(models.Model):
     po_income_debit_bs_account_id = fields.Many2one(
         comodel_name="account.account",
         string="Income Accrual BS Account",
-        help="Balance sheet account for accrued income. " "Invariant: balance >= 0.",
+        help="Balance sheet account for accrued income.",
     )
     po_income_credit_bs_account_id = fields.Many2one(
         comodel_name="account.account",
         string="Income Deferral BS Account",
-        help="Balance sheet account for deferred income. " "Invariant: balance <= 0.",
+        help="Balance sheet account for deferred income.",
     )
 
     # Expense recognition
@@ -39,10 +39,10 @@ class ResCompany(models.Model):
     po_expense_debit_bs_account_id = fields.Many2one(
         comodel_name="account.account",
         string="Expense Deferral BS Account",
-        help="Balance sheet account for deferred expense. " "Invariant: balance >= 0.",
+        help="Balance sheet account for deferred expense.",
     )
     po_expense_credit_bs_account_id = fields.Many2one(
         comodel_name="account.account",
         string="Expense Accrual BS Account",
-        help="Balance sheet account for accrued expense. " "Invariant: balance <= 0.",
+        help="Balance sheet account for accrued expense.",
     )
