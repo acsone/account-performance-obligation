@@ -8,7 +8,8 @@ class PerfObligationScheduleExpense(models.Model):
     _name = "perf.obligation.schedule.expense"
     _description = "Performance Obligation Recognition Schedule (Expense)"
     _auto = False
-    _order = "date asc, move_id asc"
+    # Must be id because order has importance
+    _order = "id"
 
     perf_obligation_id = fields.Many2one(
         comodel_name="perf.obligation",
