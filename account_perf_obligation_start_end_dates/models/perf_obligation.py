@@ -18,8 +18,8 @@ class PerfObligation(models.Model):
             ("daily", "Daily Pro-Rata"),
         ],
     )
-    start_date = fields.Date()
-    end_date = fields.Date()
+    start_date = fields.Date(tracking=True)
+    end_date = fields.Date(tracking=True)
     is_start_date_required = fields.Boolean(
         compute="_compute_is_date_required",
     )
