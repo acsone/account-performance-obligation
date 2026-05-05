@@ -23,4 +23,9 @@
         "views/perf_obligation.xml",
         "views/ir_ui_menu.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "account_perf_obligation/static/src/css/perf_obligation.css",
+        ],
+    },
 }
