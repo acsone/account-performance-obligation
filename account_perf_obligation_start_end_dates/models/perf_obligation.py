@@ -109,19 +109,12 @@ class PerfObligation(models.Model):
         )
 
     def _get_schedule_start_date(self, min_move_date=None):
-        """Return the date from which schedule entries should start.
+        """Return the earliest date the schedule should cover.
 
-        - If a posted recognition entry exists, start right after it.
-        - Otherwise, start at min(first move line date, start_date) so that
-          schedule covers any movement posted before the obligation period.
-
-        :param min_move_date: optional pre-computed min date of move lines
-            linked to this obligation.
+        Does not account for posted recognition entries (handled separately
+        in _get_schedule_dates via last_posted).
         """
         self.ensure_one()
-        last_posted = self._get_last_posted_recognition_date()
-        if last_posted:
-            return last_posted
         if min_move_date:
             return min(min_move_date, self.start_date)
         return self.start_date
@@ -166,13 +159,22 @@ class PerfObligation(models.Model):
         if schedule_start > schedule_end:
             return []
 
+        last_posted = self._get_last_posted_recognition_date()
+
         dates = []
         current = schedule_start.replace(day=1)
         while current <= schedule_end:
             month_end = current.replace(
                 day=calendar.monthrange(current.year, current.month)[1]
             )
-            if month_end <= schedule_start:
+            # Skip months strictly before the period start
+            # (but not equal, to include a start_date on the last day of a month)
+            if month_end < schedule_start:
+                current += relativedelta(months=1)
+                continue
+            # Skip months already covered by a posted recognition entry
+            # (strict <=: the posted month-end itself is already recognized)
+            if last_posted and month_end <= last_posted:
                 current += relativedelta(months=1)
                 continue
             dates.append(min(month_end, schedule_end))

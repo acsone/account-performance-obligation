@@ -479,3 +479,16 @@ class TestSchedule(PerfObligationDatesCommon):
             dates,
             [date(2026, 3, 31), date(2026, 4, 30)],
         )
+
+    def test_schedule_dates_start_on_last_day_of_month(self):
+        """Start date on the last day of a month must not skip that month."""
+        po = self._create_obligation(
+            recognition_at_date_method="daily",
+            start_date=date(2026, 5, 31),
+            end_date=date(2026, 6, 2),
+        )
+        dates = po._get_schedule_dates()
+        self.assertEqual(
+            dates,
+            [date(2026, 5, 31), date(2026, 6, 2)],
+        )
