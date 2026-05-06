@@ -132,16 +132,17 @@ class TestSalePerfObligation(TransactionCase):
     # Cancellation
     # ------------------------------------------------------------------
 
-    def test_cancel_caps_obligation_at_zero(self):
+    def test_cancel_sets_total_amount_to_invoiced(self):
+        """On cancellation with nothing invoiced, total_amount is set to 0."""
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
         po = order.order_line.perf_obligation_ids
-        self.assertFalse(po.recognition_cap_enabled)
+        self.assertEqual(po.total_amount, 1000.0)
         order.action_cancel()
-        self.assertTrue(po.recognition_cap_enabled)
-        self.assertEqual(po.recognition_cap_amount, 0.0)
+        self.assertEqual(po.total_amount, 0.0)
 
-    def test_cancel_caps_all_lines(self):
+    def test_cancel_sets_total_amount_on_all_lines(self):
+        """Cancellation freezes all obligations at their invoiced amount."""
         order = self._make_order(
             (self.product_at_once, 1, 1000.0),
             (self.product_months, 1, 1200.0),
@@ -149,8 +150,7 @@ class TestSalePerfObligation(TransactionCase):
         order.action_confirm()
         order.action_cancel()
         for po in order.order_line.mapped("perf_obligation_ids"):
-            self.assertTrue(po.recognition_cap_enabled)
-            self.assertEqual(po.recognition_cap_amount, 0.0)
+            self.assertEqual(po.total_amount, 0.0)
 
     def test_cancel_without_obligations_no_error(self):
         order = self._make_order((self.product_plain, 1, 500.0))

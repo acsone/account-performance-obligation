@@ -18,10 +18,10 @@ total amount is set to the line's untaxed subtotal, and its recognition
 period is derived from the product's configured recognition method.
 
 When a sale order is **cancelled**, all performance obligations linked to
-its lines are immediately capped at zero by enabling the recognition cap
-(see ``account_perf_obligation_cap``). If any amount had already been
-recognized, the next schedule regeneration will produce a de-recognition
-entry to bring the cumulative recognized amount back to zero.
+its lines are frozen: their total amount is updated to match the
+already-invoiced amount on the line. If nothing has been invoiced yet,
+the total amount is set to zero. Any excess already-recognized amount
+will be reversed on the next schedule regeneration.
 
 Configuration
 =============
@@ -53,7 +53,7 @@ Usage
 
 #. Use the **Performance Obligations** smart button on the sale order
    form to review all obligations linked to that order.
-#. If the order is cancelled, the obligations are capped at zero
-   automatically. Run **Process Pending Regenerations** (or install
-   ``account_perf_obligation_auto_schedule``) to generate the
-   corresponding de-recognition entries.
+#. If the order is cancelled, the obligations are frozen at their
+   invoiced amount automatically. Run **Process Pending Regenerations**
+   (or install ``account_perf_obligation_auto_schedule``) to generate
+   the corresponding adjustment entries.

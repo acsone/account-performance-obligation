@@ -53,14 +53,23 @@ class SaleOrder(models.Model):
         return super().action_cancel()
 
     def _cancel_perf_obligations(self):
-        """Cap all performance obligations linked to this order's lines."""
-        self.env["perf.obligation"].search(
-            [("sale_order_line_id", "in", self.order_line.ids)]
-        ).write(self._prepare_perf_obligation_cancel_vals())
+        """Freeze performance obligations on cancellation.
 
-    def _prepare_perf_obligation_cancel_vals(self):
-        """Return the values to write on obligations when the order is cancelled."""
+        Sets total_amount to the already-invoiced amount so that:
+        - if nothing was invoiced: total_amount becomes 0, no future
+          recognition is generated.
+        - if something was invoiced: total_amount is reduced to match
+          the invoiced amount, and any excess already-recognized amount
+          will be reversed on the next schedule regeneration.
+        """
+        obligations = self.env["perf.obligation"].search(
+            [("sale_order_line_id", "in", self.order_line.ids)]
+        )
+        for obligation in obligations:
+            obligation.write(self._prepare_perf_obligation_cancel_vals(obligation))
+
+    def _prepare_perf_obligation_cancel_vals(self, obligation):
+        sol = obligation.sale_order_line_id
         return {
-            "recognition_cap_enabled": True,
-            "recognition_cap_amount": 0.0,
+            "total_amount": sol.untaxed_amount_invoiced if sol else 0.0,
         }

@@ -4,11 +4,13 @@
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, fields, models
+from odoo.exceptions import ValidationError
 
 
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
+    # is really a one2one
     perf_obligation_ids = fields.One2many(
         comodel_name="perf.obligation",
         inverse_name="sale_order_line_id",
@@ -71,8 +73,14 @@ class SaleOrderLine(models.Model):
             end_date = confirmation_date + relativedelta(months=months)
             return confirmation_date, end_date
 
-        # Fallback: at_once (should not happen given validation constraints)
-        return confirmation_date, confirmation_date
+        raise ValidationError(
+            _(
+                "Unknown performance obligation recognition method '%(method)s' "
+                "on product '%(product)s'.",
+                method=method,
+                product=product.display_name,
+            )
+        )
 
     def _prepare_invoice_line(self, **optional_values):
         vals = super()._prepare_invoice_line(**optional_values)
