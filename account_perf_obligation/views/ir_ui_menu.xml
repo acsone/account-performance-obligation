@@ -3,17 +3,10 @@
      License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
 <odoo>
     <menuitem
-        id="menu_perf_obligation_root"
-        name="Performance Obligations"
-        parent="account.menu_finance"
-        sequence="10"
-    />
-
-    <menuitem
         id="menu_perf_obligation_list"
         name="Performance Obligations"
-        parent="menu_perf_obligation_root"
+        parent="account.menu_finance_entries"
         action="action_perf_obligation"
-        sequence="10"
+        sequence="15"
     />
 </odoo>
