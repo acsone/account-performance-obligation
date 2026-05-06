@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="product_template_form_view" model="ir.ui.view">
+        <field name="name">product.template.form.perf.obligation</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view" />
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page
+                    string="Revenue/Expense Recognition"
+                    name="perf_obligation"
+                    groups="account.group_account_user"
+                >
+                    <group>
+                        <field name="perf_obligation_auto_create" />
+                        <field
+                            name="perf_obligation_recognition_method"
+                            invisible="not perf_obligation_auto_create"
+                            required="perf_obligation_auto_create"
+                        />
+                        <field
+                            name="perf_obligation_months_duration"
+                            invisible="perf_obligation_recognition_method != 'months'"
+                            required="perf_obligation_recognition_method == 'months'"
+                        />
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>
