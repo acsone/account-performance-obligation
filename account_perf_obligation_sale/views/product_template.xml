@@ -9,7 +9,7 @@
         <field name="arch" type="xml">
             <notebook position="inside">
                 <page
-                    string="Revenue/Expense Recognition"
+                    string="Revenue Recognition"
                     name="perf_obligation"
                     groups="account.group_account_user"
                 >

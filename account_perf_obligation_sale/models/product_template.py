@@ -17,7 +17,7 @@ class ProductTemplate(models.Model):
             ("at_once", "At once"),
             ("months", "Over several months"),
         ],
-        string="Revenue/Expense Recognition Duration",
+        string="Revenue Recognition Duration",
         help="Determines how the start and end dates of the performance "
         "obligation are computed when it is created.",
     )

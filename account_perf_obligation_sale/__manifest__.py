@@ -10,12 +10,12 @@
     "author": "ACSONE SA/NV",
     "website": "https://github.com/acsone/ifrs15",
     "depends": [
-        "account_perf_obligation_product",
         "account_perf_obligation_start_end_dates",
         "account_perf_obligation_cap",
         "sale",
     ],
     "data": [
+        "views/product_template.xml",
         "views/perf_obligation.xml",
         "views/sale_order.xml",
     ],

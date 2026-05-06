@@ -9,7 +9,7 @@ Purpose
 
 This module automates the creation of **Performance Obligations** (IFRS 15)
 when a sale order is confirmed, based on the recognition configuration
-defined on each product (see ``account_perf_obligation_product``).
+defined on each product.
 
 For each confirmed sale order line whose product has
 **Auto-create Performance Obligation** enabled, a performance obligation
@@ -26,9 +26,16 @@ entry to bring the cumulative recognized amount back to zero.
 Configuration
 =============
 
-#. Install ``account_perf_obligation_product`` and configure each relevant
-   product's **Revenue/Expense Recognition** tab (recognition method and,
-   if applicable, duration in months).
+#. On each relevant product, open the **Revenue Recognition** tab
+   and configure:
+
+   - Tick **Auto-create Performance Obligation**.
+   - Select a **Revenue Recognition Duration** method:
+
+     - **At once**: the full amount is recognized on the order
+       confirmation date.
+     - **Over several months**: enter the number of months in the
+       **Recognition Duration (months)** field that appears below.
 
 Usage
 =====
