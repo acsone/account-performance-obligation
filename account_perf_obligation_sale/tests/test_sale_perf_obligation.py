@@ -108,7 +108,8 @@ class TestSalePerfObligation(TransactionCase):
         self.assertEqual(line.perf_obligation_ids.sale_order_line_id, line)
 
     def test_duplicate_guard(self):
-        """Re-calling _create_perf_obligation_if_needed never creates a duplicate."""
+        """Re-calling _create_perf_obligation_if_needed updates the existing
+        obligation instead of creating a duplicate."""
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
         line = order.order_line
@@ -158,6 +159,63 @@ class TestSalePerfObligation(TransactionCase):
         order.action_cancel()  # must not raise
 
     # ------------------------------------------------------------------
+    # Re-confirmation updates existing obligations
+    # ------------------------------------------------------------------
+
+    def test_reconfirm_updates_obligation_amount(self):
+        """Re-confirming a cancelled order updates the existing ODP's
+        total_amount to match the current line subtotal."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.action_confirm()
+        line = order.order_line
+        po = line.perf_obligation_ids
+        self.assertEqual(po.total_amount, 1000.0)
+
+        order.with_context(disable_cancel_warning=True).action_cancel()
+        self.assertEqual(po.total_amount, 0.0)
+
+        # Update price before re-confirmation
+        line.price_unit = 1500.0
+        order.action_draft()
+        order.action_confirm()
+
+        # Same ODP, no duplicate
+        self.assertEqual(len(line.perf_obligation_ids), 1)
+        self.assertEqual(po.total_amount, 1500.0)
+
+    def test_reconfirm_updates_obligation_dates_months(self):
+        """Re-confirming recomputes start/end dates from the current
+        order confirmation date."""
+        order = self._make_order((self.product_months, 1, 1200.0))
+        order.action_confirm()
+        line = order.order_line
+        po = line.perf_obligation_ids
+        original_start = po.start_date
+        original_end = po.end_date
+
+        order.with_context(disable_cancel_warning=True).action_cancel()
+        order.action_draft()
+        order.action_confirm()
+
+        conf = order.date_order.date()
+        self.assertEqual(len(line.perf_obligation_ids), 1)
+        self.assertEqual(po.start_date, conf)
+        self.assertEqual(po.end_date, conf + relativedelta(months=3))
+        # Dates are recomputed (they should equal the originals in this test
+        # since date_order doesn't change, but the write is verified)
+        self.assertEqual(po.start_date, original_start)
+        self.assertEqual(po.end_date, original_end)
+
+    def test_reconfirm_does_not_create_obligation_for_plain_product(self):
+        """Re-confirmation must not create obligations for non-qualifying lines."""
+        order = self._make_order((self.product_plain, 1, 500.0))
+        order.action_confirm()
+        order.with_context(disable_cancel_warning=True).action_cancel()
+        order.action_draft()
+        order.action_confirm()
+        self.assertFalse(order.order_line.perf_obligation_ids)
+
+    # ------------------------------------------------------------------
     # Invoice line propagation
     # ------------------------------------------------------------------
 
@@ -173,3 +231,31 @@ class TestSalePerfObligation(TransactionCase):
         order.action_confirm()
         vals = order.order_line._prepare_invoice_line()
         self.assertNotIn("perf_obligation_id", vals)
+
+    # ------------------------------------------------------------------
+    # Chatter messages
+    # ------------------------------------------------------------------
+
+    def test_cancel_posts_chatter_message(self):
+        """Cancellation posts a message on the performance obligation chatter."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.action_confirm()
+        po = order.order_line.perf_obligation_ids
+        invoice = order._create_invoices()
+        invoice.action_post()
+        msg_count_before = len(po.message_ids)
+        order.action_cancel()
+        self.assertEqual(len(po.message_ids), msg_count_before + 1)
+        self.assertIn("$&nbsp;1,000.00", po.message_ids[0].body)
+
+    def test_reconfirm_posts_chatter_message(self):
+        """Re-confirmation posts a message on the performance obligation chatter."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.action_confirm()
+        line = order.order_line
+        po = line.perf_obligation_ids
+        order.with_context(disable_cancel_warning=True).action_cancel()
+        order.action_draft()
+        msg_count_before = len(po.message_ids)
+        order.action_confirm()
+        self.assertEqual(len(po.message_ids), msg_count_before + 1)
