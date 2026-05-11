@@ -58,7 +58,9 @@ class SaleOrderLine(models.Model):
 
         - 'at_once': start = end = order confirmation date
         - 'months': start = confirmation date,
-                    end = start + N months
+                    end = start + N calendar months
+        - 'days':   start = confirmation date,
+                    end = start + N days
         """
         self.ensure_one()
         product = self.product_id
@@ -71,6 +73,11 @@ class SaleOrderLine(models.Model):
         if method == "months":
             months = product.perf_obligation_months_duration
             end_date = confirmation_date + relativedelta(months=months)
+            return confirmation_date, end_date
+
+        if method == "days":
+            days = product.perf_obligation_days_duration
+            end_date = confirmation_date + relativedelta(days=days)
             return confirmation_date, end_date
 
         raise ValidationError(

@@ -16,6 +16,7 @@ class ProductTemplate(models.Model):
         selection=[
             ("at_once", "At once"),
             ("months", "Over several months"),
+            ("days", "Over several days"),
         ],
         string="Revenue Recognition Duration",
         help="Determines how the start and end dates of the performance "
@@ -26,6 +27,12 @@ class ProductTemplate(models.Model):
         help="Number of months over which the performance obligation "
         "is recognized. Used when the recognition method is "
         "'Over several months'.",
+    )
+    perf_obligation_days_duration = fields.Integer(
+        string="Recognition Duration (days)",
+        help="Number of days over which the performance obligation "
+        "is recognized. Used when the recognition method is "
+        "'Over several days'.",
     )
 
     @api.constrains(
@@ -60,6 +67,23 @@ class ProductTemplate(models.Model):
                     _(
                         "The recognition duration must be a strictly "
                         "positive number of months on product '%(name)s'.",
+                        name=rec.display_name,
+                    )
+                )
+
+    @api.constrains(
+        "perf_obligation_recognition_method",
+        "perf_obligation_days_duration",
+    )
+    def _check_perf_obligation_days_duration(self):
+        for rec in self:
+            if rec.perf_obligation_recognition_method != "days":
+                continue
+            if rec.perf_obligation_days_duration <= 0:
+                raise ValidationError(
+                    _(
+                        "The recognition duration must be a strictly "
+                        "positive number of days on product '%(name)s'.",
                         name=rec.display_name,
                     )
                 )
