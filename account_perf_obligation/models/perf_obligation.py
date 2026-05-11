@@ -339,7 +339,7 @@ class PerfObligation(models.Model):
             "journal_id": config.journal.id,
             "date": date,
             "ref": f"{self.name} - {description}" if description else self.name,
-            "auto_post": "at_date",
+            "auto_post": "monthly",
             "line_ids": [Command.create(vals) for vals in lines],
         }
         return self.env["account.move"].create(move_vals)

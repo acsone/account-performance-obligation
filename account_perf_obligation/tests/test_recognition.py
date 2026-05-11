@@ -193,7 +193,7 @@ class TestRecognition(PerfObligationCommon):
         self.assertEqual(move.ref, f"{po.name} - Feb reco")
         self.assertEqual(move.journal_id, self.reco_journal)
         self.assertEqual(move.state, "draft")
-        self.assertEqual(move.auto_post, "at_date")
+        self.assertEqual(move.auto_post, "monthly")
 
         for line in move.line_ids:
             self.assertEqual(line.name, "Feb reco")
