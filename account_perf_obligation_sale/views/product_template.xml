@@ -25,6 +25,11 @@
                             invisible="perf_obligation_recognition_method != 'months'"
                             required="perf_obligation_recognition_method == 'months'"
                         />
+                        <field
+                            name="perf_obligation_days_duration"
+                            invisible="perf_obligation_recognition_method != 'days'"
+                            required="perf_obligation_recognition_method == 'days'"
+                        />
                     </group>
                 </page>
             </notebook>

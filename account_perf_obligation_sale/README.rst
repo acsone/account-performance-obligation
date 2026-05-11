@@ -36,6 +36,8 @@ Configuration
        confirmation date.
      - **Over several months**: enter the number of months in the
        **Recognition Duration (months)** field that appears below.
+     - **Over several days**: enter the number of days in the
+       **Recognition Duration (days)** field that appears below.
 
 Usage
 =====
@@ -48,8 +50,11 @@ Usage
    - **At once**: start and end date are both set to the order
      confirmation date. The full amount is recognized on that day.
    - **Over several months**: start date is the order confirmation date;
-     end date is the confirmation date plus the number of months
+     end date is the confirmation date plus the number of calendar months
      configured on the product.
+   - **Over several days**: start date is the order confirmation date;
+     end date is the confirmation date plus the number of days configured
+     on the product.
 
 #. Use the **Performance Obligations** smart button on the sale order
    form to review all obligations linked to that order.

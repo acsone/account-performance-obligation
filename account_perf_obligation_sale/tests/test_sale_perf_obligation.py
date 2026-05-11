@@ -30,6 +30,15 @@ class TestSalePerfObligation(TransactionCase):
                 "perf_obligation_months_duration": 3,
             }
         )
+        cls.product_days = cls.env["product.product"].create(
+            {
+                "name": "10-Day Product",
+                "type": "service",
+                "perf_obligation_auto_create": True,
+                "perf_obligation_recognition_method": "days",
+                "perf_obligation_days_duration": 10,
+            }
+        )
         cls.product_plain = cls.env["product.product"].create(
             {
                 "name": "Plain Product",
@@ -80,6 +89,18 @@ class TestSalePerfObligation(TransactionCase):
         self.assertEqual(po.start_date, conf)
         self.assertEqual(po.end_date, conf + relativedelta(months=3))
         self.assertEqual(po.total_amount, 1200.0)
+
+    def test_days_creates_obligation(self):
+        order = self._make_order((self.product_days, 1, 800.0))
+        order.action_confirm()
+        po = order.order_line.perf_obligation_ids
+        conf = order.date_order.date()
+        self.assertEqual(len(po), 1)
+        self.assertEqual(po.perf_type, "income")
+        self.assertEqual(po.total_amount, 800.0)
+        self.assertEqual(po.start_date, conf)
+        self.assertEqual(po.end_date, conf + relativedelta(days=10))
+        self.assertEqual(po.recognition_at_date_method, "daily")
 
     def test_plain_product_no_obligation(self):
         order = self._make_order((self.product_plain, 1, 500.0))
