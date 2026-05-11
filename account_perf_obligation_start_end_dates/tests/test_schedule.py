@@ -98,7 +98,7 @@ class TestSchedule(PerfObligationDatesCommon):
         dates = po._get_schedule_dates()
         self.assertEqual(
             dates,
-            [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 15)],
+            [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 31)],
         )
 
     def test_schedule_dates_single_month(self):
@@ -178,8 +178,8 @@ class TestSchedule(PerfObligationDatesCommon):
             ],
         )
 
-    def test_schedule_dates_empty_when_fully_recognized(self):
-        """Returns empty list when last posted entry covers end_date."""
+    def test_schedule_dates_when_fully_recognized(self):
+        """Returns next month date when last posted entry covers end_date."""
         po = self._create_obligation(
             perf_type="income",
             total_amount=900.0,
@@ -200,7 +200,7 @@ class TestSchedule(PerfObligationDatesCommon):
             move.action_post()
 
         dates = po._get_schedule_dates()
-        self.assertEqual(dates, [])
+        self.assertEqual(dates, [date(2026, 4, 30)])
 
     # =========================================================
     # Schedule generation
@@ -429,10 +429,9 @@ class TestSchedule(PerfObligationDatesCommon):
             date="2026-03-15",
         )
         dates = po._get_schedule_dates()
-        # schedule_end = max(Mar 15, Feb 28) = Mar 15
         self.assertEqual(
             dates,
-            [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 15)],
+            [date(2026, 1, 31), date(2026, 2, 28), date(2026, 3, 31)],
         )
 
     def test_schedule_dates_posted_reco_takes_precedence_over_early_invoice(
@@ -490,5 +489,30 @@ class TestSchedule(PerfObligationDatesCommon):
         dates = po._get_schedule_dates()
         self.assertEqual(
             dates,
-            [date(2026, 5, 31), date(2026, 6, 2)],
+            [date(2026, 5, 31), date(2026, 6, 30)],
         )
+
+    def test_schedule_dates_end_date_before_last_posted_generates_corrective(self):
+        """When end_date is pulled back before last_posted, a corrective
+        entry is generated."""
+        po = self._create_obligation(
+            perf_type="income",
+            total_amount=1000.0,
+            recognition_at_date_method="daily",
+            start_date=date(2026, 4, 1),
+            end_date=date(2026, 12, 31),
+        )
+        for reco_date in [date(2026, 4, 30), date(2026, 5, 31)]:
+            wizard = self._create_wizard(
+                po,
+                amount=po._compute_amount_to_recognize_at_date(reco_date),
+                date=str(reco_date),
+                description=f"Reco {reco_date}",
+            )
+            result = wizard.action_confirm()
+            move = self.env["account.move"].browse(result["res_id"])
+            with self._mock_today(reco_date):
+                move.action_post()
+        po.end_date = date(2026, 4, 15)
+        dates = po._get_schedule_dates()
+        self.assertEqual(dates, [date(2026, 6, 30)])
