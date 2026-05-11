@@ -2,6 +2,7 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 from odoo import _, api, fields, models
+from odoo.tools.misc import format_amount
 
 
 class SaleOrder(models.Model):
@@ -66,7 +67,20 @@ class SaleOrder(models.Model):
             [("sale_order_line_id", "in", self.order_line.ids)]
         )
         for obligation in obligations:
-            obligation.write(self._prepare_perf_obligation_cancel_vals(obligation))
+            vals = self._prepare_perf_obligation_cancel_vals(obligation)
+            obligation.write(vals)
+            obligation._message_log(
+                body=_(
+                    "Total amount updated to already invoiced amount %(amount)s "
+                    "on cancellation of sale order %(order)s.",
+                    amount=format_amount(
+                        self.env,
+                        vals["total_amount"],
+                        obligation.currency_id or self.env.company.currency_id,
+                    ),
+                    order=obligation.sale_order_line_id.order_id.name,
+                )
+            )
 
     def _prepare_perf_obligation_cancel_vals(self, obligation):
         sol = obligation.sale_order_line_id

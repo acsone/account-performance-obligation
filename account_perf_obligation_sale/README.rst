@@ -23,6 +23,11 @@ already-invoiced amount on the line. If nothing has been invoiced yet,
 the total amount is set to zero. Any excess already-recognized amount
 will be reversed on the next schedule regeneration.
 
+When a cancelled sale order is **re-confirmed**, existing performance
+obligations are updated in place (no duplicate is created) with the
+dates, total amount, and other fields recomputed as if the obligation
+were being created for the first time.
+
 Configuration
 =============
 
@@ -62,3 +67,6 @@ Usage
    invoiced amount automatically. Run **Process Pending Regenerations**
    (or install ``account_perf_obligation_auto_schedule``) to generate
    the corresponding adjustment entries.
+#. If the cancelled order is re-confirmed, existing obligations are
+   updated in place with the recomputed dates and the current line
+   subtotal as the new total amount. No duplicate obligation is created.

@@ -29,11 +29,29 @@ class SaleOrderLine(models.Model):
             return None
         if not product.perf_obligation_recognition_method:
             return None
-        # Duplicate guard
+        # Duplicate guard: update existing obligation instead of creating a new one
         if self.perf_obligation_ids:
+            self._update_perf_obligation(self.perf_obligation_ids[0])
             return self.perf_obligation_ids[0]
         vals = self._prepare_perf_obligation_vals()
         return self.env["perf.obligation"].create(vals)
+
+    def _update_perf_obligation(self, obligation):
+        """Update an existing performance obligation with current line data.
+
+        Called on re-confirmation of a sale order. Brings dates, total amount
+        and any other computed fields back in sync with the current SOL state,
+        as if the obligation had just been created from scratch.
+        """
+        self.ensure_one()
+        vals = self._prepare_perf_obligation_vals()
+        obligation.write(vals)
+        obligation._message_log(
+            body=_(
+                "Values updated on re-confirmation of sale order %(order)s.",
+                order=self.order_id.name,
+            )
+        )
 
     def _prepare_perf_obligation_vals(self):
         """Return the values dict for the performance obligation to create."""
