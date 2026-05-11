@@ -1,7 +1,6 @@
 # Copyright 2026 ACSONE SA/NV
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
-import calendar
 
 from dateutil.relativedelta import relativedelta
 
@@ -111,40 +110,33 @@ class PerfObligation(models.Model):
             self._supports_recognition_at_date() and self.start_date and self.end_date
         )
 
-    def _get_schedule_start_date(self, min_move_date=None):
+    def _get_schedule_start_date(self, min_move_date=None, last_posted=None):
         """Return the earliest date the schedule should cover.
 
-        Does not account for posted recognition entries (handled separately
-        in _get_schedule_dates via last_posted).
+        When a posted recognition entry exists, it takes precedence over
+        any earlier movement date: we never regenerate periods already
+        covered by a posted entry.
         """
         self.ensure_one()
+        if last_posted:
+            assert not min_move_date or min_move_date <= last_posted
+            # add one day to avoid posting two recognitions on the same day
+            return last_posted + relativedelta(days=1)
         if min_move_date:
             return min(min_move_date, self.start_date)
         return self.start_date
 
     def _get_schedule_end_date(self, max_move_date=None):
-        """Return the date until which schedule entries should be generated.
-
-        Takes max(last move line date, end_date) so that schedule covers any
-        movement posted after the obligation period.
-
-        :param max_move_date: optional pre-computed max date of move lines
-            linked to this obligation.
-        """
+        """Return the date until which schedule entries should be generated."""
         self.ensure_one()
+        end = self.end_date
         if max_move_date:
-            return max(max_move_date, self.end_date)
-        return self.end_date
+            end = max(end, max_move_date)
+        return end
 
     def _get_schedule_dates(self):
-        """Return last day of each month from schedule start to schedule end.
+        """Return last day of each month from schedule start to schedule end."""
 
-        Schedule starts from the obligation's start date (or before if a
-        movement was posted earlier), or after the last posted recognition
-        entry if one exists. Schedule ends at end_date, extended to cover
-        any movement posted after end_date. If a month boundary falls
-        beyond, the actual schedule end date is used.
-        """
         self.ensure_one()
         if not self.end_date:
             raise ValidationError(
@@ -154,34 +146,19 @@ class PerfObligation(models.Model):
                     name=self.display_name,
                 )
             )
-
         min_move_date, max_move_date = self._get_move_lines_date_range()
-        schedule_start = self._get_schedule_start_date(min_move_date)
-        schedule_end = self._get_schedule_end_date(max_move_date)
-
-        if schedule_start > schedule_end:
-            return []
-
         last_posted = self._get_last_posted_recognition_date()
-
-        dates = []
-        current = schedule_start.replace(day=1)
-        while current <= schedule_end:
-            month_end = current.replace(
-                day=calendar.monthrange(current.year, current.month)[1]
-            )
-            # Skip months strictly before the period start
-            # (but not equal, to include a start_date on the last day of a month)
-            if month_end < schedule_start:
-                current += relativedelta(months=1)
-                continue
-            # Skip months already covered by a posted recognition entry
-            # (strict <=: the posted month-end itself is already recognized)
-            if last_posted and month_end <= last_posted:
-                current += relativedelta(months=1)
-                continue
-            dates.append(min(month_end, schedule_end))
-            current += relativedelta(months=1)
+        schedule_start = self._get_schedule_start_date(
+            min_move_date, last_posted=last_posted
+        )
+        schedule_end = self._get_schedule_end_date(max_move_date)
+        current = schedule_start + relativedelta(day=31)
+        dates = [current]
+        while True:
+            current += relativedelta(months=1, day=31)
+            if current > schedule_end + relativedelta(day=31):
+                break
+            dates.append(current)
         return dates
 
     @api.model
