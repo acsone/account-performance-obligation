@@ -184,7 +184,7 @@ class TestSalePerfObligation(TransactionCase):
     # ------------------------------------------------------------------
 
     def test_reconfirm_updates_obligation_amount(self):
-        """Re-confirming a cancelled order updates the existing ODP's
+        """Re-confirming a cancelled order updates the existing perf obligation's
         total_amount to match the current line subtotal."""
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
@@ -200,7 +200,6 @@ class TestSalePerfObligation(TransactionCase):
         order.action_draft()
         order.action_confirm()
 
-        # Same ODP, no duplicate
         self.assertEqual(len(line.perf_obligation_ids), 1)
         self.assertEqual(po.total_amount, 1500.0)
 
