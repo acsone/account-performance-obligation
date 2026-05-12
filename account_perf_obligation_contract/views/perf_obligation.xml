@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="perf_obligation_form_inherit_contract" model="ir.ui.view">
+        <field name="name">perf.obligation.form.inherit.contract</field>
+        <field name="model">perf.obligation</field>
+        <field name="inherit_id" ref="account_perf_obligation.perf_obligation_form" />
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+                <field
+                    name="contract_line_id"
+                    readonly="1"
+                    options="{'no_create': True}"
+                />
+            </field>
+        </field>
+    </record>
+</odoo>
