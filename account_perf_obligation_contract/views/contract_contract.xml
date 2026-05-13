@@ -2,33 +2,10 @@
 <!-- Copyright 2026 ACSONE SA/NV
      License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
 <odoo>
-    <record id="view_contract_form_customer_perf_obligation" model="ir.ui.view">
-        <field name="name">contract.contract.customer.form.perf.obligation</field>
+    <record id="view_contract_form_perf_obligation" model="ir.ui.view">
+        <field name="name">contract.contract.form.perf.obligation</field>
         <field name="model">contract.contract</field>
-        <field name="inherit_id" ref="contract.contract_contract_customer_form_view" />
-        <field name="arch" type="xml">
-            <xpath expr="//div[@name='button_box']" position="inside">
-                <button
-                    name="action_view_perf_obligations"
-                    type="object"
-                    class="oe_stat_button"
-                    icon="fa-balance-scale"
-                    invisible="perf_obligation_count == 0"
-                >
-                    <field
-                        name="perf_obligation_count"
-                        widget="statinfo"
-                        string="Performance Obligations"
-                    />
-                </button>
-            </xpath>
-        </field>
-    </record>
-
-    <record id="view_contract_form_supplier_perf_obligation" model="ir.ui.view">
-        <field name="name">contract.contract.supplier.form.perf.obligation</field>
-        <field name="model">contract.contract</field>
-        <field name="inherit_id" ref="contract.contract_contract_supplier_form_view" />
+        <field name="inherit_id" ref="contract.contract_contract_form_view" />
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="view_contract_line_form_perf_obligation" model="ir.ui.view">
+        <field name="name">contract.line.form.perf.obligation</field>
+        <field name="model">contract.line</field>
+        <field name="inherit_id" ref="contract.contract_line_form_view" />
+        <field name="arch" type="xml">
+            <field name="automatic_price" position="after">
+                <field name="perf_obligation_auto_create" />
+            </field>
+        </field>
+    </record>
+</odoo>

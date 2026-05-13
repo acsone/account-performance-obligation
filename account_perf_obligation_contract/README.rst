@@ -2,31 +2,22 @@
 Performance Obligations - Contract
 ==================================
 
-Automatic performance obligation creation from contract lines, with
-integration between sale orders and contracts.
+Automatic performance obligation creation from contract lines.
 
 Purpose
 =======
 
 This module automates the creation of **Performance Obligations** (IFRS 15)
-when a contract line is created, based on the recognition configuration
-defined on each product.
+when a contract line is created, based on a boolean.
 
-For each contract line whose product has **Auto-create Performance Obligation**
-enabled and whose recognition method is set to *Based on contract dates*, a
-performance obligation of type *income* is created and linked to that line.
+For each contract line ticked for **Auto-create Performance Obligation**, a
+performance obligation is created and linked to that line.
 The obligation's total amount is computed from the line's quantity and unit
 price over the full contract period, and its start and end dates are taken
 directly from the contract line's ``date_start`` and ``date_end``.
 
 Contract lines without a ``date_end`` are skipped: a meaningful total amount
 cannot be computed without a known end date.
-
-When a contract line is created from a sale order line that already has a
-linked performance obligation, the existing obligation is reused and linked
-to the new contract line — no duplicate is created. The obligation's dates
-and amount are updated to reflect the contract line's ``date_start`` and
-``date_end``.
 
 When a contract line is **cancelled** (``is_canceled`` set to ``True``), all
 performance obligations linked to it are frozen: their total amount is updated
@@ -47,13 +38,9 @@ account).
 Configuration
 =============
 
-#. On each relevant product, open the **Revenue Recognition** tab
-   and configure:
+#. On each relevant contract line:
 
    - Tick **Auto-create Performance Obligation**.
-   - Select **Based on contract dates** as the **Revenue Recognition
-     Duration** method. This option is only available on products that
-     have **Is a contract** enabled.
 
 Usage
 =====
@@ -61,8 +48,8 @@ Usage
 Direct contract line creation
 ------------------------------
 
-#. Create a contract line directly on a contract whose product is
-   configured for automatic obligation creation.
+#. Create a contract line directly on a contract and
+   configure it for automatic obligation creation.
 #. A performance obligation is automatically created for that line.
    Its start and end dates are set to the contract line's
    ``date_start`` and ``date_end`` respectively. The total amount is
@@ -72,19 +59,6 @@ Direct contract line creation
 
 #. Use the **Performance Obligations** smart button on the contract
    form to review all obligations linked to that contract.
-
-From a sale order
------------------
-
-#. Confirm a sale order containing a contract product configured for
-   automatic obligation creation. A performance obligation is created
-   on the sale order line, with dates derived from the line's
-   ``date_start`` and ``date_end``.
-#. When the contract is created from the sale order (via
-   **Create Contract**), the existing performance obligation is
-   automatically linked to the new contract line. Its dates and amount
-   are updated to match the contract line.
-#. No duplicate obligation is ever created in this flow.
 
 Cancellation and deletion
 --------------------------

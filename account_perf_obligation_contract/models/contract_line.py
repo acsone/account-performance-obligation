@@ -2,6 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 from odoo.tools.misc import format_amount
 
 
@@ -13,6 +14,9 @@ class ContractLine(models.Model):
         comodel_name="perf.obligation",
         inverse_name="contract_line_id",
         string="Performance Obligations",
+    )
+    perf_obligation_auto_create = fields.Boolean(
+        string="Auto-create Performance Obligation",
     )
 
     def write(self, vals):
@@ -48,15 +52,11 @@ class ContractLine(models.Model):
         """Create a performance obligation for this contract line if applicable.
 
         Only applies when:
-        - the product has auto-create enabled
-        - the recognition method is 'contract'
+        - the perf_obligation_auto_create is checked
         Duplicate guard: updates existing obligation instead of creating a new one.
         """
         self.ensure_one()
-        product = self.product_id
-        if not product.perf_obligation_sale_auto_create:
-            return None
-        if product.perf_obligation_sale_recognition_method != "contract":
+        if not self.perf_obligation_auto_create:
             return None
         if self.perf_obligation_ids:
             self._update_perf_obligation(self.perf_obligation_ids[0])
@@ -79,18 +79,31 @@ class ContractLine(models.Model):
     def _prepare_perf_obligation_vals(self):
         """Return the values dict for the performance obligation."""
         self.ensure_one()
+        contract_type = self.contract_id.contract_type
+        perf_type = False
+        if self.contract_id.contract_type == "sale":
+            perf_type = "income"
+        elif contract_type == "purchase":
+            perf_type = "expense"
+        if not perf_type:
+            raise ValidationError(
+                _(
+                    "Unknown contract type '%(contract_type)s' "
+                    "on contract '%(contract)s'.",
+                    contract_type=contract_type,
+                    contract=self.contract_id.display_name,
+                )
+            )
         return {
-            "perf_type": "income",
-            # Todo: add contract's https://github.com/OCA/contract/commit/c142c5c68cc68d2d9e8d48552b8ce815cf2564bb
+            "perf_type": perf_type,
             "total_amount": self._get_contract_line_total_value(),
             "start_date": self.date_start,
             "end_date": self.date_end,
             "contract_line_id": self.id,
             "recognition_at_date_method": "daily",
             "description": _(
-                "Auto-created from contract %(contract)s - %(product)s",
+                "Auto-created from contract %(contract)s",
                 contract=self.contract_id.name,
-                product=self.product_id.display_name,
             ),
         }
 
