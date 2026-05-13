@@ -4,7 +4,7 @@
 from dataclasses import dataclass
 
 from odoo import Command, _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare, float_is_zero
 
 
@@ -96,6 +96,25 @@ class PerfObligation(models.Model):
         "out of date and needs to be regenerated. Cleared when "
         "regeneration completes.",
     )
+
+    def unlink(self):
+        posted = self.env["account.move.line"].search(
+            [
+                ("perf_obligation_id", "in", self.ids),
+                ("move_id.state", "=", "posted"),
+            ],
+            limit=1,
+        )
+        if posted:
+            raise UserError(
+                _(
+                    "Cannot delete performance obligation '%(name)s': "
+                    "it has posted accounting entries. "
+                    "Please reverse them first.",
+                    name=posted.perf_obligation_id.display_name,
+                )
+            )
+        return super().unlink()
 
     @api.depends("recognition_at_date_method")
     def _compute_supports_schedule(self):
