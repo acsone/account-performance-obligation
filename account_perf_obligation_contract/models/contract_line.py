@@ -54,9 +54,9 @@ class ContractLine(models.Model):
         """
         self.ensure_one()
         product = self.product_id
-        if not product.perf_obligation_auto_create:
+        if not product.perf_obligation_sale_auto_create:
             return None
-        if product.perf_obligation_recognition_method != "contract":
+        if product.perf_obligation_sale_recognition_method != "contract":
             return None
         if self.perf_obligation_ids:
             self._update_perf_obligation(self.perf_obligation_ids[0])

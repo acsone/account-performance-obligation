@@ -23,6 +23,6 @@ class SaleOrderLine(models.Model):
         For contract products, dates come from the SOL's date_start/date_end
         """
         self.ensure_one()
-        if self.product_id.perf_obligation_recognition_method == "contract":
+        if self.product_id.perf_obligation_sale_recognition_method == "contract":
             return self.date_start, self.date_end
         return super()._get_perf_obligation_dates()

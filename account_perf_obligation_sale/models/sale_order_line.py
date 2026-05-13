@@ -25,9 +25,9 @@ class SaleOrderLine(models.Model):
         """
         self.ensure_one()
         product = self.product_id
-        if not product.perf_obligation_auto_create:
+        if not product.perf_obligation_sale_auto_create:
             return None
-        if not product.perf_obligation_recognition_method:
+        if not product.perf_obligation_sale_recognition_method:
             return None
         # Duplicate guard: update existing obligation instead of creating a new one
         if self.perf_obligation_ids:
@@ -82,19 +82,19 @@ class SaleOrderLine(models.Model):
         """
         self.ensure_one()
         product = self.product_id
-        method = product.perf_obligation_recognition_method
+        method = product.perf_obligation_sale_recognition_method
         confirmation_date = self.order_id.date_order.date()
 
         if method == "at_once":
             return confirmation_date, confirmation_date
 
         if method == "months":
-            months = product.perf_obligation_months_duration
+            months = product.perf_obligation_sale_months_duration
             end_date = confirmation_date + relativedelta(months=months)
             return confirmation_date, end_date
 
         if method == "days":
-            days = product.perf_obligation_days_duration
+            days = product.perf_obligation_sale_days_duration
             end_date = confirmation_date + relativedelta(days=days)
             return confirmation_date, end_date
 
