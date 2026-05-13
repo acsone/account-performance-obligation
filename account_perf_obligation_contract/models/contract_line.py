@@ -2,7 +2,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
 from odoo.tools.misc import format_amount
 
 
@@ -25,26 +24,6 @@ class ContractLine(models.Model):
     def unlink(self):
         for line in self:
             for obligation in line.perf_obligation_ids:
-                posted_moves = (
-                    self.env["account.move.line"]
-                    .search(
-                        [
-                            ("perf_obligation_id", "=", obligation.id),
-                            ("move_id.state", "=", "posted"),
-                        ],
-                        limit=1,
-                    )
-                    .mapped("move_id")
-                )
-                if posted_moves:
-                    raise UserError(
-                        _(
-                            "Cannot delete contract line: the linked performance "
-                            "obligation '%(obligation)s' has posted accounting "
-                            "entries. Please reverse them first.",
-                            obligation=obligation.display_name,
-                        )
-                    )
                 draft_move_lines = self.env["account.move.line"].search(
                     [
                         ("perf_obligation_id", "=", obligation.id),
