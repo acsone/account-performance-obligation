@@ -17,26 +17,26 @@ class TestSalePerfObligation(TransactionCase):
             {
                 "name": "At Once Product",
                 "type": "service",
-                "perf_obligation_auto_create": True,
-                "perf_obligation_recognition_method": "at_once",
+                "perf_obligation_sale_auto_create": True,
+                "perf_obligation_sale_recognition_method": "at_once",
             }
         )
         cls.product_months = cls.env["product.product"].create(
             {
                 "name": "3-Month Product",
                 "type": "service",
-                "perf_obligation_auto_create": True,
-                "perf_obligation_recognition_method": "months",
-                "perf_obligation_months_duration": 3,
+                "perf_obligation_sale_auto_create": True,
+                "perf_obligation_sale_recognition_method": "months",
+                "perf_obligation_sale_months_duration": 3,
             }
         )
         cls.product_days = cls.env["product.product"].create(
             {
                 "name": "10-Day Product",
                 "type": "service",
-                "perf_obligation_auto_create": True,
-                "perf_obligation_recognition_method": "days",
-                "perf_obligation_days_duration": 10,
+                "perf_obligation_sale_auto_create": True,
+                "perf_obligation_sale_recognition_method": "days",
+                "perf_obligation_sale_days_duration": 10,
             }
         )
         cls.product_plain = cls.env["product.product"].create(

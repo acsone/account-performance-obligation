@@ -14,21 +14,21 @@
                     groups="account.group_account_user"
                 >
                     <group>
-                        <field name="perf_obligation_auto_create" />
+                        <field name="perf_obligation_sale_auto_create" />
                         <field
-                            name="perf_obligation_recognition_method"
-                            invisible="not perf_obligation_auto_create"
-                            required="perf_obligation_auto_create"
+                            name="perf_obligation_sale_recognition_method"
+                            invisible="not perf_obligation_sale_auto_create"
+                            required="perf_obligation_sale_auto_create"
                         />
                         <field
-                            name="perf_obligation_months_duration"
-                            invisible="perf_obligation_recognition_method != 'months'"
-                            required="perf_obligation_recognition_method == 'months'"
+                            name="perf_obligation_sale_months_duration"
+                            invisible="perf_obligation_sale_recognition_method != 'months'"
+                            required="perf_obligation_sale_recognition_method == 'months'"
                         />
                         <field
-                            name="perf_obligation_days_duration"
-                            invisible="perf_obligation_recognition_method != 'days'"
-                            required="perf_obligation_recognition_method == 'days'"
+                            name="perf_obligation_sale_days_duration"
+                            invisible="perf_obligation_sale_recognition_method != 'days'"
+                            required="perf_obligation_sale_recognition_method == 'days'"
                         />
                     </group>
                 </page>
