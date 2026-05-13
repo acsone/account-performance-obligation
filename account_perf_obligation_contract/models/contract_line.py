@@ -81,7 +81,8 @@ class ContractLine(models.Model):
         self.ensure_one()
         return {
             "perf_type": "income",
-            "total_amount": self._get_perf_obligation_total_amount(),
+            # Todo: add contract's https://github.com/OCA/contract/commit/c142c5c68cc68d2d9e8d48552b8ce815cf2564bb
+            "total_amount": self._get_contract_line_total_value(),
             "start_date": self.date_start,
             "end_date": self.date_end,
             "contract_line_id": self.id,
@@ -92,22 +93,6 @@ class ContractLine(models.Model):
                 product=self.product_id.display_name,
             ),
         }
-
-    def _get_perf_obligation_total_amount(self):
-        """Compute the total amount for the performance obligation.
-
-        Uses _get_quantity_to_invoice over the full contract line period
-        (date_start → date_end) multiplied by the unit price.
-        """
-        self.ensure_one()
-        if not self.date_start or not self.date_end:
-            return 0.0
-        quantity = self._get_quantity_to_invoice(
-            self.date_start,
-            self.date_end,
-            self.date_start,
-        )
-        return quantity * self.price_unit
 
     def _cancel_perf_obligations(self):
         """Update performance obligations on contract line cancellation."""
