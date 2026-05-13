@@ -17,12 +17,12 @@ class SaleOrderLine(models.Model):
             vals["perf_obligation_ids"] = [Command.link(self.perf_obligation_ids[0].id)]
         return vals
 
-    def _get_perf_obligation_dates(self):
-        """Handle the 'contract' recognition method.
-
-        For contract products, dates come from the SOL's date_start/date_end
-        """
-        self.ensure_one()
-        if self.product_id.perf_obligation_sale_recognition_method == "contract":
-            return self.date_start, self.date_end
-        return super()._get_perf_obligation_dates()
+    def create_contract_line(self, contract):
+        result = super().create_contract_line(contract)
+        for rec in self:
+            contract_line = contract.contract_line_ids.filtered(
+                lambda line, rec=rec: line.sale_order_line_id == rec
+            )
+            if contract_line and rec.perf_obligation_ids:
+                contract_line._update_perf_obligation_from_sol(rec)
+        return result

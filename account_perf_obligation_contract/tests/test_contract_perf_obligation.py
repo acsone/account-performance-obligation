@@ -14,32 +14,16 @@ class TestContractPerfObligation(TransactionCase):
         cls.contract_template = cls.env["contract.template"].create(
             {"name": "Test Contract Template"}
         )
-        cls.product_contract = cls.env["product.product"].create(
-            {
-                "name": "Contract Product",
-                "type": "service",
-                "is_contract": True,
-                "perf_obligation_sale_auto_create": True,
-                "perf_obligation_sale_recognition_method": "contract",
-                "recurring_interval": 1,
-                "recurring_rule_type": "monthly",
-                "recurring_invoicing_type": "pre-paid",
-                "recurrence_number": 12,
-                "recurrence_interval": "yearly",
-                "property_contract_template_id": cls.contract_template.id,
-            }
-        )
-        cls.product_plain = cls.env["product.product"].create(
+        cls.product = cls.env["product.product"].create(
             {
                 "name": "Plain Contract Product",
                 "type": "service",
-                "is_contract": True,
             }
         )
 
     def _make_contract(self, *lines):
         """Build a contract with lines. Each line is (product, qty, price_unit,
-        date_start, date_end)."""
+        date_start, date_end, autocreate)."""
         contract = self.env["contract.contract"].create(
             {
                 "name": "Test Contract",
@@ -48,7 +32,7 @@ class TestContractPerfObligation(TransactionCase):
                 "line_recurrence": True,
             }
         )
-        for product, qty, price, date_start, date_end in lines:
+        for product, qty, price, date_start, date_end, autocreate in lines:
             self.env["contract.line"].create(
                 {
                     "contract_id": contract.id,
@@ -63,6 +47,7 @@ class TestContractPerfObligation(TransactionCase):
                     "recurring_rule_type": "monthly",
                     "recurring_invoicing_type": "pre-paid",
                     "uom_id": product.uom_id.id,
+                    "perf_obligation_auto_create": autocreate,
                 }
             )
         return contract
@@ -70,11 +55,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_contract_method_creates_obligation(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             )
         )
         line = contract.contract_line_ids
@@ -89,11 +75,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_total_amount_computed_from_quantity_and_price(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 3,
                 400.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             )
         )
         po = contract.contract_line_ids.perf_obligation_ids
@@ -103,11 +90,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_plain_product_no_obligation(self):
         contract = self._make_contract(
             (
-                self.product_plain,
+                self.product,
                 1,
                 500.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                False,
             )
         )
         self.assertFalse(contract.contract_line_ids.perf_obligation_ids)
@@ -115,11 +103,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_obligation_linked_to_contract_line(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             )
         )
         line = contract.contract_line_ids
@@ -130,11 +119,12 @@ class TestContractPerfObligation(TransactionCase):
         obligation instead of creating a duplicate."""
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             )
         )
         line = contract.contract_line_ids
@@ -144,18 +134,20 @@ class TestContractPerfObligation(TransactionCase):
     def test_perf_obligation_count(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             ),
             (
-                self.product_contract,
+                self.product,
                 1,
                 800.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-06-30"),
+                True,
             ),
         )
         self.assertEqual(contract.perf_obligation_count, 2)
@@ -163,18 +155,20 @@ class TestContractPerfObligation(TransactionCase):
     def test_perf_obligation_count_excludes_plain_lines(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             ),
             (
-                self.product_plain,
+                self.product,
                 1,
                 500.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                False,
             ),
         )
         self.assertEqual(contract.perf_obligation_count, 1)
@@ -182,11 +176,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_cancel_sets_total_amount_to_zero_when_nothing_invoiced(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             )
         )
         line = contract.contract_line_ids
@@ -198,11 +193,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_cancel_posts_chatter_message(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             )
         )
         line = contract.contract_line_ids
@@ -214,11 +210,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_cancel_plain_line_no_error(self):
         contract = self._make_contract(
             (
-                self.product_plain,
+                self.product,
                 1,
                 500.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                False,
             )
         )
         line = contract.contract_line_ids
@@ -227,11 +224,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_unlink_deletes_obligation(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             )
         )
         line = contract.contract_line_ids
@@ -244,11 +242,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_unlink_blocked_by_posted_move(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             )
         )
         line = contract.contract_line_ids
@@ -284,11 +283,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_unlink_deletes_draft_moves(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             )
         )
         line = contract.contract_line_ids
@@ -325,11 +325,12 @@ class TestContractPerfObligation(TransactionCase):
     def test_prepare_invoice_line_carries_obligation(self):
         contract = self._make_contract(
             (
-                self.product_contract,
+                self.product,
                 1,
                 1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                True,
             )
         )
         line = contract.contract_line_ids
@@ -339,105 +340,14 @@ class TestContractPerfObligation(TransactionCase):
     def test_prepare_invoice_line_no_obligation(self):
         contract = self._make_contract(
             (
-                self.product_plain,
+                self.product,
                 1,
                 500.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
+                False,
             )
         )
         line = contract.contract_line_ids
         vals = line._prepare_invoice_line()
         self.assertNotIn("perf_obligation_id", vals)
-
-    def test_contract_method_requires_is_contract(self):
-        """Recognition method 'contract' cannot be set on a non-contract product."""
-        from odoo.exceptions import ValidationError
-
-        with self.assertRaises(ValidationError):
-            self.env["product.template"].create(
-                {
-                    "name": "Non-contract product",
-                    "type": "service",
-                    "is_contract": False,
-                    "perf_obligation_sale_recognition_method": "contract",
-                }
-            )
-
-    def test_create_contract_line_from_sol_reuses_obligation(self):
-        """Creating a contract line from a SOL links the existing performance obligation
-        to the contract line instead of creating a new one."""
-        # Setup: confirm a sale order with a contract product
-        order = self.env["sale.order"].create(
-            {
-                "partner_id": self.partner.id,
-                "order_line": [
-                    (
-                        0,
-                        0,
-                        {
-                            "product_id": self.product_contract.id,
-                            "product_uom_qty": 1,
-                            "price_unit": 1200.0,
-                        },
-                    )
-                ],
-            }
-        )
-        order.action_confirm()
-        sol = order.order_line
-        po = sol.perf_obligation_ids
-        self.assertEqual(len(po), 1)
-
-        # Create contract and contract line from SOL
-        contract = self.env["contract.contract"].create(
-            {
-                "name": "Test Contract",
-                "partner_id": self.partner.id,
-                "contract_type": "sale",
-                "line_recurrence": True,
-            }
-        )
-        sol.create_contract_line(contract)
-        contract_line = contract.contract_line_ids
-
-        # Same performance obligation, no duplicate
-        self.assertEqual(len(contract_line.perf_obligation_ids), 1)
-        self.assertEqual(contract_line.perf_obligation_ids, po)
-
-    def test_create_contract_line_from_sol_updates_obligation_dates(self):
-        """The performance obligation dates are updated to match the contract line
-        dates."""
-        order = self.env["sale.order"].create(
-            {
-                "partner_id": self.partner.id,
-                "order_line": [
-                    (
-                        0,
-                        0,
-                        {
-                            "product_id": self.product_contract.id,
-                            "product_uom_qty": 1,
-                            "price_unit": 1200.0,
-                        },
-                    )
-                ],
-            }
-        )
-        order.action_confirm()
-        sol = order.order_line
-        po = sol.perf_obligation_ids
-
-        contract = self.env["contract.contract"].create(
-            {
-                "name": "Test Contract",
-                "partner_id": self.partner.id,
-                "contract_type": "sale",
-                "line_recurrence": True,
-            }
-        )
-        sol.create_contract_line(contract)
-        contract_line = contract.contract_line_ids
-
-        self.assertEqual(po.start_date, contract_line.date_start)
-        self.assertEqual(po.end_date, contract_line.date_end)
