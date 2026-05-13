@@ -19,8 +19,8 @@ class TestContractPerfObligation(TransactionCase):
                 "name": "Contract Product",
                 "type": "service",
                 "is_contract": True,
-                "perf_obligation_auto_create": True,
-                "perf_obligation_recognition_method": "contract",
+                "perf_obligation_sale_auto_create": True,
+                "perf_obligation_sale_recognition_method": "contract",
                 "recurring_interval": 1,
                 "recurring_rule_type": "monthly",
                 "recurring_invoicing_type": "pre-paid",
@@ -360,7 +360,7 @@ class TestContractPerfObligation(TransactionCase):
                     "name": "Non-contract product",
                     "type": "service",
                     "is_contract": False,
-                    "perf_obligation_recognition_method": "contract",
+                    "perf_obligation_sale_recognition_method": "contract",
                 }
             )
 
