@@ -69,6 +69,10 @@
                                 name="recognition_at_date_method"
                                 string="Recognition Method"
                             />
+                            <field
+                                name="pl_account_id"
+                                domain="([('internal_group', '=', perf_type)] if perf_type else []) + [('deprecated', '=', False)]"
+                            />
                         </group>
 
                         <group name="administration_info" string="Administration">
