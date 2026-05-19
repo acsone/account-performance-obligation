@@ -311,7 +311,7 @@ class PerfObligation(models.Model):
     # Recognition logic
     # ------------------------------------------------------------------
 
-    def _recognize(self, amount_to_recognize, date, description):
+    def _recognize(self, amount_to_recognize, date, description, schedule=False):
         """Compute and create a draft recognition journal entry at date
         for the desired amount.
 
@@ -372,6 +372,8 @@ class PerfObligation(models.Model):
             "auto_post": "monthly",
             "line_ids": [Command.create(vals) for vals in lines],
         }
+        if schedule:
+            move_vals["perf_obligation_schedule_move"] = True
         return self.env["account.move"].create(move_vals)
 
     def _build_recognition_lines(self, amount_to_recognize, date, config, precision):
@@ -550,12 +552,12 @@ class PerfObligation(models.Model):
         schedule entries, then clear the regeneration flag.
 
         If the obligation no longer supports schedule generation,
-        just clear the flag.
+        do not regenerate schedule entries.
         """
         self.ensure_one()
         self = self.with_context(perf_obligation_in_regeneration=True)
+        self._delete_draft_schedule_moves()
         if self._supports_schedule():
-            self._delete_draft_recognition_moves()
             self._generate_schedule_moves()
         self.write({"schedule_needs_regeneration": False})
 
@@ -575,23 +577,23 @@ class PerfObligation(models.Model):
         )
         return moves.date if moves else None
 
-    def _get_draft_recognition_moves(self):
-        """Return draft recognition moves for this obligation."""
+    def _get_draft_schedule_moves(self):
+        """Return draft recognition moves automatically generated for this
+        obligation and not yet posted."""
         self.ensure_one()
-        config = self._get_recognition_config()
         return self.env["account.move"].search(
             [
-                ("journal_id", "=", config.journal.id),
+                ("perf_obligation_schedule_move", "=", True),
                 ("state", "=", "draft"),
                 ("line_ids.perf_obligation_id", "=", self.id),
             ]
         )
 
-    def _delete_draft_recognition_moves(self):
+    def _delete_draft_schedule_moves(self):
         """Delete all draft recognition journal entries linked to this
         obligation."""
         self.ensure_one()
-        draft_moves = self._get_draft_recognition_moves()
+        draft_moves = self._get_draft_schedule_moves()
         if draft_moves:
             draft_moves.unlink()
 
@@ -614,6 +616,7 @@ class PerfObligation(models.Model):
                 amount_to_recognize=amount,
                 date=schedule_date,
                 description=description,
+                schedule=True,
             )
 
     def _get_move_lines_date_range(self):
@@ -660,9 +663,15 @@ class PerfObligation(models.Model):
 
         For obligations that support schedule generation, this delegates
         to `_mark_for_regeneration` to flag the schedule for rebuild.
+        Also flags obligations that no longer support scheduling but still
+        have draft recognition moves pending cleanup.
         """
         if not self.env.context.get("perf_obligation_in_regeneration"):
             self.filtered(lambda po: po._supports_schedule())._mark_for_regeneration()
+            self.filtered(
+                lambda po: not po._supports_schedule()
+                and bool(po._get_draft_schedule_moves())
+            )._mark_for_regeneration()
 
     def _mark_for_regeneration(self):
         """Flag this obligation's schedule for regeneration."""

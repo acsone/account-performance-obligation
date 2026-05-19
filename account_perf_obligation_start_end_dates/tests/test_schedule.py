@@ -217,7 +217,7 @@ class TestSchedule(PerfObligationDatesCommon):
         )
         po.action_generate_schedule()
 
-        draft_moves = po._get_draft_recognition_moves()
+        draft_moves = po._get_draft_schedule_moves()
         self.assertEqual(len(draft_moves), 3)
 
         dates = sorted(draft_moves.mapped("date"))
@@ -244,7 +244,7 @@ class TestSchedule(PerfObligationDatesCommon):
         )
         po.action_generate_schedule()
 
-        draft_moves = po._get_draft_recognition_moves()
+        draft_moves = po._get_draft_schedule_moves()
         self.assertEqual(len(draft_moves), 2)
 
         for move in draft_moves:
@@ -270,7 +270,7 @@ class TestSchedule(PerfObligationDatesCommon):
         )
         po.action_generate_schedule()
 
-        draft_moves = po._get_draft_recognition_moves()
+        draft_moves = po._get_draft_schedule_moves()
         self.assertEqual(len(draft_moves), 3)
 
     def test_generate_schedule_replaces_existing_drafts(self):
@@ -283,10 +283,10 @@ class TestSchedule(PerfObligationDatesCommon):
             end_date=date(2026, 3, 31),
         )
         po.action_generate_schedule()
-        first_move_ids = set(po._get_draft_recognition_moves().ids)
+        first_move_ids = set(po._get_draft_schedule_moves().ids)
 
         po.action_generate_schedule()
-        second_move_ids = set(po._get_draft_recognition_moves().ids)
+        second_move_ids = set(po._get_draft_schedule_moves().ids)
 
         self.assertFalse(first_move_ids & second_move_ids)
         self.assertEqual(len(second_move_ids), 3)
@@ -322,7 +322,7 @@ class TestSchedule(PerfObligationDatesCommon):
         po.action_generate_schedule()
 
         # Draft moves generated for remaining months only
-        draft_moves = po._get_draft_recognition_moves()
+        draft_moves = po._get_draft_schedule_moves()
         draft_dates = sorted(draft_moves.mapped("date"))
         self.assertEqual(
             draft_dates,
@@ -348,7 +348,7 @@ class TestSchedule(PerfObligationDatesCommon):
         )
         po.action_generate_schedule()
 
-        draft_moves = po._get_draft_recognition_moves()
+        draft_moves = po._get_draft_schedule_moves()
         self.assertEqual(len(draft_moves), 1)
         self.assertIn(po.name, draft_moves.ref)
 
@@ -363,7 +363,7 @@ class TestSchedule(PerfObligationDatesCommon):
         )
         po.action_generate_schedule()
 
-        draft_moves = po._get_draft_recognition_moves()
+        draft_moves = po._get_draft_schedule_moves()
         draft_dates = sorted(draft_moves.mapped("date"))
         self.assertEqual(
             draft_dates,

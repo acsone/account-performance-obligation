@@ -62,7 +62,7 @@ class TestAutoRegenerate(PerfObligationDatesCommon):
         po = self._make_po()
         self.assertTrue(po.schedule_needs_regeneration)
         # No drafts yet: regeneration hasn't run
-        self.assertFalse(po._get_draft_recognition_moves())
+        self.assertFalse(po._get_draft_schedule_moves())
 
     def test_create_without_full_config_does_not_mark(self):
         """Creating an obligation without dates/method does not flag it."""
@@ -175,7 +175,7 @@ class TestAutoRegenerate(PerfObligationDatesCommon):
         # Flag cleared
         self.assertFalse(po.schedule_needs_regeneration)
         # Drafts generated
-        drafts = po._get_draft_recognition_moves()
+        drafts = po._get_draft_schedule_moves()
         self.assertEqual(len(drafts), 3)
         self.assertEqual(
             sorted(drafts.mapped("date")),
@@ -186,7 +186,7 @@ class TestAutoRegenerate(PerfObligationDatesCommon):
         """Running processing twice replaces previous drafts."""
         po = self._make_po()
         po._process_pending_regenerations()
-        first_ids = set(po._get_draft_recognition_moves().ids)
+        first_ids = set(po._get_draft_schedule_moves().ids)
         self.assertEqual(len(first_ids), 3)
 
         # Trigger another regeneration
@@ -194,7 +194,7 @@ class TestAutoRegenerate(PerfObligationDatesCommon):
         self.assertTrue(po.schedule_needs_regeneration)
 
         po._process_pending_regenerations()
-        second_ids = set(po._get_draft_recognition_moves().ids)
+        second_ids = set(po._get_draft_schedule_moves().ids)
 
         self.assertFalse(first_ids & second_ids)
         self.assertEqual(len(second_ids), 3)
@@ -205,7 +205,7 @@ class TestAutoRegenerate(PerfObligationDatesCommon):
         po = self._make_po()
         po._process_pending_regenerations()
 
-        jan_draft = po._get_draft_recognition_moves().filtered(
+        jan_draft = po._get_draft_schedule_moves().filtered(
             lambda m: m.date == date(2026, 1, 31)
         )
         self.assertTrue(jan_draft)
@@ -224,7 +224,7 @@ class TestAutoRegenerate(PerfObligationDatesCommon):
         self.assertEqual(jan_draft.state, "posted")
 
         # Drafts only for Feb and Mar
-        new_drafts = po._get_draft_recognition_moves()
+        new_drafts = po._get_draft_schedule_moves()
         self.assertEqual(
             sorted(new_drafts.mapped("date")),
             [date(2026, 2, 28), date(2026, 3, 31)],
@@ -239,7 +239,7 @@ class TestAutoRegenerate(PerfObligationDatesCommon):
         po.action_process_pending_regenerations()
 
         self.assertFalse(po.schedule_needs_regeneration)
-        self.assertEqual(len(po._get_draft_recognition_moves()), 3)
+        self.assertEqual(len(po._get_draft_schedule_moves()), 3)
 
     # =========================================================
     # Recursion guard
@@ -255,4 +255,4 @@ class TestAutoRegenerate(PerfObligationDatesCommon):
 
         # Flag is cleared and exactly 3 drafts exist
         self.assertFalse(po.schedule_needs_regeneration)
-        self.assertEqual(len(po._get_draft_recognition_moves()), 3)
+        self.assertEqual(len(po._get_draft_schedule_moves()), 3)

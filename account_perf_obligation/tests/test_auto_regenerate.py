@@ -51,9 +51,9 @@ class TestAutoRegenerate(PerfObligationCommon):
     # _mark_needs_recognition: no-op cases
     # =========================================================
 
-    def test_mark_noop_when_schedule_unsupported(self):
+    def test_mark_noop_when_schedule_unsupported_and_no_drafts(self):
         """_mark_needs_recognition is a no-op when the obligation does
-        not support scheduling (the base case)."""
+        not support scheduling and has no draft recognition moves."""
         po = self._create_obligation()
         self.assertFalse(po._supports_schedule())
         po._mark_needs_recognition()
@@ -172,3 +172,39 @@ class TestAutoRegenerate(PerfObligationCommon):
         """pl_account_id must be listed in _get_recognition_trigger_fields."""
         po = self._create_obligation()
         self.assertIn("pl_account_id", po._get_recognition_trigger_fields())
+
+    def test_mark_flags_when_schedule_unsupported_but_drafts_exist(self):
+        """_mark_needs_recognition flags an obligation that no longer
+        supports scheduling but still has draft recognition moves
+        pending cleanup."""
+        po = self._create_obligation()
+        self.assertFalse(po._supports_schedule())
+        self.env["account.move"].create(
+            {
+                "journal_id": self.reco_journal.id,
+                "date": "2026-01-31",
+                "perf_obligation_schedule_move": True,
+                "line_ids": [
+                    Command.create(
+                        {
+                            "account_id": self.inc_debit_bs.id,
+                            "debit": 100,
+                            "credit": 0,
+                            "name": "Test",
+                            "perf_obligation_id": po.id,
+                        }
+                    ),
+                    Command.create(
+                        {
+                            "account_id": self.inc_pl.id,
+                            "debit": 0,
+                            "credit": 100,
+                            "name": "Test",
+                            "perf_obligation_id": po.id,
+                        }
+                    ),
+                ],
+            }
+        )
+        po._mark_needs_recognition()
+        self.assertTrue(po.schedule_needs_regeneration)
