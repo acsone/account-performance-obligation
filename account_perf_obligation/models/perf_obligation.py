@@ -96,6 +96,14 @@ class PerfObligation(models.Model):
         "out of date and needs to be regenerated. Cleared when "
         "regeneration completes.",
     )
+    pl_account_id = fields.Many2one(
+        comodel_name="account.account",
+        string="P&L Recognition Account",
+        check_company=True,
+        tracking=True,
+        help="Optional. If set, overrides the P&L account defined in the "
+        "accounting configuration for recognition entries.",
+    )
 
     @api.depends("recognition_at_date_method")
     def _compute_supports_schedule(self):
@@ -174,6 +182,8 @@ class PerfObligation(models.Model):
                 )
             )
         rc = RecognitionConfig(**values)
+        if self.pl_account_id:
+            rc.pl_account = self.pl_account_id
         if self.total_amount < 0:
             # swap debit and credit accounts
             rc.debit_bs_account, rc.credit_bs_account = (
@@ -609,7 +619,7 @@ class PerfObligation(models.Model):
         Override this method in modules that add fields impacting
         the schedule (e.g. start_date, end_date).
         """
-        return ["total_amount", "recognition_at_date_method"]
+        return ["total_amount", "recognition_at_date_method", "pl_account_id"]
 
     def write(self, vals):
         res = super().write(vals)

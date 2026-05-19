@@ -167,3 +167,8 @@ class TestAutoRegenerate(PerfObligationCommon):
             }
         )
         self.assertFalse(po.schedule_needs_regeneration)
+
+    def test_pl_account_id_in_trigger_fields(self):
+        """pl_account_id must be listed in _get_recognition_trigger_fields."""
+        po = self._create_obligation()
+        self.assertIn("pl_account_id", po._get_recognition_trigger_fields())
