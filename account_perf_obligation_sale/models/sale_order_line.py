@@ -65,7 +65,7 @@ class SaleOrderLine(models.Model):
         """Return the values dict for the performance obligation to create."""
         self.ensure_one()
         start_date, end_date = self._get_perf_obligation_dates()
-        return {
+        vals = {
             "perf_type": "income",
             "total_amount": self._get_obligation_amount(),
             "start_date": start_date,
@@ -77,6 +77,19 @@ class SaleOrderLine(models.Model):
                 product=self.product_id.display_name,
             ),
         }
+        income_account = self._get_perf_obligation_income_account()
+        if income_account:
+            vals["pl_account_id"] = income_account.id
+        return vals
+
+    def _get_perf_obligation_income_account(self):
+        """Return the income account to set on the performance obligation."""
+        self.ensure_one()
+        product = self.product_id
+        account = product.product_tmpl_id.get_product_accounts(
+            fiscal_pos=self.order_id.fiscal_position_id
+        ).get("income")
+        return account
 
     def _get_perf_obligation_dates(self):
         """Return (start_date, end_date) for the performance obligation.
