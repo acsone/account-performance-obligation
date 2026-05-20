@@ -1179,3 +1179,67 @@ class TestRecognitionNegative(TestRecognition):
             self.inc_debit_bs,
             0,
         )
+
+    def test_pl_account_id_defaults_empty(self):
+        """pl_account_id is empty by default."""
+        po = self._create_obligation(perf_type="income", total_amount=1000)
+        self.assertFalse(po.pl_account_id)
+
+    def test_pl_account_id_income_uses_specific_account(self):
+        """When pl_account_id is set on an income obligation, recognition
+        entries use that account instead of the company-level one."""
+        specific_pl = self.env["account.account"].create(
+            {
+                "name": "Specific Income Reco P&L",
+                "code": "7R2TST",
+                "account_type": "income",
+            }
+        )
+        po = self._create_obligation(perf_type="income", total_amount=300)
+        po.pl_account_id = specific_pl
+        result = self._create_wizard(
+            po, 100, date="2026-01-31", description="Jan"
+        ).action_confirm()
+        lines = self.env["account.move"].browse(result["res_id"]).line_ids
+        pl_lines = self._filter_lines(lines, specific_pl)
+        self.assertTrue(pl_lines, "Expected a line on the specific P&L account")
+        default_pl_lines = self._filter_lines(lines, self.inc_pl)
+        self.assertFalse(
+            default_pl_lines,
+            "Company-level P&L account must not be used when specific account is set",
+        )
+
+    def test_pl_account_id_expense_uses_specific_account(self):
+        """When pl_account_id is set on an expense obligation, recognition
+        entries use that account instead of the company-level one."""
+        specific_pl = self.env["account.account"].create(
+            {
+                "name": "Specific Expense Reco P&L",
+                "code": "6R2TST",
+                "account_type": "expense",
+            }
+        )
+        po = self._create_obligation(perf_type="expense", total_amount=300)
+        po.pl_account_id = specific_pl
+        result = self._create_wizard(
+            po, 100, date="2026-01-31", description="Jan"
+        ).action_confirm()
+        lines = self.env["account.move"].browse(result["res_id"]).line_ids
+        pl_lines = self._filter_lines(lines, specific_pl)
+        self.assertTrue(pl_lines, "Expected a line on the specific P&L account")
+        default_pl_lines = self._filter_lines(lines, self.exp_pl)
+        self.assertFalse(
+            default_pl_lines,
+            "Company-level P&L account must not be used when specific account is set",
+        )
+
+    def test_pl_account_id_absent_falls_back_to_company_config(self):
+        """When pl_account_id is not set, the company-level account is used."""
+        po = self._create_obligation(perf_type="income", total_amount=300)
+        self.assertFalse(po.pl_account_id)
+        result = self._create_wizard(
+            po, 100, date="2026-01-31", description="Jan"
+        ).action_confirm()
+        lines = self.env["account.move"].browse(result["res_id"]).line_ids
+        pl_lines = self._filter_lines(lines, self.inc_pl)
+        self.assertTrue(pl_lines, "Expected a line on the company-level P&L account")

@@ -57,12 +57,14 @@ Configuration
    - Recognition journal
    - Deferral account (balance sheet)
    - Accrual account (balance sheet)
-   - Counterpart account (P&L)
+   - Counterpart account (P&L): used as the default for all obligations;
+     can be overridden on individual obligations via the
+     **P&L Recognition Account** field on the obligation form.
 
 Usage
 =====
 
-#. Go to **Invoicing > Performance Obligations**
+#. Go to **Invoicing > Accounting > Performance Obligations**
 #. Create a new obligation (type: income or expense, total amount)
 #. On invoice journal items, set the **Performance Obligation** field
    to link them to the obligation
