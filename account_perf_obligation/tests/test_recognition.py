@@ -36,6 +36,22 @@ class TestRecognition(PerfObligationCommon):
         self.assertNotEqual(po.name, "/")
         self.assertTrue(po.name)
 
+    def test_unlink_with_posted_moves(self):
+        """Cannot unlink if posted moves."""
+        po = self._create_obligation(perf_type="income", total_amount=1000)
+        self.assertEqual(po.move_line_count, 0)
+        self._create_and_post_move(
+            self.sale_journal,
+            [
+                (self.receivable_account, 1000, 0, False),
+                (self.income_account, 0, 1000, po),
+            ],
+        )
+        po.invalidate_recordset()
+        self.assertEqual(po.move_line_count, 1)
+        with self.assertRaisesRegex(UserError, r"Cannot delete performance obligation"):
+            po.unlink()
+
     def test_move_line_count(self):
         """move_line_count reflects linked non-cancelled lines."""
         po = self._create_obligation(perf_type="income", total_amount=1000)
