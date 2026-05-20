@@ -18,5 +18,6 @@
         "views/product_template.xml",
         "views/perf_obligation.xml",
         "views/sale_order.xml",
+        "views/sale_order_line.xml",
     ],
 }
