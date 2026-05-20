@@ -14,8 +14,10 @@ defined on each product.
 For each confirmed sale order line whose product has
 **Auto-create Performance Obligation** enabled, a performance obligation
 of type *income* is created and linked to that line. The obligation's
-total amount is set to the line's untaxed subtotal, and its recognition
-period is derived from the product's configured recognition method.
+total amount is set to the line's untaxed subtotal, its recognition
+period is derived from the product's configured recognition method, and
+its **P&L Recognition Account** is resolved from the product's income
+account — remapped through the sale order's fiscal position if applicable.
 
 When a sale order is **cancelled**, all performance obligations linked to
 its lines are frozen: their total amount is updated to match the
@@ -25,8 +27,8 @@ will be reversed on the next schedule regeneration.
 
 When a cancelled sale order is **re-confirmed**, existing performance
 obligations are updated in place (no duplicate is created) with the
-dates, total amount, and other fields recomputed as if the obligation
-were being created for the first time.
+dates, total amount, P&L account, and other fields recomputed as if the
+obligation were being created for the first time.
 
 Configuration
 =============
@@ -43,6 +45,12 @@ Configuration
        **Recognition Duration (months)** field that appears below.
      - **Over several days**: enter the number of days in the
        **Recognition Duration (days)** field that appears below.
+
+   - Optionally set an **Income Account** on the product. If set, this
+     account is copied to the obligation's **P&L Recognition Account**,
+     overriding the default account from the accounting configuration.
+     If the sale order has a fiscal position with an account mapping for
+     that income account, the mapped account is used instead.
 
 Usage
 =====
@@ -61,6 +69,15 @@ Usage
      end date is the confirmation date plus the number of days configured
      on the product.
 
+#. The obligation's **P&L Recognition Account** is set as follows:
+
+   - If the product has no income account configured, the field is left
+     empty and the default account from the accounting configuration is
+     used for recognition entries.
+   - If the product has an income account and the sale order's fiscal
+     position defines a mapping for it, the mapped account is used.
+   - Otherwise the product's income account is used directly.
+
 #. Use the **Performance Obligations** smart button on the sale order
    form to review all obligations linked to that order.
 #. If the order is cancelled, the obligations are frozen at their
@@ -68,5 +85,5 @@ Usage
    (or install ``account_perf_obligation_auto_schedule``) to generate
    the corresponding adjustment entries.
 #. If the cancelled order is re-confirmed, existing obligations are
-   updated in place with the recomputed dates and the current line
-   subtotal as the new total amount. No duplicate obligation is created.
+   updated in place with the recomputed dates, current line subtotal,
+   and recomputed P&L account. No duplicate obligation is created.

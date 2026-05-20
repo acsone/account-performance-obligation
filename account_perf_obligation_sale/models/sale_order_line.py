@@ -57,7 +57,7 @@ class SaleOrderLine(models.Model):
         """Return the values dict for the performance obligation to create."""
         self.ensure_one()
         start_date, end_date = self._get_perf_obligation_dates()
-        return {
+        vals = {
             "perf_type": "income",
             "total_amount": self.price_subtotal,
             "start_date": start_date,
@@ -70,6 +70,29 @@ class SaleOrderLine(models.Model):
                 product=self.product_id.display_name,
             ),
         }
+        income_account = self._get_perf_obligation_income_account()
+        if income_account:
+            vals["pl_account_id"] = income_account.id
+        return vals
+
+    def _get_perf_obligation_income_account(self):
+        """Return the income account to set on the performance obligation.
+
+        Resolves the product's income account through the sale order's fiscal
+        position account mapping (if any), following the same logic Odoo uses
+        when generating invoice lines:
+        """
+        self.ensure_one()
+        product = self.product_id
+        account = product.with_company(
+            self.order_id.company_id
+        ).property_account_income_id
+        if not account:
+            return None
+        fiscal_position = self.order_id.fiscal_position_id
+        if fiscal_position:
+            account = fiscal_position.map_account(account)
+        return account
 
     def _get_perf_obligation_dates(self):
         """Return (start_date, end_date) for the performance obligation.
