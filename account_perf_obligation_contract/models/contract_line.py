@@ -94,7 +94,7 @@ class ContractLine(models.Model):
                     contract=self.contract_id.display_name,
                 )
             )
-        return {
+        vals = {
             "perf_type": perf_type,
             "total_amount": self._get_contract_line_total_value(),
             "start_date": self.date_start,
@@ -106,6 +106,35 @@ class ContractLine(models.Model):
                 contract=self.contract_id.name,
             ),
         }
+        pl_account = self._get_perf_obligation_pl_account()
+        if pl_account:
+            vals["pl_account_id"] = pl_account.id
+        return vals
+
+    def _get_perf_obligation_pl_account(self):
+        """Return the P&L account to set on the performance obligation.
+
+        For sale contracts: resolves the product's income account
+        (property_account_income_id) through the contract's fiscal position.
+
+        For purchase contracts: resolves the product's expense account
+        (property_account_expense_id) through the contract's fiscal position.
+        """
+        self.ensure_one()
+        contract_type = self.contract_id.contract_type
+        product = self.product_id.with_company(self.contract_id.company_id)
+        if contract_type == "sale":
+            account = product.property_account_income_id
+        elif contract_type == "purchase":
+            account = product.property_account_expense_id
+        else:
+            return None
+        if not account:
+            return None
+        fiscal_position = self.contract_id.fiscal_position_id
+        if fiscal_position:
+            account = fiscal_position.map_account(account)
+        return account
 
     def _cancel_perf_obligations(self):
         """Update performance obligations on contract line cancellation."""

@@ -19,6 +19,10 @@ directly from the contract line's ``date_start`` and ``date_end``.
 Contract lines without a ``date_end`` are skipped: a meaningful total amount
 cannot be computed without a known end date.
 
+The obligation's **P&L Recognition Account** is resolved from the product's
+income account (for sale contracts) or expense account (for purchase
+contracts), remapped through the contract's fiscal position if applicable.
+
 When a contract line is **cancelled** (``is_canceled`` set to ``True``), all
 performance obligations linked to it are frozen: their total amount is updated
 to match the already-invoiced amount on the line. If nothing has been invoiced
@@ -33,7 +37,7 @@ before the obligation itself is removed.
 When a contract invoice line is generated from a contract line that has a
 linked performance obligation, the obligation is automatically carried over
 to the invoice line (and the corresponding accounting entry on the revenue
-account).
+or expense account).
 
 Configuration
 =============
@@ -41,6 +45,13 @@ Configuration
 #. On each relevant contract line:
 
    - Tick **Auto-create Performance Obligation**.
+
+#. Optionally, set an **Income Account** (sale contracts) or **Expense
+   Account** (purchase contracts) on the product. If set, this account is
+   copied to the obligation's **P&L Recognition Account**, overriding the
+   default account from the accounting configuration. If the contract has a
+   fiscal position with an account mapping for that account, the mapped
+   account is used instead.
 
 Usage
 =====
@@ -56,6 +67,18 @@ Direct contract line creation
    computed as::
 
        quantity_to_invoice(date_start, date_end) × unit_price
+
+#. The obligation's **P&L Recognition Account** is set as follows:
+
+   - For **sale contracts**: the product's income account
+     (``property_account_income_id``) is used.
+   - For **purchase contracts**: the product's expense account
+     (``property_account_expense_id``) is used.
+   - If the contract has a fiscal position with a mapping for that account,
+     the mapped account is used instead.
+   - If the product has no account configured, the field is left empty and
+     the default account from the accounting configuration is used for
+     recognition entries.
 
 #. Use the **Performance Obligations** smart button on the contract
    form to review all obligations linked to that contract.
