@@ -71,9 +71,9 @@ class TestSalePerfObligation(TransactionCase):
     def test_at_once_creates_obligation(self):
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
-        po = order.order_line.perf_obligation_ids
+        po = order.order_line.perf_obligation_id
         conf = order.date_order.date()
-        self.assertEqual(len(po), 1)
+        self.assertTrue(po)
         self.assertEqual(po.perf_type, "income")
         self.assertEqual(po.total_amount, 1000.0)
         self.assertEqual(po.start_date, conf)
@@ -83,9 +83,9 @@ class TestSalePerfObligation(TransactionCase):
     def test_months_creates_obligation(self):
         order = self._make_order((self.product_months, 1, 1200.0))
         order.action_confirm()
-        po = order.order_line.perf_obligation_ids
+        po = order.order_line.perf_obligation_id
         conf = order.date_order.date()
-        self.assertEqual(len(po), 1)
+        self.assertTrue(po)
         self.assertEqual(po.start_date, conf)
         self.assertEqual(po.end_date, conf + relativedelta(months=3))
         self.assertEqual(po.total_amount, 1200.0)
@@ -93,9 +93,9 @@ class TestSalePerfObligation(TransactionCase):
     def test_days_creates_obligation(self):
         order = self._make_order((self.product_days, 1, 800.0))
         order.action_confirm()
-        po = order.order_line.perf_obligation_ids
+        po = order.order_line.perf_obligation_id
         conf = order.date_order.date()
-        self.assertEqual(len(po), 1)
+        self.assertTrue(po)
         self.assertEqual(po.perf_type, "income")
         self.assertEqual(po.total_amount, 800.0)
         self.assertEqual(po.start_date, conf)
@@ -105,7 +105,7 @@ class TestSalePerfObligation(TransactionCase):
     def test_plain_product_no_obligation(self):
         order = self._make_order((self.product_plain, 1, 500.0))
         order.action_confirm()
-        self.assertFalse(order.order_line.perf_obligation_ids)
+        self.assertFalse(order.order_line.perf_obligation_id)
 
     def test_mixed_lines_only_qualifying_get_obligation(self):
         order = self._make_order(
@@ -119,14 +119,8 @@ class TestSalePerfObligation(TransactionCase):
         plain_line = order.order_line.filtered(
             lambda line: line.product_id == self.product_plain
         )
-        self.assertEqual(len(at_once_line.perf_obligation_ids), 1)
-        self.assertFalse(plain_line.perf_obligation_ids)
-
-    def test_obligation_linked_to_sale_line(self):
-        order = self._make_order((self.product_at_once, 1, 1000.0))
-        order.action_confirm()
-        line = order.order_line
-        self.assertEqual(line.perf_obligation_ids.sale_order_line_id, line)
+        self.assertTrue(at_once_line.perf_obligation_id)
+        self.assertFalse(plain_line.perf_obligation_id)
 
     def test_duplicate_guard(self):
         """Re-calling _create_perf_obligation_if_needed updates the existing
@@ -134,8 +128,9 @@ class TestSalePerfObligation(TransactionCase):
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
         line = order.order_line
+        po_id = line.perf_obligation_id.id
         line._create_perf_obligation_if_needed()
-        self.assertEqual(len(line.perf_obligation_ids), 1)
+        self.assertEqual(line.perf_obligation_id.id, po_id)
 
     # ------------------------------------------------------------------
     # Smart button count
@@ -158,7 +153,7 @@ class TestSalePerfObligation(TransactionCase):
         """On cancellation with nothing invoiced, total_amount is set to 0."""
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
-        po = order.order_line.perf_obligation_ids
+        po = order.order_line.perf_obligation_id
         self.assertEqual(po.total_amount, 1000.0)
         order.action_cancel()
         self.assertEqual(po.total_amount, 0.0)
@@ -171,8 +166,9 @@ class TestSalePerfObligation(TransactionCase):
         )
         order.action_confirm()
         order.action_cancel()
-        for po in order.order_line.mapped("perf_obligation_ids"):
-            self.assertEqual(po.total_amount, 0.0)
+        for line in order.order_line:
+            if line.perf_obligation_id:
+                self.assertEqual(line.perf_obligation_id.total_amount, 0.0)
 
     def test_cancel_without_obligations_no_error(self):
         order = self._make_order((self.product_plain, 1, 500.0))
@@ -189,7 +185,7 @@ class TestSalePerfObligation(TransactionCase):
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
         line = order.order_line
-        po = line.perf_obligation_ids
+        po = line.perf_obligation_id
         self.assertEqual(po.total_amount, 1000.0)
 
         order.with_context(disable_cancel_warning=True).action_cancel()
@@ -200,7 +196,7 @@ class TestSalePerfObligation(TransactionCase):
         order.action_draft()
         order.action_confirm()
 
-        self.assertEqual(len(line.perf_obligation_ids), 1)
+        self.assertEqual(line.perf_obligation_id, po)
         self.assertEqual(po.total_amount, 1500.0)
 
     def test_reconfirm_updates_obligation_dates_months(self):
@@ -209,7 +205,7 @@ class TestSalePerfObligation(TransactionCase):
         order = self._make_order((self.product_months, 1, 1200.0))
         order.action_confirm()
         line = order.order_line
-        po = line.perf_obligation_ids
+        po = line.perf_obligation_id
         original_start = po.start_date
         original_end = po.end_date
 
@@ -218,7 +214,7 @@ class TestSalePerfObligation(TransactionCase):
         order.action_confirm()
 
         conf = order.date_order.date()
-        self.assertEqual(len(line.perf_obligation_ids), 1)
+        self.assertEqual(line.perf_obligation_id, po)
         self.assertEqual(po.start_date, conf)
         self.assertEqual(po.end_date, conf + relativedelta(months=3))
         # Dates are recomputed (they should equal the originals in this test
@@ -233,7 +229,7 @@ class TestSalePerfObligation(TransactionCase):
         order.with_context(disable_cancel_warning=True).action_cancel()
         order.action_draft()
         order.action_confirm()
-        self.assertFalse(order.order_line.perf_obligation_ids)
+        self.assertFalse(order.order_line.perf_obligation_id)
 
     # ------------------------------------------------------------------
     # Invoice line propagation
@@ -244,7 +240,7 @@ class TestSalePerfObligation(TransactionCase):
         order.action_confirm()
         line = order.order_line
         vals = line._prepare_invoice_line()
-        self.assertEqual(vals.get("perf_obligation_id"), line.perf_obligation_ids[0].id)
+        self.assertEqual(vals.get("perf_obligation_id"), line.perf_obligation_id.id)
 
     def test_prepare_invoice_line_no_obligation(self):
         order = self._make_order((self.product_plain, 1, 500.0))
@@ -260,7 +256,7 @@ class TestSalePerfObligation(TransactionCase):
         """Cancellation posts a message on the performance obligation chatter."""
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
-        po = order.order_line.perf_obligation_ids
+        po = order.order_line.perf_obligation_id
         invoice = order._create_invoices()
         invoice.action_post()
         msg_count_before = len(po.message_ids)
@@ -273,7 +269,7 @@ class TestSalePerfObligation(TransactionCase):
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
         line = order.order_line
-        po = line.perf_obligation_ids
+        po = line.perf_obligation_id
         order.with_context(disable_cancel_warning=True).action_cancel()
         order.action_draft()
         msg_count_before = len(po.message_ids)

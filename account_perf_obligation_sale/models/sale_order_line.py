@@ -10,11 +10,11 @@ from odoo.exceptions import ValidationError
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
-    # is really a one2one
-    perf_obligation_ids = fields.One2many(
+    perf_obligation_id = fields.Many2one(
         comodel_name="perf.obligation",
-        inverse_name="sale_order_line_id",
-        string="Performance Obligations",
+        string="Performance Obligation",
+        copy=False,
+        ondelete="restrict",
     )
 
     def _create_perf_obligation_if_needed(self):
@@ -30,11 +30,13 @@ class SaleOrderLine(models.Model):
         if not product.perf_obligation_sale_recognition_method:
             return None
         # Duplicate guard: update existing obligation instead of creating a new one
-        if self.perf_obligation_ids:
-            self._update_perf_obligation(self.perf_obligation_ids[0])
-            return self.perf_obligation_ids[0]
+        if self.perf_obligation_id:
+            self._update_perf_obligation(self.perf_obligation_id)
+            return self.perf_obligation_id
         vals = self._prepare_perf_obligation_vals()
-        return self.env["perf.obligation"].create(vals)
+        obligation = self.env["perf.obligation"].create(vals)
+        self.perf_obligation_id = obligation
+        return obligation
 
     def _update_perf_obligation(self, obligation):
         """Update an existing performance obligation with current line data.
@@ -62,7 +64,6 @@ class SaleOrderLine(models.Model):
             "total_amount": self.price_subtotal,
             "start_date": start_date,
             "end_date": end_date,
-            "sale_order_line_id": self.id,
             "recognition_at_date_method": "daily",
             "description": _(
                 "Auto-created from sale order %(order)s - %(product)s",
@@ -109,6 +110,6 @@ class SaleOrderLine(models.Model):
 
     def _prepare_invoice_line(self, **optional_values):
         vals = super()._prepare_invoice_line(**optional_values)
-        if self.perf_obligation_ids:
-            vals["perf_obligation_id"] = self.perf_obligation_ids[0].id
+        if self.perf_obligation_id:
+            vals["perf_obligation_id"] = self.perf_obligation_id.id
         return vals
