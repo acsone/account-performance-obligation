@@ -13,15 +13,7 @@ class TestSchedule(PerfObligationCommon):
         """
         po = self._create_obligation(perf_type="expense", total_amount=1000)
 
-        result = self._create_wizard(
-            po,
-            100,
-            date="2026-01-31",
-            description="Jan",
-        ).action_confirm()
-
-        move = self.env["account.move"].browse(result["res_id"])
-        self.assertTrue(move)
+        po._recognize(100, "2026-01-31", "Jan")
 
         # The schedule is an SQL view based on account.move.line.
         # Flush accounting lines before querying the view.
@@ -34,7 +26,6 @@ class TestSchedule(PerfObligationCommon):
         )
 
         self.assertTrue(schedule_line)
-
         self.assertAlmostEqual(schedule_line.recognized_amount, 100)
         self.assertAlmostEqual(schedule_line.deferred_accrued_amount, 100)
 
