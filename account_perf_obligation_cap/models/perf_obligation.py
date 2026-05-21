@@ -119,7 +119,7 @@ class PerfObligation(models.Model):
         amount = super()._compute_amount_to_recognize_at_date(date)
         return self._apply_recognition_cap(amount)
 
-    def _recognize(self, amount_to_recognize, date, description):
+    def _recognize(self, amount_to_recognize, date, description, schedule=False):
         """Reject manual recognitions whose absolute value exceeds the cap.
 
         The schedule generator already passes capped amounts (via
@@ -147,4 +147,4 @@ class PerfObligation(models.Model):
                         name=self.display_name,
                     )
                 )
-        return super()._recognize(amount_to_recognize, date, description)
+        return super()._recognize(amount_to_recognize, date, description, schedule)
