@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record
+        id="res_config_settings_view_form_perf_obligation_obs_commitment"
+        model="ir.ui.view"
+    >
+        <field name="name">
+            res.config.settings.form.perf.obligation.obs.commitment
+        </field>
+        <field name="model">res.config.settings</field>
+        <field
+            name="inherit_id"
+            ref="account_perf_obligation.res_config_settings_view_form_perf_obligation"
+        />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//block[@id='perf_obligation_settings']/setting[last()]"
+                position="after"
+            >
+                <setting
+                    string="Off-Balance Sheet Commitments"
+                    help="Configure the journal and accounts used to record
+                          off-balance sheet commitments linked to performance
+                          obligations."
+                >
+                    <div class="content-group">
+                        <div class="row mt-2">
+                            <label
+                                for="po_obs_commitment_journal_id"
+                                class="col-lg-4 o_light_label"
+                                string="Off-Balance Sheet Journal"
+                            />
+                            <field
+                                name="po_obs_commitment_journal_id"
+                                domain="[('type', '=', 'general')]"
+                                context="{'default_type': 'general'}"
+                            />
+                        </div>
+                        <div class="row">
+                            <label
+                                for="po_obs_commitment_income_account_id"
+                                class="col-lg-4 o_light_label"
+                                string="OBS Commitment Income Account"
+                            />
+                            <field
+                                name="po_obs_commitment_income_account_id"
+                                domain="[('account_type', '=', 'off_balance'), ('deprecated', '=', False)]"
+                                context="{'default_account_type': 'off_balance'}"
+                            />
+                        </div>
+                        <div class="row">
+                            <label
+                                for="po_obs_commitment_expense_account_id"
+                                class="col-lg-4 o_light_label"
+                                string="OBS Commitment Expense Account"
+                            />
+                            <field
+                                name="po_obs_commitment_expense_account_id"
+                                domain="[('account_type', '=', 'off_balance'), ('deprecated', '=', False)]"
+                                context="{'default_account_type': 'off_balance'}"
+                            />
+                        </div>
+                        <div class="row">
+                            <label
+                                for="po_obs_commitment_counterpart_account_id"
+                                class="col-lg-4 o_light_label"
+                                string="OBS Commitment Counterpart Account"
+                            />
+                            <field
+                                name="po_obs_commitment_counterpart_account_id"
+                                domain="[('account_type', '=', 'off_balance'), ('deprecated', '=', False)]"
+                                context="{'default_account_type': 'off_balance'}"
+                            />
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>
