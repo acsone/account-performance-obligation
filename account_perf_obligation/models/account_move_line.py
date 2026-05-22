@@ -21,23 +21,14 @@ class AccountMoveLine(models.Model):
         for line in self:
             if not line.perf_obligation_id:
                 continue
-            account = line.account_id
-            if account.internal_group in (
-                "income",
-                "expense",
-            ) or account.account_type in (
-                "asset_current",
-                "liability_current",
-            ):
-                continue
-            raise ValidationError(
-                _(
-                    "Account '%(account)s' cannot be used with a performance "
-                    "obligation. Only Income, Expense, Current Assets and "
-                    "Current Liabilities accounts are allowed.",
-                    account=account.display_name,
+            if not line.account_id._performance_obligation_allowed():
+                raise ValidationError(
+                    _(
+                        "Account '%(account)s' cannot be used with a performance "
+                        "obligation.",
+                        account=line.account_id.display_name,
+                    )
                 )
-            )
 
     @api.model_create_multi
     def create(self, vals_list):
