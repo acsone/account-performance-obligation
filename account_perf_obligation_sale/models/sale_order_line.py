@@ -3,25 +3,18 @@
 
 from dateutil.relativedelta import relativedelta
 
-from odoo import _, fields, models
+from odoo import _, models
 from odoo.exceptions import ValidationError
 
 
 class SaleOrderLine(models.Model):
-    _inherit = "sale.order.line"
+    _name = "sale.order.line"
+    _inherit = ["sale.order.line", "perf.obligation.source.mixin"]
 
-    # is really a one2one
-    perf_obligation_ids = fields.One2many(
-        comodel_name="perf.obligation",
-        inverse_name="sale_order_line_id",
-        string="Performance Obligations",
-    )
+    def _create_or_update_perf_obligation(self):
+        """Create or update a performance obligation for this line if applicable.
 
-    def _create_perf_obligation_if_needed(self):
-        """Create a performance obligation for this line if applicable.
-
-        Skips lines whose product does not have automatic creation enabled,
-        and lines for which an obligation already exists (duplicate guard).
+        Skips lines whose product does not have automatic creation enabled.
         """
         self.ensure_one()
         product = self.product_id
@@ -30,11 +23,13 @@ class SaleOrderLine(models.Model):
         if not product.perf_obligation_sale_recognition_method:
             return None
         # Duplicate guard: update existing obligation instead of creating a new one
-        if self.perf_obligation_ids:
-            self._update_perf_obligation(self.perf_obligation_ids[0])
-            return self.perf_obligation_ids[0]
+        if self.perf_obligation_id:
+            self._update_perf_obligation(self.perf_obligation_id)
+            return self.perf_obligation_id
         vals = self._prepare_perf_obligation_vals()
-        return self.env["perf.obligation"].create(vals)
+        obligation = self.env["perf.obligation"].create(vals)
+        self.perf_obligation_id = obligation
+        return obligation
 
     def _update_perf_obligation(self, obligation):
         """Update an existing performance obligation with current line data.
@@ -44,6 +39,19 @@ class SaleOrderLine(models.Model):
         as if the obligation had just been created from scratch.
         """
         self.ensure_one()
+        sources = obligation._get_sources()
+        if sources != [self]:
+            raise ValidationError(
+                _(
+                    "Performance obligation %(obligation)s originates from "
+                    "multiple sources %(sources)s, so it can't be updated "
+                    "automatically to match the sale order line.",
+                    sources=", ".join(
+                        [r.display_name for recordset in sources for r in recordset]
+                    ),
+                    obligation=obligation.display_name,
+                )
+            )
         vals = self._prepare_perf_obligation_vals()
         obligation.write(vals)
         obligation._message_log(
@@ -59,10 +67,9 @@ class SaleOrderLine(models.Model):
         start_date, end_date = self._get_perf_obligation_dates()
         return {
             "perf_type": "income",
-            "total_amount": self.price_subtotal,
+            "total_amount": self._get_obligation_amount(),
             "start_date": start_date,
             "end_date": end_date,
-            "sale_order_line_id": self.id,
             "recognition_at_date_method": "daily",
             "description": _(
                 "Auto-created from sale order %(order)s - %(product)s",
@@ -109,6 +116,9 @@ class SaleOrderLine(models.Model):
 
     def _prepare_invoice_line(self, **optional_values):
         vals = super()._prepare_invoice_line(**optional_values)
-        if self.perf_obligation_ids:
-            vals["perf_obligation_id"] = self.perf_obligation_ids[0].id
+        if self.perf_obligation_id:
+            vals["perf_obligation_id"] = self.perf_obligation_id.id
         return vals
+
+    def _get_obligation_amount(self):
+        return self.price_subtotal

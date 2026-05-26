@@ -14,27 +14,22 @@ class SaleOrder(models.Model):
         readonly=True,
     )
 
-    @api.depends("order_line.perf_obligation_ids")
+    @api.depends("order_line.perf_obligation_id")
     def _compute_perf_obligation_count(self):
-        groups = self.env["perf.obligation"]._read_group(
-            domain=[("sale_order_line_id", "in", self.mapped("order_line").ids)],
-            groupby=["sale_order_line_id"],
-            aggregates=["__count"],
-        )
-        counts = {line.id: count for line, count in groups}
         for order in self:
-            order.perf_obligation_count = sum(
-                counts.get(line.id, 0) for line in order.order_line
+            order.perf_obligation_count = len(
+                order.order_line.mapped("perf_obligation_id")
             )
 
     def action_view_perf_obligations(self):
         self.ensure_one()
+        obligation_ids = self.order_line.mapped("perf_obligation_id").ids
         return {
             "type": "ir.actions.act_window",
             "name": _("Performance Obligations"),
             "res_model": "perf.obligation",
             "view_mode": "list,form",
-            "domain": [("sale_order_line_id", "in", self.order_line.ids)],
+            "domain": [("id", "in", obligation_ids)],
             "context": {"create": False},
         }
 
@@ -47,7 +42,7 @@ class SaleOrder(models.Model):
         """Create performance obligations for qualifying sale order lines."""
         for order in self:
             for line in order.order_line:
-                line._create_perf_obligation_if_needed()
+                line._create_or_update_perf_obligation()
 
     def action_cancel(self):
         self._cancel_perf_obligations()
@@ -63,27 +58,27 @@ class SaleOrder(models.Model):
           the invoiced amount, and any excess already-recognized amount
           will be reversed on the next schedule regeneration.
         """
-        obligations = self.env["perf.obligation"].search(
-            [("sale_order_line_id", "in", self.order_line.ids)]
-        )
-        for obligation in obligations:
-            vals = self._prepare_perf_obligation_cancel_vals(obligation)
-            obligation.write(vals)
-            obligation._message_log(
-                body=_(
-                    "Total amount updated to already invoiced amount %(amount)s "
-                    "on cancellation of sale order %(order)s.",
-                    amount=format_amount(
-                        self.env,
-                        vals["total_amount"],
-                        obligation.currency_id or self.env.company.currency_id,
-                    ),
-                    order=obligation.sale_order_line_id.order_id.name,
+        for order in self:
+            for line in order.order_line:
+                obligation = line.perf_obligation_id
+                if not obligation:
+                    continue
+                vals = self._prepare_perf_obligation_cancel_vals(line, obligation)
+                obligation.write(vals)
+                obligation._message_log(
+                    body=_(
+                        "Total amount updated to already invoiced amount %(amount)s "
+                        "on cancellation of sale order %(order)s.",
+                        amount=format_amount(
+                            self.env,
+                            vals["total_amount"],
+                            obligation.currency_id or self.env.company.currency_id,
+                        ),
+                        order=order.name,
+                    )
                 )
-            )
 
-    def _prepare_perf_obligation_cancel_vals(self, obligation):
-        sol = obligation.sale_order_line_id
+    def _prepare_perf_obligation_cancel_vals(self, sol, obligation):
         return {
-            "total_amount": sol.untaxed_amount_invoiced if sol else 0.0,
+            "total_amount": sol.untaxed_amount_invoiced,
         }
