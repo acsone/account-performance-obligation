@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import float_compare, float_is_zero
+from odoo.tools import float_compare, float_is_zero, format_amount
 
 
 @dataclass
@@ -686,3 +686,68 @@ class PerfObligation(models.Model):
     def action_process_pending_regenerations(self):
         """List-view action: regenerate flagged obligations."""
         self._process_pending_regenerations()
+
+    def _get_source_models(self):
+        """Return all concrete models that inherit the source mixin."""
+        SourceMixin = self.env.registry["perf.obligation.source.mixin"]
+        return [
+            self.env[name]
+            for name in SourceMixin._inherit_children
+            if not self.env[name]._abstract
+        ]
+
+    def _get_sources(self):
+        """Return all source records pointing to this obligation,
+        across all source models.
+        """
+        self.ensure_one()
+        sources = []
+        for model in self._get_source_models():
+            records = self.env[model._name].search(
+                [("perf_obligation_id", "=", self.id)]
+            )
+            if records:
+                sources.append(records)
+        return sources
+
+    def _compute_total_amount_from_sources(self):
+        """Sum the contribution of all sources linked to this obligation."""
+        self.ensure_one()
+        total = 0.0
+        for source_records in self._get_sources():
+            for record in source_records:
+                total += record._get_obligation_amount()
+        return total
+
+    def _update_amount_from_sources(self, reason=None):
+        """Recompute total_amount from all linked sources and update it
+        if it has changed. Posts a chatter message when the amount changes.
+
+        :param reason: optional human-readable reason for the update,
+            included in the chatter message.
+        """
+        for obligation in self:
+            sources = obligation._get_sources()
+            if not sources:
+                # No sources registered: obligation is managed manually.
+                continue
+            new_amount = obligation._compute_total_amount_from_sources()
+            if (
+                obligation.currency_id.compare_amounts(
+                    new_amount, obligation.total_amount
+                )
+                == 0
+            ):
+                continue
+            obligation.write({"total_amount": new_amount})
+            body = _(
+                "Total amount updated to %(amount)s from source contributions.",
+                amount=format_amount(
+                    self.env,
+                    new_amount,
+                    obligation.currency_id or self.env.company.currency_id,
+                ),
+            )
+            if reason:
+                body += " " + reason
+            obligation._message_log(body=body)
