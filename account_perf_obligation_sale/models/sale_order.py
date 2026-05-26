@@ -42,7 +42,7 @@ class SaleOrder(models.Model):
         """Create performance obligations for qualifying sale order lines."""
         for order in self:
             for line in order.order_line:
-                line._create_perf_obligation_if_needed()
+                line._create_or_update_perf_obligation()
 
     def action_cancel(self):
         self._cancel_perf_obligations()

@@ -3,25 +3,18 @@
 
 from dateutil.relativedelta import relativedelta
 
-from odoo import _, fields, models
+from odoo import _, models
 from odoo.exceptions import ValidationError
 
 
 class SaleOrderLine(models.Model):
-    _inherit = "sale.order.line"
+    _name = "sale.order.line"
+    _inherit = ["sale.order.line", "perf.obligation.source.mixin"]
 
-    perf_obligation_id = fields.Many2one(
-        comodel_name="perf.obligation",
-        string="Performance Obligation",
-        copy=False,
-        ondelete="restrict",
-    )
+    def _create_or_update_perf_obligation(self):
+        """Create or update a performance obligation for this line if applicable.
 
-    def _create_perf_obligation_if_needed(self):
-        """Create a performance obligation for this line if applicable.
-
-        Skips lines whose product does not have automatic creation enabled,
-        and lines for which an obligation already exists (duplicate guard).
+        Skips lines whose product does not have automatic creation enabled.
         """
         self.ensure_one()
         product = self.product_id
@@ -46,6 +39,19 @@ class SaleOrderLine(models.Model):
         as if the obligation had just been created from scratch.
         """
         self.ensure_one()
+        sources = obligation._get_sources()
+        if sources != [self]:
+            raise ValidationError(
+                _(
+                    "Performance obligation %(obligation)s originates from "
+                    "multiple sources %(sources)s, so it can't be updated "
+                    "automatically to match the sale order line.",
+                    sources=", ".join(
+                        [r.display_name for recordset in sources for r in recordset]
+                    ),
+                    obligation=obligation.display_name,
+                )
+            )
         vals = self._prepare_perf_obligation_vals()
         obligation.write(vals)
         obligation._message_log(
@@ -61,7 +67,7 @@ class SaleOrderLine(models.Model):
         start_date, end_date = self._get_perf_obligation_dates()
         return {
             "perf_type": "income",
-            "total_amount": self.price_subtotal,
+            "total_amount": self._get_obligation_amount(),
             "start_date": start_date,
             "end_date": end_date,
             "recognition_at_date_method": "daily",
@@ -113,3 +119,6 @@ class SaleOrderLine(models.Model):
         if self.perf_obligation_id:
             vals["perf_obligation_id"] = self.perf_obligation_id.id
         return vals
+
+    def _get_obligation_amount(self):
+        return self.price_subtotal

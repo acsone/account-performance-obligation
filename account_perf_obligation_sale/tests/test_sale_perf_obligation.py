@@ -4,6 +4,7 @@
 from dateutil.relativedelta import relativedelta
 
 from odoo import Command
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -123,13 +124,13 @@ class TestSalePerfObligation(TransactionCase):
         self.assertFalse(plain_line.perf_obligation_id)
 
     def test_duplicate_guard(self):
-        """Re-calling _create_perf_obligation_if_needed updates the existing
+        """Re-calling _create_or_update_perf_obligation updates the existing
         obligation instead of creating a duplicate."""
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
         line = order.order_line
         po_id = line.perf_obligation_id.id
-        line._create_perf_obligation_if_needed()
+        line._create_or_update_perf_obligation()
         self.assertEqual(line.perf_obligation_id.id, po_id)
 
     # ------------------------------------------------------------------
@@ -275,3 +276,25 @@ class TestSalePerfObligation(TransactionCase):
         msg_count_before = len(po.message_ids)
         order.action_confirm()
         self.assertEqual(len(po.message_ids), msg_count_before + 1)
+
+    def test_update_obligation_raises_when_multiple_sources(self):
+        """_update_perf_obligation raises ValidationError when the obligation
+        is shared by more than one source record (e.g. manually assigned to a
+        second SOL), because automatic sync would be ambiguous."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.action_confirm()
+        line = order.order_line
+        po = line.perf_obligation_id
+        # Create a second confirmed order and manually point its line at the
+        # same obligation
+        order2 = self._make_order((self.product_at_once, 1, 500.0))
+        order2.action_confirm()
+        second_line = order2.order_line
+        second_line.perf_obligation_id = po
+        # Now _get_sources() returns both lines, so the guard must fire.
+        with self.assertRaisesRegex(
+            ValidationError, "originates from multiple sources"
+        ) as e:
+            line._update_perf_obligation(po)
+        self.assertIn(line.display_name, e.exception.args[0])
+        self.assertIn(second_line.display_name, e.exception.args[0])
