@@ -64,8 +64,8 @@ class SaleOrder(models.Model):
                 if not obligation:
                     continue
                 vals = self._prepare_perf_obligation_cancel_vals(line, obligation)
-                obligation.write(vals)
-                obligation._message_log(
+                obligation.sudo().write(vals)
+                obligation.sudo()._message_log(
                     body=_(
                         "Total amount updated to already invoiced amount %(amount)s "
                         "on cancellation of sale order %(order)s.",

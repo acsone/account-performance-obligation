@@ -27,7 +27,7 @@ class SaleOrderLine(models.Model):
             self._update_perf_obligation(self.perf_obligation_id)
             return self.perf_obligation_id
         vals = self._prepare_perf_obligation_vals()
-        obligation = self.env["perf.obligation"].create(vals)
+        obligation = self.env["perf.obligation"].sudo().create(vals)
         self.perf_obligation_id = obligation
         return obligation
 
@@ -53,8 +53,8 @@ class SaleOrderLine(models.Model):
                 )
             )
         vals = self._prepare_perf_obligation_vals()
-        obligation.write(vals)
-        obligation._message_log(
+        obligation.sudo().write(vals)
+        obligation.sudo()._message_log(
             body=_(
                 "Values updated on re-confirmation of sale order %(order)s.",
                 order=self.order_id.name,
