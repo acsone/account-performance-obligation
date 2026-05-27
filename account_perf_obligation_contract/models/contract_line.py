@@ -3,7 +3,7 @@
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-from odoo.tools.misc import format_amount
+from odoo.tools import format_amount
 
 
 class ContractLine(models.Model):
@@ -137,68 +137,24 @@ class ContractLine(models.Model):
     def _cancel_perf_obligations(self):
         """Update performance obligations on contract line cancellation."""
         for line in self:
-            obligation = line.perf_obligation_id
-            if not obligation:
-                continue
-            invoiced_amount = line._get_perf_obligation_invoiced_amount()
-            obligation.sudo().write({"total_amount": invoiced_amount})
-            obligation.sudo()._message_log(
-                body=_(
-                    "Total amount updated to already invoiced amount %(amount)s "
-                    "on cancellation of contract line (contract %(contract)s).",
-                    amount=format_amount(
-                        self.env,
-                        invoiced_amount,
-                        obligation.currency_id or self.env.company.currency_id,
-                    ),
-                    contract=line.contract_id.name,
-                )
-            )
-
-    def _get_perf_obligation_invoiced_amount_domain(self, move_types):
-        """Return the domain to find invoice lines for this contract line."""
-        self.ensure_one()
-        domain = [
-            ("contract_line_id", "=", self.id),
-            ("move_id.state", "=", "posted"),
-            ("move_id.move_type", "in", move_types),
-        ]
-        if self.perf_obligation_id:
-            domain.append(("perf_obligation_id", "=", self.perf_obligation_id.id))
-        return domain
-
-    def _get_perf_obligation_invoiced_amount(self):
-        """Return the sum of amounts already invoiced (posted) for this contract
-        line."""
-        self.ensure_one()
-        contract_type = self.contract_id.contract_type
-        if contract_type == "sale":
-            move_types = ("out_invoice", "out_refund")
-        elif contract_type == "purchase":
-            move_types = ("in_invoice", "in_refund")
-        domain = self._get_perf_obligation_invoiced_amount_domain(move_types)
-        [(balance,)] = self.env["account.move.line"]._read_group(
-            domain=domain,
-            aggregates=["balance:sum"],
-        )
-        # AML balance is credit-negative for customer invoices; negate to get a
-        # positive invoiced amount for sales, use directly for purchases
-        sign = -1 if contract_type == "sale" else 1
-        invoiced = sign * (balance or 0.0)
-        if invoiced < 0.0:
-            raise ValidationError(
-                _(
-                    "Contract line %(line)s has a negative net invoiced amount "
-                    "%(amount)s. This likely means refunds exceed posted invoices.",
-                    line=self.display_name,
-                    amount=format_amount(
-                        self.env,
-                        invoiced,
-                        self.contract_id.currency_id or self.env.company.currency_id,
+            if line.perf_obligation_id:
+                obligation = line.perf_obligation_id
+                invoiced_amount = obligation._get_invoiced_amount()
+                obligation._update_total_amount(
+                    invoiced_amount,
+                    _(
+                        "Total amount updated to already invoiced amount %(amount)s"
+                        " on cancellation of %(cancelled_source)s.",
+                        amount=format_amount(
+                            obligation.env,
+                            invoiced_amount,
+                            obligation.currency_id
+                            or obligation.env.company.currency_id,
+                        ),
+                        cancelled_source=_("contract line (contract %s)")
+                        % line.contract_id.name,
                     ),
                 )
-            )
-        return invoiced
 
     def _prepare_invoice_line(self):
         vals = super()._prepare_invoice_line()

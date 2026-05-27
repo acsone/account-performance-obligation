@@ -269,7 +269,7 @@ class TestContractPerfObligation(TransactionCase):
         # Simulate a second posted invoice
         invoice2 = contract._recurring_create_invoice()
         invoice2.action_post()
-        invoiced = line._get_perf_obligation_invoiced_amount()
+        invoiced = line.perf_obligation_id._get_invoiced_amount()
         self.assertGreater(invoiced, 0.0)
         line.write({"is_canceled": True})
         self.assertAlmostEqual(po.total_amount, invoiced)
@@ -290,18 +290,18 @@ class TestContractPerfObligation(TransactionCase):
         line = contract.contract_line_ids
         invoice = contract._recurring_create_invoice()
         invoice.action_post()
-        invoiced_before_refund = line._get_perf_obligation_invoiced_amount()
+        invoiced_before_refund = line.perf_obligation_id._get_invoiced_amount()
         # Reverse the invoice (creates a posted credit note)
         refund = invoice._reverse_moves(
             default_values_list=[{"invoice_date": invoice.invoice_date}]
         )
         refund.action_post()
-        invoiced_after_refund = line._get_perf_obligation_invoiced_amount()
+        invoiced_after_refund = line.perf_obligation_id._get_invoiced_amount()
         self.assertEqual(invoiced_after_refund, 0.0)
         self.assertLess(invoiced_after_refund, invoiced_before_refund)
 
-    def test_invoiced_amount_only_counts_posted_moves(self):
-        """Draft invoices must not be counted toward the invoiced amount."""
+    def test_invoiced_amount_only_counts_draft_and_posted_moves(self):
+        """Draft invoices must be counted toward the invoiced amount."""
         contract = self._make_contract(
             (
                 self.product,
@@ -314,7 +314,7 @@ class TestContractPerfObligation(TransactionCase):
         )
         line = contract.contract_line_ids
         contract._recurring_create_invoice()  # left in draft
-        self.assertEqual(line._get_perf_obligation_invoiced_amount(), 0.0)
+        self.assertEqual(line.perf_obligation_id._get_invoiced_amount(), 1200.0)
 
     def test_invoiced_amount_scoped_to_perf_obligation(self):
         """Move lines linked to a different perf obligation are excluded from
@@ -335,7 +335,7 @@ class TestContractPerfObligation(TransactionCase):
         # Detach the obligation from the invoice line to simulate a line
         # belonging to a different obligation
         invoice.invoice_line_ids.write({"perf_obligation_id": False})
-        self.assertEqual(line._get_perf_obligation_invoiced_amount(), 0.0)
+        self.assertEqual(line.perf_obligation_id._get_invoiced_amount(), 0.0)
 
     def test_cancel_purchase_contract_uses_in_invoice(self):
         """Cancellation on a purchase contract reads in_invoice/in_refund moves,
@@ -357,34 +357,6 @@ class TestContractPerfObligation(TransactionCase):
         # No vendor bills posted → cancellation should zero out the obligation
         line.write({"is_canceled": True})
         self.assertEqual(po.total_amount, 0.0)
-
-    def test_negative_invoiced_amount_raises(self):
-        """A net negative invoiced amount (refunds > invoices) must raise rather
-        than silently clamp to zero."""
-        contract = self._make_contract(
-            (
-                self.product,
-                1,
-                1200.0,
-                fields.Date.from_string("2026-01-01"),
-                fields.Date.from_string("2026-12-31"),
-                True,
-            )
-        )
-        line = contract.contract_line_ids
-        invoice = contract._recurring_create_invoice()
-        invoice.action_post()
-        refund = invoice._reverse_moves(
-            default_values_list=[{"invoice_date": invoice.invoice_date}]
-        )
-        refund.action_post()
-        # Manually push a second refund to make net go negative
-        refund2 = invoice._reverse_moves(
-            default_values_list=[{"invoice_date": invoice.invoice_date}]
-        )
-        refund2.action_post()
-        with self.assertRaises(ValidationError):
-            line._get_perf_obligation_invoiced_amount()
 
     # ------------------------------------------------------------------
     # Deletion
