@@ -2,6 +2,7 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 from dataclasses import dataclass
+from itertools import chain
 
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -794,3 +795,23 @@ class PerfObligation(models.Model):
         elif self.perf_type == "expense":
             amount = pl_balance + bs_balance
         return amount
+
+    def _ensure_sole_source(self, source_record):
+        """Raise if source_record is not the sole source of this obligation."""
+        self.ensure_one()
+        sources = self._get_sources()
+        sole = len(sources) == 1 and sources[0] == source_record
+        if not sole:
+            all_sources = ", ".join(
+                r.display_name for r in chain.from_iterable(sources)
+            )
+            raise ValidationError(
+                _(
+                    "Performance obligation %(obligation)s originates from "
+                    "multiple sources %(sources)s, so it can't be updated "
+                    "automatically to match %(record)s.",
+                    obligation=self.display_name,
+                    sources=all_sources,
+                    record=source_record.display_name,
+                )
+            )

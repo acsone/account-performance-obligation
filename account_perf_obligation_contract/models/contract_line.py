@@ -56,19 +56,7 @@ class ContractLine(models.Model):
     def _update_perf_obligation(self, obligation):
         """Resync an existing obligation with current contract line data."""
         self.ensure_one()
-        sources = obligation._get_sources()
-        if sources != [self]:
-            raise ValidationError(
-                _(
-                    "Performance obligation %(obligation)s originates from "
-                    "multiple sources %(sources)s, so it can't be updated "
-                    "automatically to match the contract line.",
-                    sources=", ".join(
-                        [r.display_name for recordset in sources for r in recordset]
-                    ),
-                    obligation=obligation.display_name,
-                )
-            )
+        obligation._ensure_sole_source(self)
         vals = self._prepare_perf_obligation_vals()
         obligation.sudo().write(vals)
         obligation.sudo()._message_log(
@@ -139,6 +127,7 @@ class ContractLine(models.Model):
         for line in self:
             if line.perf_obligation_id:
                 obligation = line.perf_obligation_id
+                obligation._ensure_sole_source(line)
                 invoiced_amount = obligation._get_invoiced_amount()
                 obligation._update_total_amount(
                     invoiced_amount,

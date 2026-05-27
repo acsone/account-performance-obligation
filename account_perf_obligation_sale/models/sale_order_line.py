@@ -39,19 +39,7 @@ class SaleOrderLine(models.Model):
         as if the obligation had just been created from scratch.
         """
         self.ensure_one()
-        sources = obligation._get_sources()
-        if sources != [self]:
-            raise ValidationError(
-                _(
-                    "Performance obligation %(obligation)s originates from "
-                    "multiple sources %(sources)s, so it can't be updated "
-                    "automatically to match the sale order line.",
-                    sources=", ".join(
-                        [r.display_name for recordset in sources for r in recordset]
-                    ),
-                    obligation=obligation.display_name,
-                )
-            )
+        obligation._ensure_sole_source(self)
         vals = self._prepare_perf_obligation_vals()
         obligation.sudo().write(vals)
         obligation.sudo()._message_log(
