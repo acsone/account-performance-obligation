@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="product_template_form_view" model="ir.ui.view">
+        <field name="model">product.template</field>
+        <field
+            name="inherit_id"
+            ref="account_perf_obligation_sale.product_template_form_view"
+        />
+        <field name="arch" type="xml">
+            <field name="perf_obligation_sale_auto_create" position="before">
+                <div
+                    class="alert alert-info mb-3"
+                    role="alert"
+                    invisible="not (perf_obligation_sale_auto_create and is_contract)"
+                >
+                    This product generates contract lines. When a sale order is
+                    confirmed, the performance obligation dates will be driven by
+                    the contract line dates.
+                </div>
+            </field>
+
+            <field name="perf_obligation_sale_recognition_method" position="attributes">
+                <attribute name="invisible">
+                    not perf_obligation_sale_auto_create or is_contract
+                </attribute>
+                <attribute name="required">
+                    perf_obligation_sale_auto_create and not is_contract
+                </attribute>
+            </field>
+
+            <field name="perf_obligation_sale_months_duration" position="attributes">
+                <attribute name="invisible">
+                    perf_obligation_sale_recognition_method != 'months' or is_contract
+                </attribute>
+                <attribute name="required">
+                    perf_obligation_sale_recognition_method == 'months' and not is_contract
+                </attribute>
+            </field>
+
+            <field name="perf_obligation_sale_days_duration" position="attributes">
+                <attribute name="invisible">
+                    perf_obligation_sale_recognition_method != 'days' or is_contract
+                </attribute>
+                <attribute name="required">
+                    perf_obligation_sale_recognition_method == 'days' and not is_contract
+                </attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

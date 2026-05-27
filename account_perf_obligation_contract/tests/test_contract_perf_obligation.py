@@ -376,6 +376,7 @@ class TestContractPerfObligation(TransactionCase):
         line = contract.contract_line_ids
         po = line.perf_obligation_id
         po_id = po.id
+        line.write({"is_canceled": True})
         line.unlink()
         self.assertFalse(self.env["perf.obligation"].browse(po_id).exists())
 
