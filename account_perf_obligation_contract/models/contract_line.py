@@ -96,7 +96,7 @@ class ContractLine(models.Model):
                     contract=self.contract_id.display_name,
                 )
             )
-        return {
+        vals = {
             "perf_type": perf_type,
             "total_amount": self._get_obligation_amount(),
             "start_date": self.date_start,
@@ -107,6 +107,29 @@ class ContractLine(models.Model):
                 contract=self.contract_id.name,
             ),
         }
+        pl_account = self._get_perf_obligation_pl_account()
+        if pl_account:
+            vals["pl_account_id"] = pl_account.id
+        return vals
+
+    def _get_perf_obligation_pl_account(self):
+        """Return the P&L account to set on the performance obligation.
+
+        For sale contracts: resolves the product's income account.
+        For purchase contracts: resolves the product's expense account.
+        """
+        self.ensure_one()
+        account_key = {"sale": "income", "purchase": "expense"}.get(
+            self.contract_id.contract_type
+        )
+        if not account_key:
+            return None
+        accounts = self.product_id.with_company(
+            self.contract_id.company_id
+        ).product_tmpl_id.get_product_accounts(
+            fiscal_pos=self.contract_id.fiscal_position_id
+        )
+        return accounts.get(account_key)
 
     def _get_obligation_amount(self):
         return self._get_contract_line_total_value()

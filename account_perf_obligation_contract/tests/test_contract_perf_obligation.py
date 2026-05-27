@@ -1,7 +1,7 @@
 # Copyright 2026 ACSONE SA/NV
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import fields
+from odoo import Command, fields
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -53,6 +53,24 @@ class TestContractPerfObligation(TransactionCase):
             )
         return contract
 
+    def _make_purchase_contract_line(self, product, autocreate=True):
+        """Helper to create a single-line purchase contract."""
+        return self._make_contract(
+            (
+                product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                autocreate,
+            ),
+            contract_type="purchase",
+        )
+
+    # ------------------------------------------------------------------
+    # Obligation creation
+    # ------------------------------------------------------------------
+
     def test_contract_method_creates_obligation(self):
         contract = self._make_contract(
             (
@@ -84,7 +102,6 @@ class TestContractPerfObligation(TransactionCase):
             )
         )
         po = contract.contract_line_ids.perf_obligation_id
-        # _get_quantity_to_invoice returns self.quantity = 3
         self.assertEqual(po.total_amount, 3 * 400.0)
 
     def test_plain_product_no_obligation(self):
@@ -133,6 +150,10 @@ class TestContractPerfObligation(TransactionCase):
         line._create_or_update_perf_obligation()
         self.assertEqual(line.perf_obligation_id.id, po_id)
 
+    # ------------------------------------------------------------------
+    # Smart button count
+    # ------------------------------------------------------------------
+
     def test_perf_obligation_count(self):
         contract = self._make_contract(
             (
@@ -174,6 +195,10 @@ class TestContractPerfObligation(TransactionCase):
             ),
         )
         self.assertEqual(contract.perf_obligation_count, 1)
+
+    # ------------------------------------------------------------------
+    # Cancellation
+    # ------------------------------------------------------------------
 
     def test_cancel_sets_total_amount_to_zero_when_nothing_invoiced(self):
         contract = self._make_contract(
@@ -361,6 +386,10 @@ class TestContractPerfObligation(TransactionCase):
         with self.assertRaises(ValidationError):
             line._get_perf_obligation_invoiced_amount()
 
+    # ------------------------------------------------------------------
+    # Deletion
+    # ------------------------------------------------------------------
+
     def test_unlink_deletes_obligation(self):
         contract = self._make_contract(
             (
@@ -377,6 +406,10 @@ class TestContractPerfObligation(TransactionCase):
         po_id = po.id
         line.unlink()
         self.assertFalse(self.env["perf.obligation"].browse(po_id).exists())
+
+    # ------------------------------------------------------------------
+    # Invoice line propagation
+    # ------------------------------------------------------------------
 
     def test_prepare_invoice_line_carries_obligation(self):
         contract = self._make_contract(
@@ -408,6 +441,110 @@ class TestContractPerfObligation(TransactionCase):
         vals = line._prepare_invoice_line()
         self.assertNotIn("perf_obligation_id", vals)
 
+    # ------------------------------------------------------------------
+    # Account propagation
+    # ------------------------------------------------------------------
+
+    def test_pl_account_matches_generated_invoice_line_account(self):
+        """The account set on the obligation matches the account Odoo resolves
+        on the invoice line generated from the same contract line."""
+        account = self.env["account.account"].create(
+            {
+                "name": "Test Revenue Account",
+                "code": "TEST.REV.MATCH",
+                "account_type": "income",
+            }
+        )
+        self.product.property_account_income_id = account
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        po = line.perf_obligation_id
+        invoice = contract._recurring_create_invoice()
+        invoice_line = invoice.invoice_line_ids.filtered(
+            lambda invoice_line: invoice_line.contract_line_id == line
+        )
+        self.assertEqual(po.pl_account_id, invoice_line.account_id)
+
+    def test_pl_account_matches_generated_invoice_line_account_with_fiscal_position(
+        self,
+    ):
+        """Fiscal position mapping is consistent between the obligation and the
+        generated invoice line."""
+        src_account = self.env["account.account"].create(
+            {
+                "name": "Revenue Source",
+                "code": "TEST.REV.FP.SRC",
+                "account_type": "income",
+            }
+        )
+        dst_account = self.env["account.account"].create(
+            {
+                "name": "Revenue Destination",
+                "code": "TEST.REV.FP.DST",
+                "account_type": "income",
+            }
+        )
+        self.product.property_account_income_id = src_account
+        fiscal_position = self.env["account.fiscal.position"].create(
+            {
+                "name": "Test FPos Match",
+                "account_ids": [
+                    Command.create(
+                        {
+                            "account_src_id": src_account.id,
+                            "account_dest_id": dst_account.id,
+                        }
+                    )
+                ],
+            }
+        )
+        contract = self.env["contract.contract"].create(
+            {
+                "name": "Test Contract FPos Match",
+                "partner_id": self.partner.id,
+                "contract_type": "sale",
+                "fiscal_position_id": fiscal_position.id,
+                "line_recurrence": True,
+            }
+        )
+        self.env["contract.line"].create(
+            {
+                "contract_id": contract.id,
+                "product_id": self.product.id,
+                "name": self.product.name,
+                "quantity": 1,
+                "price_unit": 1200.0,
+                "date_start": fields.Date.from_string("2026-01-01"),
+                "date_end": fields.Date.from_string("2026-12-31"),
+                "recurring_next_date": fields.Date.from_string("2026-01-01"),
+                "recurring_interval": 1,
+                "recurring_rule_type": "monthly",
+                "recurring_invoicing_type": "pre-paid",
+                "uom_id": self.product.uom_id.id,
+                "perf_obligation_auto_create": True,
+            }
+        )
+        line = contract.contract_line_ids
+        po = line.perf_obligation_id
+        invoice = contract._recurring_create_invoice()
+        invoice_line = invoice.invoice_line_ids.filtered(
+            lambda invoice_line: invoice_line.contract_line_id == line
+        )
+        self.assertEqual(po.pl_account_id, invoice_line.account_id)
+
+    # ------------------------------------------------------------------
+    # Multiple sources Error
+    # ------------------------------------------------------------------
+
     def test_update_obligation_raises_when_multiple_sources(self):
         """_update_perf_obligation raises ValidationError when the obligation
         is shared by more than one source record (e.g. manually assigned to a
@@ -416,7 +553,7 @@ class TestContractPerfObligation(TransactionCase):
             (
                 self.product,
                 1,
-                500.0,
+                1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
                 True,
@@ -430,7 +567,7 @@ class TestContractPerfObligation(TransactionCase):
             (
                 self.product,
                 1,
-                500.0,
+                1200.0,
                 fields.Date.from_string("2026-01-01"),
                 fields.Date.from_string("2026-12-31"),
                 True,

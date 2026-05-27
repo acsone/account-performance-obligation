@@ -19,6 +19,9 @@ directly from the contract line's ``date_start`` and ``date_end``.
 Contract lines without a ``date_end`` are skipped: a meaningful total amount
 cannot be computed without a known end date.
 
+The obligation's **P&L Recognition Account** is set to match the account
+that would appear on the generated invoice line.
+
 When a contract line is **cancelled** (``is_canceled`` set to ``True``), the
 performance obligation linked to it is frozen: its total amount is updated
 to match the already-invoiced amount on the line. If nothing has been invoiced
@@ -33,7 +36,7 @@ before the obligation itself is removed.
 When a contract invoice line is generated from a contract line that has a
 linked performance obligation, the obligation is automatically carried over
 to the invoice line (and the corresponding accounting entry on the revenue
-account).
+or expense account).
 
 Configuration
 =============
@@ -41,6 +44,13 @@ Configuration
 #. On each relevant contract line:
 
    - Tick **Auto-create Performance Obligation**.
+
+#. Optionally, set an **Income Account** (sale contracts) or **Expense
+   Account** (purchase contracts) on the product. If set, this account is
+   copied to the obligation's **P&L Recognition Account**, overriding the
+   default account from the accounting configuration. If the contract has a
+   fiscal position with an account mapping for that account, the mapped
+   account is used instead.
 
 Usage
 =====
@@ -53,6 +63,8 @@ Direct contract line creation
 #. A performance obligation is automatically created for that line.
    Its start and end dates are set to the contract line's
    ``date_start`` and ``date_end`` respectively.
+#. The obligation's **P&L Recognition Account** is set to the same account
+   that Odoo would use on the invoice line generated from this contract line.
 #. Use the **Performance Obligations** smart button on the contract
    form to review all obligations linked to that contract.
 
