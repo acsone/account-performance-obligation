@@ -719,9 +719,19 @@ class PerfObligation(models.Model):
                 total += record._get_obligation_amount()
         return total
 
+    def _update_total_amount(self, amount, reason):
+        """Write total_amount and post a chatter message.
+
+        :param amount: new monetary amount to set.
+        :param reason: chatter message body.
+        """
+        self.ensure_one()
+        self.sudo().write({"total_amount": amount})
+        self.sudo()._message_log(body=reason)
+
     def _update_amount_from_sources(self, reason=None):
         """Recompute total_amount from all linked sources and update it
-        if it has changed. Posts a chatter message when the amount changes.
+        if it has changed.
 
         :param reason: optional human-readable reason for the update,
             included in the chatter message.
@@ -729,7 +739,6 @@ class PerfObligation(models.Model):
         for obligation in self:
             sources = obligation._get_sources()
             if not sources:
-                # No sources registered: obligation is managed manually.
                 continue
             new_amount = obligation._compute_total_amount_from_sources()
             if (
@@ -739,7 +748,6 @@ class PerfObligation(models.Model):
                 == 0
             ):
                 continue
-            obligation.write({"total_amount": new_amount})
             body = _(
                 "Total amount updated to %(amount)s from source contributions.",
                 amount=format_amount(
@@ -750,4 +758,39 @@ class PerfObligation(models.Model):
             )
             if reason:
                 body += " " + reason
-            obligation._message_log(body=body)
+            obligation._update_total_amount(new_amount, body)
+
+    def _get_invoiced_amount(self):
+        """Return the invoiced/billed amount for this obligation.
+
+        Income: -(income account balance) - (BS account balance)
+        Expense: (expense account balance) + (BS account balance)
+        """
+        self.ensure_one()
+        [(pl_balance,)] = self.env["account.move.line"]._read_group(
+            domain=[
+                ("perf_obligation_id", "=", self.id),
+                ("parent_state", "in", ("draft", "posted")),
+                ("account_id.account_type", "like", self._get_pl_internal_group()),
+            ],
+            aggregates=["balance:sum"],
+        )
+        [(bs_balance,)] = self.env["account.move.line"]._read_group(
+            domain=[
+                ("perf_obligation_id", "=", self.id),
+                ("parent_state", "in", ("draft", "posted")),
+                (
+                    "account_id.account_type",
+                    "in",
+                    ("asset_current", "liability_current"),
+                ),
+            ],
+            aggregates=["balance:sum"],
+        )
+        pl_balance = pl_balance or 0.0
+        bs_balance = bs_balance or 0.0
+        if self.perf_type == "income":
+            amount = -pl_balance - bs_balance
+        elif self.perf_type == "expense":
+            amount = pl_balance + bs_balance
+        return amount

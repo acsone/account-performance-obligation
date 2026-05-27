@@ -2,7 +2,7 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 from odoo import _, api, fields, models
-from odoo.tools.misc import format_amount
+from odoo.tools import format_amount
 
 
 class SaleOrder(models.Model):
@@ -49,36 +49,23 @@ class SaleOrder(models.Model):
         return super().action_cancel()
 
     def _cancel_perf_obligations(self):
-        """Freeze performance obligations on cancellation.
-
-        Sets total_amount to the already-invoiced amount so that:
-        - if nothing was invoiced: total_amount becomes 0, no future
-          recognition is generated.
-        - if something was invoiced: total_amount is reduced to match
-          the invoiced amount, and any excess already-recognized amount
-          will be reversed on the next schedule regeneration.
-        """
+        """Update performance obligations on sale order cancellation."""
         for order in self:
             for line in order.order_line:
-                obligation = line.perf_obligation_id
-                if not obligation:
-                    continue
-                vals = self._prepare_perf_obligation_cancel_vals(line, obligation)
-                obligation.sudo().write(vals)
-                obligation.sudo()._message_log(
-                    body=_(
-                        "Total amount updated to already invoiced amount %(amount)s "
-                        "on cancellation of sale order %(order)s.",
-                        amount=format_amount(
-                            self.env,
-                            vals["total_amount"],
-                            obligation.currency_id or self.env.company.currency_id,
+                if line.perf_obligation_id:
+                    obligation = line.perf_obligation_id
+                    invoiced_amount = obligation._get_invoiced_amount()
+                    obligation._update_total_amount(
+                        invoiced_amount,
+                        _(
+                            "Total amount updated to already invoiced amount %(amount)s"
+                            " on cancellation of %(cancelled_source)s.",
+                            amount=format_amount(
+                                obligation.env,
+                                invoiced_amount,
+                                obligation.currency_id
+                                or obligation.env.company.currency_id,
+                            ),
+                            cancelled_source=_("sale order %s") % order.name,
                         ),
-                        order=order.name,
                     )
-                )
-
-    def _prepare_perf_obligation_cancel_vals(self, sol, obligation):
-        return {
-            "total_amount": sol.untaxed_amount_invoiced,
-        }
