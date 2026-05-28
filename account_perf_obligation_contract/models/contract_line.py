@@ -128,7 +128,7 @@ class ContractLine(models.Model):
             if line.perf_obligation_id:
                 obligation = line.perf_obligation_id
                 obligation._ensure_sole_source(line)
-                invoiced_amount = obligation._get_invoiced_amount()
+                invoiced_amount = line._get_invoiced_amount(obligation)
                 obligation._update_total_amount(
                     invoiced_amount,
                     _(
@@ -144,6 +144,9 @@ class ContractLine(models.Model):
                         % line.contract_id.name,
                     ),
                 )
+
+    def _get_invoiced_amount(self, obligation):
+        return obligation._get_invoiced_amount()
 
     def _prepare_invoice_line(self):
         vals = super()._prepare_invoice_line()
