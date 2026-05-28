@@ -88,7 +88,9 @@ class TestSalePerfObligation(TransactionCase):
         conf = order.date_order.date()
         self.assertTrue(po)
         self.assertEqual(po.start_date, conf)
-        self.assertEqual(po.end_date, conf + relativedelta(months=3))
+        self.assertEqual(
+            po.end_date, conf + relativedelta(months=3) - relativedelta(days=1)
+        )
         self.assertEqual(po.total_amount, 1200.0)
 
     def test_days_creates_obligation(self):
@@ -217,7 +219,9 @@ class TestSalePerfObligation(TransactionCase):
         conf = order.date_order.date()
         self.assertEqual(line.perf_obligation_id, po)
         self.assertEqual(po.start_date, conf)
-        self.assertEqual(po.end_date, conf + relativedelta(months=3))
+        self.assertEqual(
+            po.end_date, conf + relativedelta(months=3) - relativedelta(days=1)
+        )
         # Dates are recomputed (they should equal the originals in this test
         # since date_order doesn't change, but the write is verified)
         self.assertEqual(po.start_date, original_start)

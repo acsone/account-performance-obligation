@@ -98,7 +98,9 @@ class SaleOrderLine(models.Model):
 
         if method == "months":
             months = product.perf_obligation_sale_months_duration
-            end_date = confirmation_date + relativedelta(months=months)
+            end_date = (
+                confirmation_date + relativedelta(months=months) - relativedelta(days=1)
+            )
             return confirmation_date, end_date
 
         if method == "days":
