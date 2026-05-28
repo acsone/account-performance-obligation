@@ -56,7 +56,7 @@ class SaleOrder(models.Model):
                 if line.perf_obligation_id:
                     obligation = line.perf_obligation_id
                     obligation._ensure_sole_source(line)
-                    invoiced_amount = obligation._get_invoiced_amount()
+                    invoiced_amount = line._get_invoiced_amount(obligation)
                     obligation._update_total_amount(
                         invoiced_amount,
                         _(

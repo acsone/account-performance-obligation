@@ -125,3 +125,7 @@ class SaleOrderLine(models.Model):
 
     def _get_obligation_amount(self):
         return self.price_subtotal
+
+    def _get_invoiced_amount(self, obligation):
+        self.ensure_one()
+        return obligation._get_invoiced_amount()
