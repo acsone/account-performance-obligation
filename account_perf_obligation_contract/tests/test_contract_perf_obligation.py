@@ -555,3 +555,43 @@ class TestContractPerfObligation(TransactionCase):
             line._update_perf_obligation(po)
         self.assertIn(line.display_name, e.exception.args[0])
         self.assertIn(second_line.display_name, e.exception.args[0])
+
+    # ------------------------------------------------------------------
+    # write() trigger
+    # ------------------------------------------------------------------
+
+    def test_write_autocreate_true_creates_obligation(self):
+        """Flipping perf_obligation_auto_create to True on an existing line
+        that had no obligation must create one."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                False,  # start without an obligation
+            )
+        )
+        line = contract.contract_line_ids
+        self.assertFalse(line.perf_obligation_id)
+        line.write({"perf_obligation_auto_create": True})
+        self.assertTrue(line.perf_obligation_id)
+
+    def test_write_end_date_updates_obligation(self):
+        """Changing date_end propagates the new end date to the linked
+        performance obligation."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        new_end = fields.Date.from_string("2026-06-30")
+        line.write({"date_end": new_end})
+        self.assertEqual(line.perf_obligation_id.end_date, new_end)
