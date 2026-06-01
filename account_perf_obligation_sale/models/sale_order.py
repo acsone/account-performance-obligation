@@ -44,9 +44,10 @@ class SaleOrder(models.Model):
             for line in order.order_line:
                 line._create_or_update_perf_obligation()
 
-    def action_cancel(self):
+    def _action_cancel(self):
+        res = super()._action_cancel()
         self._cancel_perf_obligations()
-        return super().action_cancel()
+        return res
 
     def _cancel_perf_obligations(self):
         """Update performance obligations on sale order cancellation."""

@@ -182,7 +182,7 @@ class TestSalePerfObligation(TransactionCase):
         order.action_confirm()
         po = order.order_line.perf_obligation_id
         self.assertEqual(po.total_amount, 1000.0)
-        order.action_cancel()
+        order.with_context(disable_cancel_warning=True).action_cancel()
         self.assertEqual(po.total_amount, 0.0)
 
     def test_cancel_sets_total_amount_on_all_lines(self):
@@ -192,7 +192,7 @@ class TestSalePerfObligation(TransactionCase):
             (self.product_months, 1, 1200.0),
         )
         order.action_confirm()
-        order.action_cancel()
+        order.with_context(disable_cancel_warning=True).action_cancel()
         for line in order.order_line:
             if line.perf_obligation_id:
                 self.assertEqual(line.perf_obligation_id.total_amount, 0.0)
@@ -200,7 +200,9 @@ class TestSalePerfObligation(TransactionCase):
     def test_cancel_without_obligations_no_error(self):
         order = self._make_order((self.product_plain, 1, 500.0))
         order.action_confirm()
-        order.action_cancel()  # must not raise
+        order.with_context(
+            disable_cancel_warning=True
+        ).action_cancel()  # must not raise
 
     # ------------------------------------------------------------------
     # Re-confirmation updates existing obligations
@@ -289,7 +291,7 @@ class TestSalePerfObligation(TransactionCase):
         invoice = order._create_invoices()
         invoice.action_post()
         msg_count_before = len(po.message_ids)
-        order.action_cancel()
+        order.with_context(disable_cancel_warning=True).action_cancel()
         self.assertEqual(len(po.message_ids), msg_count_before + 1)
         self.assertIn("$&nbsp;1,000.00", po.message_ids[0].body)
 
