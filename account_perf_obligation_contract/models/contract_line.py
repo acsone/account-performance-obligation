@@ -16,6 +16,9 @@ class ContractLine(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
+        if "perf_obligation_auto_create" in vals or "date_end" in vals:
+            for line in self:
+                line._create_or_update_perf_obligation()
         if vals.get("is_canceled"):
             self._cancel_perf_obligations()
         return res
