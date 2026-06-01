@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_amount
 
 
@@ -70,11 +70,10 @@ class ContractLine(models.Model):
         )
 
     def _prepare_perf_obligation_vals(self):
-        """Return the values dict for the performance obligation."""
         self.ensure_one()
         contract_type = self.contract_id.contract_type
         perf_type = False
-        if self.contract_id.contract_type == "sale":
+        if contract_type == "sale":
             perf_type = "income"
         elif contract_type == "purchase":
             perf_type = "expense"
@@ -92,16 +91,37 @@ class ContractLine(models.Model):
             "total_amount": self._get_obligation_amount(),
             "start_date": self.date_start,
             "end_date": self.date_end,
-            "recognition_at_date_method": "daily",
             "description": _(
                 "Auto-created from contract %(contract)s",
                 contract=self.contract_id.name,
+            ),
+            "recognition_at_date_method": (
+                self._get_obligation_recognition_at_date_method()
             ),
         }
         pl_account = self._get_perf_obligation_pl_account()
         if pl_account:
             vals["pl_account_id"] = pl_account.id
         return vals
+
+    def _get_obligation_recognition_at_date_method(self):
+        """Return the recognition method to use on the performance obligation.
+
+        Returns 'daily' when both start and end dates are set.
+        Raises UserError for open-ended lines, since a date-based recognition
+        method cannot be applied without a known end date.
+        """
+        self.ensure_one()
+        if self.date_start and self.date_end:
+            return "daily"
+        raise UserError(
+            _(
+                "Cannot determine a recognition method for contract line '%s': "
+                "both a start date and an end date are required to auto-create "
+                "a performance obligation.",
+                self.display_name,
+            )
+        )
 
     def _get_perf_obligation_pl_account(self):
         """Return the P&L account to set on the performance obligation.

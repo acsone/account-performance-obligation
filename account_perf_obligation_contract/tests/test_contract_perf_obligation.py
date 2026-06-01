@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import Command, fields
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -595,3 +595,34 @@ class TestContractPerfObligation(TransactionCase):
         new_end = fields.Date.from_string("2026-06-30")
         line.write({"date_end": new_end})
         self.assertEqual(line.perf_obligation_id.end_date, new_end)
+
+    def test_open_ended_contract_line_raises_user_error(self):
+        """An open-ended contract line (date_end=False) with auto-create enabled
+        must raise a UserError — a recognition method and total amount cannot be
+        determined without a known end date."""
+        contract = self.env["contract.contract"].create(
+            {
+                "name": "Test Open-Ended Contract",
+                "partner_id": self.partner.id,
+                "contract_type": "sale",
+                "line_recurrence": True,
+            }
+        )
+        with self.assertRaisesRegex(UserError, "end date"):
+            self.env["contract.line"].create(
+                {
+                    "contract_id": contract.id,
+                    "product_id": self.product.id,
+                    "name": self.product.name,
+                    "quantity": 1,
+                    "price_unit": 1200.0,
+                    "date_start": fields.Date.from_string("2026-01-01"),
+                    "date_end": False,
+                    "recurring_next_date": fields.Date.from_string("2026-01-01"),
+                    "recurring_interval": 1,
+                    "recurring_rule_type": "monthly",
+                    "recurring_invoicing_type": "pre-paid",
+                    "uom_id": self.product.uom_id.id,
+                    "perf_obligation_auto_create": True,
+                }
+            )
