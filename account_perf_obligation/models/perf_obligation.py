@@ -781,7 +781,7 @@ class PerfObligation(models.Model):
             domain=[
                 ("perf_obligation_id", "=", self.id),
                 ("parent_state", "in", ("draft", "posted")),
-                ("account_id.account_type", "like", self._get_pl_internal_group()),
+                ("account_id.internal_group", "=", self._get_pl_internal_group()),
             ],
             aggregates=["balance:sum"],
         )
