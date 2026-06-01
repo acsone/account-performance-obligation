@@ -124,6 +124,15 @@ class PerfObligation(models.Model):
                     name=posted.perf_obligation_id.display_name,
                 )
             )
+        draft_schedule_moves = self.env["account.move"].search(
+            [
+                ("perf_obligation_schedule_move", "=", True),
+                ("state", "=", "draft"),
+                ("line_ids.perf_obligation_id", "in", self.ids),
+            ]
+        )
+        if draft_schedule_moves:
+            draft_schedule_moves.unlink()
         return super().unlink()
 
     @api.depends("recognition_at_date_method")
