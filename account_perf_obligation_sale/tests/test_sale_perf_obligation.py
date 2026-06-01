@@ -1,7 +1,9 @@
 # Copyright 2026 ACSONE SA/NV
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
+from datetime import date, datetime
 
 from dateutil.relativedelta import relativedelta
+from freezegun import freeze_time
 
 from odoo import Command
 from odoo.exceptions import ValidationError
@@ -38,6 +40,15 @@ class TestSalePerfObligation(TransactionCase):
                 "perf_obligation_sale_auto_create": True,
                 "perf_obligation_sale_recognition_method": "days",
                 "perf_obligation_sale_days_duration": 10,
+            }
+        )
+        cls.product_days_one = cls.env["product.product"].create(
+            {
+                "name": "1-Day Product",
+                "type": "service",
+                "perf_obligation_sale_auto_create": True,
+                "perf_obligation_sale_recognition_method": "days",
+                "perf_obligation_sale_days_duration": 1,
             }
         )
         cls.product_plain = cls.env["product.product"].create(
@@ -81,28 +92,41 @@ class TestSalePerfObligation(TransactionCase):
         self.assertEqual(po.end_date, conf)
         self.assertEqual(po.recognition_at_date_method, "daily")
 
+    @freeze_time("2026-01-01")
     def test_months_creates_obligation(self):
         order = self._make_order((self.product_months, 1, 1200.0))
         order.action_confirm()
         po = order.order_line.perf_obligation_id
-        conf = order.date_order.date()
         self.assertTrue(po)
-        self.assertEqual(po.start_date, conf)
-        self.assertEqual(
-            po.end_date, conf + relativedelta(months=3) - relativedelta(days=1)
-        )
         self.assertEqual(po.total_amount, 1200.0)
+        self.assertEqual(order.date_order, datetime(2026, 1, 1, 0, 0, 0))
+        self.assertEqual(po.start_date, date(2026, 1, 1))
+        self.assertEqual(po.end_date, date(2026, 3, 31))
 
+    @freeze_time("2026-01-01")
     def test_days_creates_obligation(self):
         order = self._make_order((self.product_days, 1, 800.0))
         order.action_confirm()
         po = order.order_line.perf_obligation_id
-        conf = order.date_order.date()
         self.assertTrue(po)
         self.assertEqual(po.perf_type, "income")
         self.assertEqual(po.total_amount, 800.0)
-        self.assertEqual(po.start_date, conf)
-        self.assertEqual(po.end_date, conf + relativedelta(days=10))
+        self.assertEqual(order.date_order, datetime(2026, 1, 1, 0, 0, 0))
+        self.assertEqual(po.start_date, date(2026, 1, 1))
+        self.assertEqual(po.end_date, date(2026, 1, 10))
+        self.assertEqual(po.recognition_at_date_method, "daily")
+
+    @freeze_time("2026-01-01")
+    def test_one_day_creates_obligation(self):
+        order = self._make_order((self.product_days_one, 1, 800.0))
+        order.action_confirm()
+        po = order.order_line.perf_obligation_id
+        self.assertTrue(po)
+        self.assertEqual(po.perf_type, "income")
+        self.assertEqual(po.total_amount, 800.0)
+        self.assertEqual(order.date_order, datetime(2026, 1, 1, 0, 0, 0))
+        self.assertEqual(po.start_date, date(2026, 1, 1))
+        self.assertEqual(po.end_date, date(2026, 1, 1))
         self.assertEqual(po.recognition_at_date_method, "daily")
 
     def test_plain_product_no_obligation(self):

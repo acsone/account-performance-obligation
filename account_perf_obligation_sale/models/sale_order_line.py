@@ -105,7 +105,7 @@ class SaleOrderLine(models.Model):
 
         if method == "days":
             days = product.perf_obligation_sale_days_duration
-            end_date = confirmation_date + relativedelta(days=days)
+            end_date = confirmation_date + relativedelta(days=days - 1)
             return confirmation_date, end_date
 
         raise ValidationError(
