@@ -23,6 +23,12 @@
                     />
                 </button>
             </xpath>
+            <xpath
+                expr="//field[@name='order_line']/form//field[@name='product_uom_readonly']"
+                position="after"
+            >
+                <field name="perf_obligation_id" groups="account.group_account_user" />
+            </xpath>
         </field>
     </record>
 </odoo>
