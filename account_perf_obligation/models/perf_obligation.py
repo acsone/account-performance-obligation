@@ -379,7 +379,7 @@ class PerfObligation(models.Model):
             "journal_id": config.journal.id,
             "date": date,
             "ref": f"{self.name} - {description}" if description else self.name,
-            "auto_post": "monthly",
+            "auto_post": "at_date",
             "line_ids": [Command.create(vals) for vals in lines],
         }
         if schedule:
