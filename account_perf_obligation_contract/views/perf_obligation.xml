@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="perf_obligation_form_view_contract" model="ir.ui.view">
+        <field name="model">perf.obligation</field>
+        <field name="inherit_id" ref="account_perf_obligation.perf_obligation_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_contract_lines"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-file-text-o"
+                    invisible="contract_line_count == 0"
+                >
+                    <field
+                        name="contract_line_count"
+                        widget="statinfo"
+                        string="Contract Lines"
+                    />
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>
