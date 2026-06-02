@@ -14,6 +14,7 @@
         "contract",
     ],
     "data": [
+        "views/perf_obligation.xml",
         "views/contract_contract.xml",
         "views/contract_line.xml",
     ],
