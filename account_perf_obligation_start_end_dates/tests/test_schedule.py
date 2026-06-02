@@ -13,7 +13,7 @@ class TestSchedule(PerfObligationDatesCommon):
     def _mock_today(self, today):
         """Return a context manager that mocks fields.Date.context_today.
 
-        Only needed to allow posting moves with auto_post='monthly'
+        Only needed to allow posting moves with auto_post='at_date'
         whose date is in the future relative to the real today.
         """
         return patch(
@@ -228,7 +228,7 @@ class TestSchedule(PerfObligationDatesCommon):
 
         for move in draft_moves:
             self.assertEqual(move.state, "draft")
-            self.assertEqual(move.auto_post, "monthly")
+            self.assertEqual(move.auto_post, "at_date")
             self.assertEqual(move.journal_id, self.reco_journal)
             for line in move.line_ids:
                 self.assertEqual(line.perf_obligation_id, po)
