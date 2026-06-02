@@ -14,6 +14,7 @@
         "sale",
     ],
     "data": [
+        "views/perf_obligation.xml",
         "views/product_template.xml",
         "views/sale_order.xml",
         "views/sale_order_line.xml",
