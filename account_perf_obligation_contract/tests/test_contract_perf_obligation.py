@@ -596,6 +596,24 @@ class TestContractPerfObligation(TransactionCase):
         line.write({"date_end": new_end})
         self.assertEqual(line.perf_obligation_id.end_date, new_end)
 
+    def test_write_start_date_updates_obligation(self):
+        """Changing date_start propagates the new start date to the linked
+        performance obligation."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        new_start = fields.Date.from_string("2026-03-01")
+        line.write({"date_start": new_start})
+        self.assertEqual(line.perf_obligation_id.start_date, new_start)
+
     def test_open_ended_contract_line_raises_user_error(self):
         """An open-ended contract line (date_end=False) with auto-create enabled
         must raise a UserError — a recognition method and total amount cannot be
@@ -626,3 +644,49 @@ class TestContractPerfObligation(TransactionCase):
                     "perf_obligation_auto_create": True,
                 }
             )
+
+    # ------------------------------------------------------------------
+    # Changed vals detection
+    # ------------------------------------------------------------------
+
+    def test_no_write_when_obligation_already_up_to_date(self):
+        """_create_or_update_perf_obligation must not write to the obligation
+        when all values are already in sync — no spurious chatter message."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        po = line.perf_obligation_id
+        msg_count_before = len(po.message_ids)
+        # Calling sync again with no changes must produce no chatter message
+        line._create_or_update_perf_obligation()
+        self.assertEqual(len(po.message_ids), msg_count_before)
+
+    def test_only_changed_fields_are_written(self):
+        """Only the field that actually changed is included in the write,
+        not the full vals dict."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        po = line.perf_obligation_id
+        new_end = fields.Date.from_string("2026-06-30")
+        vals = line._prepare_perf_obligation_vals()
+        vals["end_date"] = new_end
+        changed = line._get_perf_obligation_changed_vals(po, vals)
+        self.assertEqual(list(changed.keys()), ["end_date"])
+        self.assertEqual(changed["end_date"], new_end)

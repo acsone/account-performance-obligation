@@ -16,7 +16,7 @@ class ContractLine(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if "perf_obligation_auto_create" in vals or "date_end" in vals:
+        if set(vals) - {"perf_obligation_id"}:
             for line in self:
                 line._create_or_update_perf_obligation()
         if vals.get("is_canceled"):
@@ -61,13 +61,33 @@ class ContractLine(models.Model):
         self.ensure_one()
         obligation._ensure_sole_source(self)
         vals = self._prepare_perf_obligation_vals()
-        obligation.sudo().write(vals)
+        changed_vals = self._get_perf_obligation_changed_vals(obligation, vals)
+        if not changed_vals:
+            return
+        obligation.sudo().write(changed_vals)
         obligation.sudo()._message_log(
             body=_(
                 "Values updated from contract line (contract %(contract)s).",
                 contract=self.contract_id.name,
             )
         )
+
+    def _get_perf_obligation_changed_vals(self, obligation, vals):
+        """Return the subset of vals that differ from the current obligation state.
+
+        Override in a subclass to exclude fields from resyncing, add float
+        tolerance, or handle relational fields differently.
+        """
+        self.ensure_one()
+        changed = {}
+        for key, new_value in vals.items():
+            current = obligation[key]
+            # Many2one fields: compare by id
+            if hasattr(current, "id"):
+                current = current.id
+            if current != new_value:
+                changed[key] = new_value
+        return changed
 
     def _prepare_perf_obligation_vals(self):
         self.ensure_one()
