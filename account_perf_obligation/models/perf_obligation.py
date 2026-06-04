@@ -89,6 +89,18 @@ class PerfObligation(models.Model):
         string="Expense Recognition Schedule",
         readonly=True,
     )
+    schedule_income_monthly_line_ids = fields.One2many(
+        comodel_name="perf.obligation.schedule.income.monthly",
+        inverse_name="perf_obligation_id",
+        string="Income Recognition Schedule by Month",
+        readonly=True,
+    )
+    schedule_expense_monthly_line_ids = fields.One2many(
+        comodel_name="perf.obligation.schedule.expense.monthly",
+        inverse_name="perf_obligation_id",
+        string="Expense Recognition Schedule by Month",
+        readonly=True,
+    )
     schedule_needs_regeneration = fields.Boolean(
         default=False,
         index=True,

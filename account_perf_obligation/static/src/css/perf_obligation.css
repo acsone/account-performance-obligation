@@ -2,7 +2,9 @@
    License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). */
 
 .o_field_widget[name="schedule_income_line_ids"] th.o_column_sortable,
-.o_field_widget[name="schedule_expense_line_ids"] th.o_column_sortable {
+.o_field_widget[name="schedule_expense_line_ids"] th.o_column_sortable,
+.o_field_widget[name="schedule_income_monthly_line_ids"] th.o_column_sortable,
+.o_field_widget[name="schedule_expense_monthly_line_ids"] th.o_column_sortable {
     pointer-events: none;
     cursor: default;
 }
