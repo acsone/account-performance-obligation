@@ -142,6 +142,63 @@
                                 </list>
                             </field>
                         </page>
+                        <page
+                            string="Recognition Schedule by Month"
+                            name="schedule_monthly"
+                        >
+                            <field
+                                name="schedule_income_monthly_line_ids"
+                                invisible="perf_type != 'income'"
+                                nolabel="1"
+                            >
+                                <list create="false" edit="false" delete="false">
+                                    <field name="month" string="Month" />
+                                    <field
+                                        name="state"
+                                        widget="badge"
+                                        decoration-info="state == 'draft'"
+                                        decoration-success="state == 'posted'"
+                                        decoration-warning="state == 'mixed'"
+                                    />
+                                    <field name="currency_id" column_invisible="1" />
+                                    <field name="invoiced_amount" />
+                                    <field name="deferred_accrued_amount" />
+                                    <field name="recognized_amount" optional="hide" />
+                                    <field name="total_invoiced_amount" />
+                                    <field
+                                        name="total_deferred_accrued_amount"
+                                        optional="hide"
+                                    />
+                                    <field name="total_recognized_amount" />
+                                </list>
+                            </field>
+                            <field
+                                name="schedule_expense_monthly_line_ids"
+                                invisible="perf_type != 'expense'"
+                                nolabel="1"
+                            >
+                                <list create="false" edit="false" delete="false">
+                                    <field name="month" string="Month" />
+                                    <field
+                                        name="state"
+                                        widget="badge"
+                                        decoration-info="state == 'draft'"
+                                        decoration-success="state == 'posted'"
+                                        decoration-warning="state == 'mixed'"
+                                    />
+                                    <field name="currency_id" column_invisible="1" />
+                                    <field name="billed_amount" />
+                                    <field name="deferred_accrued_amount" />
+                                    <field name="recognized_amount" optional="hide" />
+                                    <field name="total_billed_amount" />
+                                    <field
+                                        name="total_deferred_accrued_amount"
+                                        optional="hide"
+                                    />
+                                    <field name="total_recognized_amount" />
+                                </list>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
                 <chatter />
