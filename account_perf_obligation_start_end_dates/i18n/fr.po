@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-06-11 16:38+0000\n"
+"PO-Revision-Date: 2026-06-11 18:42+0000\n"
 "Last-Translator: Gregory Menu <gregory.menu@acsone.eu>\n"
 "Language-Team: none\n"
 "Language: fr\n"
@@ -78,12 +78,12 @@ msgstr "Période de reconnaissance"
 #. module: account_perf_obligation_start_end_dates
 #: model:ir.model,name:account_perf_obligation_start_end_dates.model_perf_obligation_recognize
 msgid "Recognize Income/Expense on Performance Obligation"
-msgstr ""
+msgstr "Reconnaître revenu/dépense sur une obligation de performance"
 
 #. module: account_perf_obligation_start_end_dates
 #: model:ir.model.fields,field_description:account_perf_obligation_start_end_dates.field_perf_obligation__start_date
 msgid "Start Date"
-msgstr ""
+msgstr "Date de début"
 
 #. module: account_perf_obligation_start_end_dates
 #. odoo-python
@@ -92,6 +92,9 @@ msgid ""
 "Start and end dates are required when the daily pro-rata recognition method "
 "is selected on performance obligation %(name)s."
 msgstr ""
+"Les dates de début et de fin sont nécessaires lorsque la la méthode de "
+"reconnaissance journalière proratisée est sélectionnée sur l'obligation de "
+"performance %(name)s."
 
 #. module: account_perf_obligation_start_end_dates
 #: model:ir.model.fields,help:account_perf_obligation_start_end_dates.field_perf_obligation_recognize__amount_to_recognize
@@ -99,6 +102,8 @@ msgid ""
 "The cumulative amount that should be recognized as of the given date. Must "
 "not exceed the total amount on the obligation."
 msgstr ""
+"Le montant cummulatif qui doit être reconnu à une date donnée ne doit pas "
+"dépasser le montant total de l'obligation."
 
 #. module: account_perf_obligation_start_end_dates
 #. odoo-python
@@ -107,3 +112,5 @@ msgid ""
 "The start date must be before or equal to the end date on performance "
 "obligation %(name)s."
 msgstr ""
+"La date de début doit être inférieure ou égale à la date de fin de "
+"l'obligation de performance %(name)s."
