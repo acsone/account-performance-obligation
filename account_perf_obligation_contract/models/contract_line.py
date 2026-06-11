@@ -16,7 +16,7 @@ class ContractLine(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if "perf_obligation_auto_create" in vals or "date_end" in vals:
+        if set(vals) - {"perf_obligation_id"}:
             for line in self:
                 line._create_or_update_perf_obligation()
         if vals.get("is_canceled"):
@@ -60,13 +60,12 @@ class ContractLine(models.Model):
         """Resync an existing obligation with current contract line data."""
         self.ensure_one()
         obligation._ensure_sole_source(self)
-        vals = self._prepare_perf_obligation_vals()
-        obligation.sudo().write(vals)
-        obligation.sudo()._message_log(
-            body=_(
+        obligation._update_vals(
+            self._prepare_perf_obligation_vals(),
+            _(
                 "Values updated from contract line (contract %(contract)s).",
                 contract=self.contract_id.name,
-            )
+            ),
         )
 
     def _prepare_perf_obligation_vals(self):

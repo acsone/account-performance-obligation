@@ -751,6 +751,21 @@ class PerfObligation(models.Model):
         self.sudo().write({"total_amount": amount})
         self.sudo()._message_log(body=reason)
 
+    def _update_vals(self, vals, reason):
+        """Update the obligation with *vals* if they differ from the current
+        state, and log *reason* to the chatter.
+
+        :param vals: dict of field values to sync (same format as write()).
+        :param reason: human-readable explanation logged to the chatter.
+        """
+        self.ensure_one()
+        current = self._convert_to_write({k: self[k] for k in vals})
+        changed = {k: v for k, v in vals.items() if current.get(k) != v}
+        if not changed:
+            return
+        self.sudo().write(changed)
+        self.sudo()._message_log(body=reason)
+
     def _update_amount_from_sources(self, reason=None):
         """Recompute total_amount from all linked sources and update it
         if it has changed.
