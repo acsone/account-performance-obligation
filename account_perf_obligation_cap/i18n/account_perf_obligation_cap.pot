@@ -1,0 +1,74 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* account_perf_obligation_cap
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: account_perf_obligation_cap
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation_cap.perf_obligation_search_inherit_cap
+msgid "Capped"
+msgstr ""
+
+#. module: account_perf_obligation_cap
+#: model:ir.model.fields,field_description:account_perf_obligation_cap.field_perf_obligation__recognition_cap_enabled
+msgid "Limit Maximum Amount to Recognize"
+msgstr ""
+
+#. module: account_perf_obligation_cap
+#: model:ir.model.fields,field_description:account_perf_obligation_cap.field_perf_obligation__recognition_cap_amount
+msgid "Maximum Amount Allowed for Recognition"
+msgstr ""
+
+#. module: account_perf_obligation_cap
+#: model:ir.model.fields,help:account_perf_obligation_cap.field_perf_obligation__recognition_cap_amount
+msgid ""
+"Maximum cumulative amount that can be recognized for this obligation. Must "
+"have the same sign as the total amount and its absolute value cannot exceed "
+"that of the total amount."
+msgstr ""
+
+#. module: account_perf_obligation_cap
+#: model:ir.model,name:account_perf_obligation_cap.model_perf_obligation
+msgid "Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation_cap
+#. odoo-python
+#: code:addons/account_perf_obligation_cap/models/perf_obligation.py:0
+msgid ""
+"The amount to recognize (%(amount)s) cannot exceed the recognition cap "
+"(%(cap)s) on performance obligation %(name)s."
+msgstr ""
+
+#. module: account_perf_obligation_cap
+#. odoo-python
+#: code:addons/account_perf_obligation_cap/models/perf_obligation.py:0
+msgid ""
+"The recognition cap (%(cap)s) cannot exceed the total amount (%(total)s) on "
+"performance obligation %(name)s."
+msgstr ""
+
+#. module: account_perf_obligation_cap
+#. odoo-python
+#: code:addons/account_perf_obligation_cap/models/perf_obligation.py:0
+msgid ""
+"The recognition cap must have the same sign as the total amount on "
+"performance obligation %(name)s."
+msgstr ""
+
+#. module: account_perf_obligation_cap
+#: model:ir.model.fields,help:account_perf_obligation_cap.field_perf_obligation__recognition_cap_enabled
+msgid ""
+"When enabled, the recognized amount on this obligation will never exceed the"
+" configured cap (in absolute terms), even if the recognition method or "
+"linked invoices/bills would otherwise recognize more."
+msgstr ""
