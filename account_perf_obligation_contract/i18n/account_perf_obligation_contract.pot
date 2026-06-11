@@ -1,0 +1,101 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* account_perf_obligation_contract
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: account_perf_obligation_contract
+#: model:ir.model.fields,field_description:account_perf_obligation_contract.field_perf_obligation__contract_line_count
+msgid "# Contract Lines"
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#: model:ir.model.fields,field_description:account_perf_obligation_contract.field_contract_line__perf_obligation_auto_create
+msgid "Auto-create Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#. odoo-python
+#: code:addons/account_perf_obligation_contract/models/contract_line.py:0
+msgid "Auto-created from contract %(contract)s"
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#. odoo-python
+#: code:addons/account_perf_obligation_contract/models/contract_line.py:0
+msgid ""
+"Cannot determine a recognition method for contract line '%s': both a start "
+"date and an end date are required to auto-create a performance obligation."
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#: model:ir.model,name:account_perf_obligation_contract.model_contract_contract
+msgid "Contract"
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#: model:ir.model,name:account_perf_obligation_contract.model_contract_line
+msgid "Contract Line"
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#. odoo-python
+#: code:addons/account_perf_obligation_contract/models/perf_obligation.py:0
+#: model:ir.model.fields,field_description:account_perf_obligation_contract.field_perf_obligation__contract_line_ids
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation_contract.perf_obligation_form_view_contract
+msgid "Contract Lines"
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#: model:ir.model,name:account_perf_obligation_contract.model_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation_contract.field_contract_line__perf_obligation_id
+msgid "Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#. odoo-python
+#: code:addons/account_perf_obligation_contract/models/contract_contract.py:0
+#: model:ir.model.fields,field_description:account_perf_obligation_contract.field_contract_contract__perf_obligation_count
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation_contract.view_contract_form_perf_obligation
+msgid "Performance Obligations"
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation_contract.view_contract_line_form_perf_obligation
+msgid "Recognition"
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#. odoo-python
+#: code:addons/account_perf_obligation_contract/models/contract_line.py:0
+msgid ""
+"Total amount updated to already invoiced amount %(amount)s on cancellation "
+"of %(cancelled_source)s."
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#. odoo-python
+#: code:addons/account_perf_obligation_contract/models/contract_line.py:0
+msgid "Unknown contract type '%(contract_type)s' on contract '%(contract)s'."
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#. odoo-python
+#: code:addons/account_perf_obligation_contract/models/contract_line.py:0
+msgid "Values updated from contract line (contract %(contract)s)."
+msgstr ""
+
+#. module: account_perf_obligation_contract
+#. odoo-python
+#: code:addons/account_perf_obligation_contract/models/contract_line.py:0
+msgid "contract line (contract %s)"
+msgstr ""
