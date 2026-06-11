@@ -6,29 +6,31 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2026-06-11 18:42+0000\n"
+"Last-Translator: Gregory Menu <gregory.menu@acsone.eu>\n"
 "Language-Team: none\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 3.6.1\n"
 
 #. module: account_perf_obligation_contract
 #: model:ir.model.fields,field_description:account_perf_obligation_contract.field_perf_obligation__contract_line_count
 msgid "# Contract Lines"
-msgstr ""
+msgstr "# Lignes de contrat"
 
 #. module: account_perf_obligation_contract
 #: model:ir.model.fields,field_description:account_perf_obligation_contract.field_contract_line__perf_obligation_auto_create
 msgid "Auto-create Performance Obligation"
-msgstr ""
+msgstr "Auto-création d'obligation de performance"
 
 #. module: account_perf_obligation_contract
 #. odoo-python
 #: code:addons/account_perf_obligation_contract/models/contract_line.py:0
 msgid "Auto-created from contract %(contract)s"
-msgstr ""
+msgstr "Auto-création depuis le contrat %(contract)s"
 
 #. module: account_perf_obligation_contract
 #. odoo-python
@@ -37,16 +39,19 @@ msgid ""
 "Cannot determine a recognition method for contract line '%s': both a start "
 "date and an end date are required to auto-create a performance obligation."
 msgstr ""
+"Ne peut pas déterminer une méthode de reconnaissance pour la ligne de "
+"contrat '%s': les dates de début et de fin sont toutes deux requises pour "
+"auto-créer une obligation de performance"
 
 #. module: account_perf_obligation_contract
 #: model:ir.model,name:account_perf_obligation_contract.model_contract_contract
 msgid "Contract"
-msgstr ""
+msgstr "Contrat"
 
 #. module: account_perf_obligation_contract
 #: model:ir.model,name:account_perf_obligation_contract.model_contract_line
 msgid "Contract Line"
-msgstr ""
+msgstr "Ligne de contrat"
 
 #. module: account_perf_obligation_contract
 #. odoo-python
@@ -54,13 +59,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:account_perf_obligation_contract.field_perf_obligation__contract_line_ids
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_contract.perf_obligation_form_view_contract
 msgid "Contract Lines"
-msgstr ""
+msgstr "Lignes de contrat"
 
 #. module: account_perf_obligation_contract
 #: model:ir.model,name:account_perf_obligation_contract.model_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation_contract.field_contract_line__perf_obligation_id
 msgid "Performance Obligation"
-msgstr ""
+msgstr "Obligation de performance"
 
 #. module: account_perf_obligation_contract
 #. odoo-python
@@ -68,12 +73,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:account_perf_obligation_contract.field_contract_contract__perf_obligation_count
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_contract.view_contract_form_perf_obligation
 msgid "Performance Obligations"
-msgstr ""
+msgstr "Obligations de performance"
 
 #. module: account_perf_obligation_contract
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_contract.view_contract_line_form_perf_obligation
 msgid "Recognition"
-msgstr ""
+msgstr "Raconnaissance"
 
 #. module: account_perf_obligation_contract
 #. odoo-python
@@ -82,21 +87,25 @@ msgid ""
 "Total amount updated to already invoiced amount %(amount)s on cancellation "
 "of %(cancelled_source)s."
 msgstr ""
+"Montant total mis à jour au montant déjà facturé %(amount)s à l'annulation "
+"de  %(cancelled_source)s."
 
 #. module: account_perf_obligation_contract
 #. odoo-python
 #: code:addons/account_perf_obligation_contract/models/contract_line.py:0
 msgid "Unknown contract type '%(contract_type)s' on contract '%(contract)s'."
 msgstr ""
+"Type de contrat inconnu '%(contract_type)s' sur le contrat '%(contract)s'."
 
 #. module: account_perf_obligation_contract
 #. odoo-python
 #: code:addons/account_perf_obligation_contract/models/contract_line.py:0
 msgid "Values updated from contract line (contract %(contract)s)."
 msgstr ""
+"Valeurs mises à jour depuis la ligne de contrat  (contract %(contract)s)."
 
 #. module: account_perf_obligation_contract
 #. odoo-python
 #: code:addons/account_perf_obligation_contract/models/contract_line.py:0
 msgid "contract line (contract %s)"
-msgstr ""
+msgstr "Ligne de contrat (contract %s)"
