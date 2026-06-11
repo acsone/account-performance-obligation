@@ -16,7 +16,7 @@ class ContractLine(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if "perf_obligation_auto_create" in vals or "date_end" in vals:
+        if set(vals) - {"perf_obligation_id"}:
             for line in self:
                 line._create_or_update_perf_obligation()
         if vals.get("is_canceled"):
@@ -60,13 +60,12 @@ class ContractLine(models.Model):
         """Resync an existing obligation with current contract line data."""
         self.ensure_one()
         obligation._ensure_sole_source(self)
-        vals = self._prepare_perf_obligation_vals()
-        obligation.sudo().write(vals)
-        obligation.sudo()._message_log(
-            body=_(
+        obligation._update_vals(
+            self._prepare_perf_obligation_vals(),
+            _(
                 "Values updated from contract line (contract %(contract)s).",
                 contract=self.contract_id.name,
-            )
+            ),
         )
 
     def _prepare_perf_obligation_vals(self):
@@ -86,11 +85,13 @@ class ContractLine(models.Model):
                     contract=self.contract_id.display_name,
                 )
             )
+        start_date = self._get_obligation_start_date()
+        end_date = self._get_obligation_end_date()
         vals = {
             "perf_type": perf_type,
             "total_amount": self._get_obligation_amount(),
-            "start_date": self.date_start,
-            "end_date": self.date_end,
+            "start_date": start_date,
+            "end_date": end_date,
             "description": _(
                 "Auto-created from contract %(contract)s",
                 contract=self.contract_id.name,
@@ -104,6 +105,14 @@ class ContractLine(models.Model):
             vals["pl_account_id"] = pl_account.id
         return vals
 
+    def _get_obligation_start_date(self):
+        self.ensure_one()
+        return self.service_start_date or self.date_start
+
+    def _get_obligation_end_date(self):
+        self.ensure_one()
+        return self.service_end_date or self.date_end
+
     def _get_obligation_recognition_at_date_method(self):
         """Return the recognition method to use on the performance obligation.
 
@@ -112,7 +121,7 @@ class ContractLine(models.Model):
         method cannot be applied without a known end date.
         """
         self.ensure_one()
-        if self.date_start and self.date_end:
+        if self._get_obligation_start_date() and self._get_obligation_end_date():
             return "daily"
         raise UserError(
             _(
