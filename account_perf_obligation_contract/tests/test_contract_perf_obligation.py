@@ -675,3 +675,49 @@ class TestContractPerfObligation(TransactionCase):
         line.write({"date_end": new_end})
         self.assertEqual(po.end_date, new_end)
         self.assertEqual(len(po.message_ids), msg_count_before + 1)
+
+    # ------------------------------------------------------------------
+    # Service dates
+    # ------------------------------------------------------------------
+
+    def test_service_dates_used_when_set(self):
+        """service_start_date / service_end_date override contract line dates on the
+        ODP."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        line.write(
+            {
+                "service_start_date": fields.Date.from_string("2026-02-01"),
+                "service_end_date": fields.Date.from_string("2026-11-30"),
+            }
+        )
+        po = line.perf_obligation_id
+        self.assertEqual(po.start_date, line.service_start_date)
+        self.assertEqual(po.end_date, line.service_end_date)
+
+    def test_billing_dates_used_as_fallback_when_service_dates_absent(self):
+        """When service dates are not set, billing dates are used on the ODP."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        # service_start_date / service_end_date default to billing dates
+        po = line.perf_obligation_id
+        self.assertEqual(po.start_date, fields.Date.from_string("2026-01-01"))
+        self.assertEqual(po.end_date, fields.Date.from_string("2026-12-31"))

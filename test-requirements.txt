@@ -1,1 +1,2 @@
 odoo_test_helper
+odoo-addon-contract_service_dates @ git+https://github.com/OCA/contract.git@refs/pull/1461/head#subdirectory=contract_service_dates
