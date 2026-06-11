@@ -1,0 +1,182 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* account_perf_obligation_sale
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_perf_obligation__sale_order_line_count
+msgid "# Sale Order Lines"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#. odoo-python
+#: code:addons/account_perf_obligation_sale/models/product_template.py:0
+msgid ""
+"A recognition duration method is required when automatic performance "
+"obligation creation is enabled on product '%(name)s'."
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields.selection,name:account_perf_obligation_sale.selection__product_template__perf_obligation_sale_recognition_method__at_once
+msgid "At once"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_product_product__perf_obligation_sale_auto_create
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_product_template__perf_obligation_sale_auto_create
+msgid "Auto-create Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#. odoo-python
+#: code:addons/account_perf_obligation_sale/models/sale_order_line.py:0
+msgid "Auto-created from sale order %(order)s - %(product)s"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields,help:account_perf_obligation_sale.field_product_product__perf_obligation_sale_recognition_method
+#: model:ir.model.fields,help:account_perf_obligation_sale.field_product_template__perf_obligation_sale_recognition_method
+msgid ""
+"Determines how the start and end dates of the performance obligation are "
+"computed when it is created."
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields,help:account_perf_obligation_sale.field_product_product__perf_obligation_sale_days_duration
+#: model:ir.model.fields,help:account_perf_obligation_sale.field_product_template__perf_obligation_sale_days_duration
+msgid ""
+"Number of days over which the performance obligation is recognized. Used "
+"when the recognition method is 'Over several days'."
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields,help:account_perf_obligation_sale.field_product_product__perf_obligation_sale_months_duration
+#: model:ir.model.fields,help:account_perf_obligation_sale.field_product_template__perf_obligation_sale_months_duration
+msgid ""
+"Number of months over which the performance obligation is recognized. Used "
+"when the recognition method is 'Over several months'."
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields.selection,name:account_perf_obligation_sale.selection__product_template__perf_obligation_sale_recognition_method__days
+msgid "Over several days"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields.selection,name:account_perf_obligation_sale.selection__product_template__perf_obligation_sale_recognition_method__months
+msgid "Over several months"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model,name:account_perf_obligation_sale.model_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_sale_order_line__perf_obligation_id
+msgid "Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#. odoo-python
+#: code:addons/account_perf_obligation_sale/models/sale_order.py:0
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_sale_order__perf_obligation_count
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation_sale.view_order_form_perf_obligation
+msgid "Performance Obligations"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model,name:account_perf_obligation_sale.model_product_template
+msgid "Product"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_product_product__perf_obligation_sale_days_duration
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_product_template__perf_obligation_sale_days_duration
+msgid "Recognition Duration (days)"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_product_product__perf_obligation_sale_months_duration
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_product_template__perf_obligation_sale_months_duration
+msgid "Recognition Duration (months)"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation_sale.product_template_form_view
+msgid "Revenue Recognition"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_product_product__perf_obligation_sale_recognition_method
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_product_template__perf_obligation_sale_recognition_method
+msgid "Revenue Recognition Duration"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#. odoo-python
+#: code:addons/account_perf_obligation_sale/models/perf_obligation.py:0
+#: model:ir.model.fields,field_description:account_perf_obligation_sale.field_perf_obligation__sale_order_line_ids
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation_sale.perf_obligation_form_view_sale
+msgid "Sale Order Lines"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model,name:account_perf_obligation_sale.model_sale_order
+msgid "Sales Order"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#: model:ir.model,name:account_perf_obligation_sale.model_sale_order_line
+msgid "Sales Order Line"
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#. odoo-python
+#: code:addons/account_perf_obligation_sale/models/product_template.py:0
+msgid ""
+"The recognition duration must be a strictly positive number of days on "
+"product '%(name)s'."
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#. odoo-python
+#: code:addons/account_perf_obligation_sale/models/product_template.py:0
+msgid ""
+"The recognition duration must be a strictly positive number of months on "
+"product '%(name)s'."
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#. odoo-python
+#: code:addons/account_perf_obligation_sale/models/sale_order.py:0
+msgid ""
+"Total amount updated to already invoiced amount %(amount)s on cancellation "
+"of %(cancelled_source)s."
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#. odoo-python
+#: code:addons/account_perf_obligation_sale/models/sale_order_line.py:0
+msgid ""
+"Unknown performance obligation recognition method '%(method)s' on product "
+"'%(product)s'."
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#. odoo-python
+#: code:addons/account_perf_obligation_sale/models/sale_order_line.py:0
+msgid "Values updated on re-confirmation of sale order %(order)s."
+msgstr ""
+
+#. module: account_perf_obligation_sale
+#. odoo-python
+#: code:addons/account_perf_obligation_sale/models/sale_order.py:0
+msgid "sale order %s"
+msgstr ""
