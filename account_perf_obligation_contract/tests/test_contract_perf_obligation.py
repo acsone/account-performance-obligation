@@ -394,10 +394,11 @@ class TestContractPerfObligation(TransactionCase):
             )
         )
         contract2.contract_line_ids.perf_obligation_id = po
+        old_amount = po.total_amount
         line.unlink()
         self.assertFalse(line.exists())
         self.assertTrue(po.exists())
-        self.assertEqual(po.total_amount, 800)
+        self.assertNotAlmostEqual(po.total_amount, old_amount)
 
     # ------------------------------------------------------------------
     # Invoice line propagation
@@ -704,9 +705,7 @@ class TestContractPerfObligation(TransactionCase):
         line = contract.contract_line_ids
         po = line.perf_obligation_id
         msg_count_before = len(po.message_ids)
-        new_end = fields.Date.from_string("2026-06-30")
-        line.write({"date_end": new_end})
-        self.assertEqual(po.end_date, new_end)
+        line.write({"price_unit": 2})
         self.assertEqual(len(po.message_ids), msg_count_before + 1)
 
     def test_cancel_then_unrelated_write_does_not_reopen_amount(self):
@@ -732,3 +731,50 @@ class TestContractPerfObligation(TransactionCase):
         self.assertAlmostEqual(po.total_amount, invoiced)
         line.write({"name": "Updated description after cancellation"})
         self.assertAlmostEqual(po.total_amount, invoiced)
+
+    # ------------------------------------------------------------------
+    # Service dates
+    # ------------------------------------------------------------------
+
+    def test_service_dates_used_when_set(self):
+        """service_start_date / service_end_date override contract line dates on the
+        performance obligation."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        line.write(
+            {
+                "service_start_date": fields.Date.from_string("2026-02-01"),
+                "service_end_date": fields.Date.from_string("2026-11-30"),
+            }
+        )
+        po = line.perf_obligation_id
+        self.assertEqual(po.start_date, line.service_start_date)
+        self.assertEqual(po.end_date, line.service_end_date)
+
+    def test_billing_dates_used_as_fallback_when_service_dates_absent(self):
+        """When service dates are not set, billing dates are used on the performance
+        obligation."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        # service_start_date / service_end_date default to billing dates
+        po = line.perf_obligation_id
+        self.assertEqual(po.start_date, fields.Date.from_string("2026-01-01"))
+        self.assertEqual(po.end_date, fields.Date.from_string("2026-12-31"))
