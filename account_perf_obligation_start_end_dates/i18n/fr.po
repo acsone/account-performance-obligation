@@ -1,0 +1,103 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* account_perf_obligation_start_end_dates
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model.fields,field_description:account_perf_obligation_start_end_dates.field_perf_obligation_recognize__amount_to_recognize
+msgid "Amount to Recognize at Date"
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#. odoo-python
+#: code:addons/account_perf_obligation_start_end_dates/models/perf_obligation.py:0
+msgid ""
+"An end date is required to generate schedule entries on performance "
+"obligation %(name)s."
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model.fields.selection,name:account_perf_obligation_start_end_dates.selection__perf_obligation__recognition_at_date_method__daily
+msgid "Daily Pro-Rata"
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model.fields,field_description:account_perf_obligation_start_end_dates.field_perf_obligation__end_date
+msgid "End Date"
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model.fields,field_description:account_perf_obligation_start_end_dates.field_perf_obligation__is_end_date_required
+msgid "Is End Date Required"
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model.fields,field_description:account_perf_obligation_start_end_dates.field_perf_obligation__is_start_date_required
+msgid "Is Start Date Required"
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model.fields,help:account_perf_obligation_start_end_dates.field_perf_obligation__recognition_at_date_method
+msgid ""
+"Method used to compute the amount to recognize at a given date. Leave empty "
+"for manual recognition only."
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model,name:account_perf_obligation_start_end_dates.model_perf_obligation
+msgid "Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model.fields,field_description:account_perf_obligation_start_end_dates.field_perf_obligation__recognition_at_date_method
+msgid "Recognition At Date Method"
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation_start_end_dates.perf_obligation_form_inherit_dates
+msgid "Recognition Period"
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model,name:account_perf_obligation_start_end_dates.model_perf_obligation_recognize
+msgid "Recognize Income/Expense on Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model.fields,field_description:account_perf_obligation_start_end_dates.field_perf_obligation__start_date
+msgid "Start Date"
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#. odoo-python
+#: code:addons/account_perf_obligation_start_end_dates/models/perf_obligation.py:0
+msgid ""
+"Start and end dates are required when the daily pro-rata recognition method "
+"is selected on performance obligation %(name)s."
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#: model:ir.model.fields,help:account_perf_obligation_start_end_dates.field_perf_obligation_recognize__amount_to_recognize
+msgid ""
+"The cumulative amount that should be recognized as of the given date. Must "
+"not exceed the total amount on the obligation."
+msgstr ""
+
+#. module: account_perf_obligation_start_end_dates
+#. odoo-python
+#: code:addons/account_perf_obligation_start_end_dates/models/perf_obligation.py:0
+msgid ""
+"The start date must be before or equal to the end date on performance "
+"obligation %(name)s."
+msgstr ""
