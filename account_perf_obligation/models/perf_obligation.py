@@ -725,8 +725,10 @@ class PerfObligation(models.Model):
         self.ensure_one()
         sources = []
         for model in self._get_source_models():
-            records = self.env[model._name].search(
-                [("perf_obligation_id", "=", self.id)]
+            records = (
+                self.env[model._name]
+                .with_context(active_test=False)
+                .search([("perf_obligation_id", "=", self.id)])
             )
             if records:
                 sources.append(records)
