@@ -73,6 +73,40 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Update .pot files
-        run: oca_export_and_push_pot https://x-access-token:${{ secrets.GIT_PUSH_TOKEN }}@github.com/${{ github.repository }}
-        if: ${{ matrix.makepot == 'true' && github.event_name == 'push' && github.repository_owner == 'acsone' }}
+      - name: Prepare .pot files update
+        run: |
+          git reset --hard ${{ github.sha }}
+          oca_export_and_commit_pot
+          mkdir oca-ci-po-patch && touch oca-ci-po-patch/keep
+          git format-patch --output-directory=oca-ci-po-patch --keep-subject @{u}..@ */i18n/*.po*
+        if: matrix.makepot == 'true' && github.event_name == 'push' && github.repository_owner == 'acsone'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oca-ci-po-patch
+          path: oca-ci-po-patch
+          retention-days: 7
+        if: matrix.makepot == 'true' && github.event_name == 'push' && github.repository_owner == 'acsone'
+  push-pot:
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.repository_owner == 'acsone'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: oca-ci-po-patch
+          path: oca-ci-po-patch
+      - name: Configure git user
+        run: |
+          git config user.name "oca-ci"
+          git config user.email "oca-ci@odoo-community.org"
+      - name: Apply .pot files changes
+        run: git am --keep oca-ci-po-patch/*.patch
+        if: ${{ hashFiles('oca-ci-po-patch/*.patch') != '' }}
+      - name: Push .pot file changes
+        run: git push
+        if: ${{ hashFiles('oca-ci-po-patch/*.patch') != '' }}
+        # Don't fail in case something has changed upstream in the meantime
+        continue-on-error: true
