@@ -1,0 +1,760 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* account_perf_obligation
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation_source_mixin.py:0
+msgid "%(model)s must implement _get_obligation_amount()."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid "%(type)s recognition %(date)s"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "(Re)generate Schedule Entries"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "<span class=\"o_form_label\">Performance Obligation</span>"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/account_move_line.py:0
+msgid ""
+"Account '%(account)s' cannot be used with a performance obligation. Only "
+"Income, Expense, Current Assets and Current Liabilities accounts are "
+"allowed."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
+msgid "Accrual Account (Balance Sheet)"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Add a description..."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Administration"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__amount_to_recognize
+msgid "Amount to Recognize at Date"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_res_company__po_expense_credit_bs_account_id
+#: model:ir.model.fields,help:account_perf_obligation.field_res_config_settings__po_expense_credit_bs_account_id
+msgid "Balance sheet account for accrued expense."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_res_company__po_income_debit_bs_account_id
+#: model:ir.model.fields,help:account_perf_obligation.field_res_config_settings__po_income_debit_bs_account_id
+msgid "Balance sheet account for accrued income."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_res_company__po_expense_debit_bs_account_id
+#: model:ir.model.fields,help:account_perf_obligation.field_res_config_settings__po_expense_debit_bs_account_id
+msgid "Balance sheet account for deferred expense."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_res_company__po_income_credit_bs_account_id
+#: model:ir.model.fields,help:account_perf_obligation.field_res_config_settings__po_income_credit_bs_account_id
+msgid "Balance sheet account for deferred income."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__billed_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__billed_amount
+msgid "Billed"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_recognize_form
+msgid "Cancel"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Cannot delete performance obligation '%(name)s': it has posted accounting "
+"entries. Consider updating the performance obligation amount to 0 if the "
+"obligation has been cancelled."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__company_id
+msgid "Company"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
+msgid "Configure accounts and journal for expense recognition."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
+msgid "Configure accounts and journal for income recognition."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_recognize_form
+msgid "Confirm"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
+msgid "Counterpart Account (P&L)"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.actions.act_window,help:account_perf_obligation.action_perf_obligation
+msgid "Create your first Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__create_uid
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__create_date
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__create_date
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Created on"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__currency_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__currency_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__currency_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__currency_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__currency_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__currency_id
+msgid "Currency"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__date
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__date
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__date
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__date
+msgid "Date"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
+msgid "Deferral Account (Balance Sheet)"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__deferred_accrued_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__deferred_accrued_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__deferred_accrued_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__deferred_accrued_amount
+msgid "Deferred / Accrued"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__description
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__description
+msgid "Description"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__display_name
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__display_name
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__display_name
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__display_name
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__display_name
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_expense__state__draft
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_expense_monthly__state__draft
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_income__state__draft
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_income_monthly__state__draft
+msgid "Draft"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation__perf_type__expense
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_search
+msgid "Expense"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_company__po_expense_credit_bs_account_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_config_settings__po_expense_credit_bs_account_id
+msgid "Expense Accrual BS Account"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_company__po_expense_debit_bs_account_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_config_settings__po_expense_debit_bs_account_id
+msgid "Expense Deferral BS Account"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
+msgid "Expense Recognition"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_company__po_expense_journal_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_config_settings__po_expense_journal_id
+msgid "Expense Recognition Journal"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_company__po_expense_pl_account_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_config_settings__po_expense_pl_account_id
+msgid "Expense Recognition P&L Account"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__schedule_expense_line_ids
+msgid "Expense Recognition Schedule"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__schedule_expense_monthly_line_ids
+msgid "Expense Recognition Schedule by Month"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_search
+msgid "Group By"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__id
+msgid "ID"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__message_has_error
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation__perf_type__income
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_search
+msgid "Income"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_company__po_income_debit_bs_account_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_config_settings__po_income_debit_bs_account_id
+msgid "Income Accrual BS Account"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_company__po_income_credit_bs_account_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_config_settings__po_income_credit_bs_account_id
+msgid "Income Deferral BS Account"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
+msgid "Income Recognition"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_company__po_income_journal_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_config_settings__po_income_journal_id
+msgid "Income Recognition Journal"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_company__po_income_pl_account_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_res_config_settings__po_income_pl_account_id
+msgid "Income Recognition P&L Account"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__schedule_income_line_ids
+msgid "Income Recognition Schedule"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__schedule_income_monthly_line_ids
+msgid "Income Recognition Schedule by Month"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__invoiced_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__invoiced_amount
+msgid "Invoiced"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
+msgid "Journal"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_account_move
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__move_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__move_id
+msgid "Journal Entry"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_account_move_line
+msgid "Journal Item"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__move_line_ids
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Journal Items"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__move_line_count
+msgid "Journal Items Count"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__write_uid
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__write_date
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__recognition_at_date_method
+msgid ""
+"Method used to compute the amount to recognize at a given date. Leave empty "
+"for manual recognition only."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Missing performance obligation configuration on company '%(company)s' for "
+"%(perf_type)s: %(fields)s"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_expense_monthly__state__mixed
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_income_monthly__state__mixed
+msgid "Mixed"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__month
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__month
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Month"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_search
+msgid "Needs Regeneration"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/wizards/perf_obligation_recognize.py:0
+msgid ""
+"No adjustment is needed: the recognized amount already matches the desired "
+"amount."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"No recognition at date method configured on performance obligation %(name)s."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__pl_account_id
+msgid ""
+"Optional. If set, overrides the P&L account defined in the accounting "
+"configuration for recognition entries."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__pl_account_id
+msgid "P&L Recognition Account"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_account_bank_statement_line__perf_obligation_schedule_move
+#: model:ir.model.fields,field_description:account_perf_obligation.field_account_move__perf_obligation_schedule_move
+msgid "Perf Obligation Schedule Move"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_account_move_line__perf_obligation_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__perf_obligation_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__perf_obligation_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__perf_obligation_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__perf_obligation_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__perf_obligation_id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_source_mixin__perf_obligation_id
+msgid "Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_perf_obligation_schedule_expense
+msgid "Performance Obligation Recognition Schedule (Expense)"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_perf_obligation_schedule_income
+msgid "Performance Obligation Recognition Schedule (Income)"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_perf_obligation_schedule_expense_monthly
+msgid "Performance Obligation Recognition Schedule by Month (Expense)"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_perf_obligation_schedule_income_monthly
+msgid "Performance Obligation Recognition Schedule by Month (Income)"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_perf_obligation_source_mixin
+msgid "Performance Obligation Source Mixin"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.actions.act_window,name:account_perf_obligation.action_perf_obligation
+#: model:ir.ui.menu,name:account_perf_obligation.menu_perf_obligation_list
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
+msgid "Performance Obligations"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Performance obligation %(obligation)s originates from multiple sources "
+"%(sources)s, so it can't be updated automatically to match %(record)s."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_expense__state__posted
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_expense_monthly__state__posted
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_income__state__posted
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_income_monthly__state__posted
+msgid "Posted"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.actions.server,name:account_perf_obligation.action_process_pending_regenerations_server
+msgid "Process Pending Regenerations"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Recognition"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__recognition_at_date_method
+msgid "Recognition At Date Method"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__date
+msgid "Recognition Date"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Recognition Method"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Recognition Schedule"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Recognition Schedule by Month"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.actions.act_window,name:account_perf_obligation.action_perf_obligation_recognize
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_recognize_form
+msgid "Recognize Income/Expense"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_perf_obligation_recognize
+msgid "Recognize Income/Expense on Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__recognized_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__recognized_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__recognized_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__recognized_amount
+msgid "Recognized"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__name
+msgid "Reference"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__schedule_needs_regeneration
+msgid "Schedule Needs Regeneration"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Schedule generation is not supported on performance obligation %(name)s."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__schedule_needs_regeneration
+msgid ""
+"Set to True when the obligation's schedule may be out of date and needs to "
+"be regenerated. Cleared when regeneration completes."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_account_bank_statement_line__perf_obligation_schedule_move
+#: model:ir.model.fields,help:account_perf_obligation.field_account_move__perf_obligation_schedule_move
+msgid ""
+"Set to True when this journal entry was automatically generated. Such "
+"entries are deleted during schedule regeneration."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__state
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__state
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__state
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__state
+msgid "Status"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__supports_schedule
+msgid "Supports Schedule"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"The amount to recognize (%(amount)s) cannot exceed the total amount on the "
+"performance obligation (%(total)s) on performance obligation %(name)s."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"The amount to recognize must have the same sign as the performance "
+"obligation amount on performance obligation %(name)s."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation_recognize__amount_to_recognize
+msgid ""
+"The cumulative amount that should be recognized as of the given date. Must "
+"not exceed the total amount on the obligation."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__total_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__total_amount
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Total Amount to Recognize"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__total_billed_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__total_billed_amount
+msgid "Total Billed"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__total_deferred_accrued_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__total_deferred_accrued_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__total_deferred_accrued_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__total_deferred_accrued_amount
+msgid "Total Deferred / Accrued"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__total_invoiced_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__total_invoiced_amount
+msgid "Total Invoiced"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__total_recognized_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__total_recognized_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__total_recognized_amount
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__total_recognized_amount
+msgid "Total Recognized"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid "Total amount updated to %(amount)s from source contributions."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__perf_type
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__perf_type
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_search
+msgid "Type"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Unknown recognition method '%(method)s' on performance obligation %(name)s."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__website_message_ids
+msgid "Website communication history"
+msgstr ""
