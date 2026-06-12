@@ -11,7 +11,7 @@
     "website": "https://github.com/acsone/ifrs15",
     "depends": [
         "account_perf_obligation_start_end_dates",
-        "contract",
+        "contract_service_dates",
     ],
     "data": [
         "views/perf_obligation.xml",
