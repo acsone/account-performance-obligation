@@ -87,7 +87,7 @@ class ContractLine(models.Model):
             )
         vals = {
             "perf_type": perf_type,
-            "total_amount": self._get_obligation_amount(),
+            "total_amount": self._get_perf_obligation_amount(),
             "start_date": self.date_start,
             "end_date": self.date_end,
             "description": _(
@@ -141,7 +141,7 @@ class ContractLine(models.Model):
         )
         return accounts.get(account_key)
 
-    def _get_obligation_amount(self):
+    def _get_perf_obligation_amount(self):
         return self._get_contract_line_total_value()
 
     def _cancel_perf_obligations(self):
