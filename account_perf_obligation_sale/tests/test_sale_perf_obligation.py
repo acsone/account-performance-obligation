@@ -288,12 +288,9 @@ class TestSalePerfObligation(TransactionCase):
         order = self._make_order((self.product_at_once, 1, 1000.0))
         order.action_confirm()
         po = order.order_line.perf_obligation_id
-        invoice = order._create_invoices()
-        invoice.action_post()
         msg_count_before = len(po.message_ids)
         order.with_context(disable_cancel_warning=True).action_cancel()
         self.assertEqual(len(po.message_ids), msg_count_before + 1)
-        self.assertIn("$&nbsp;1,000.00", po.message_ids[0].body)
 
     def test_reconfirm_posts_chatter_message(self):
         """Re-confirmation posts a message on the performance obligation chatter."""

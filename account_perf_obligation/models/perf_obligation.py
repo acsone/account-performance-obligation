@@ -744,14 +744,9 @@ class PerfObligation(models.Model):
         return total
 
     def _update_total_amount(self, amount, reason):
-        """Write total_amount and post a chatter message.
-
-        :param amount: new monetary amount to set.
-        :param reason: chatter message body.
-        """
+        """Write total_amount and post a chatter message."""
         self.ensure_one()
-        self.sudo().write({"total_amount": amount})
-        self.sudo()._message_log(body=reason)
+        self._update_vals({"total_amount": amount}, reason)
 
     def _update_vals(self, vals, reason):
         """Update the obligation with *vals* if they differ from the current
