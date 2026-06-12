@@ -1,1 +1,2 @@
 odoo_test_helper
+odoo-addon-queue_job_web_notify @ git+https://github.com/OCA/queue.git@refs/pull/830/head#subdirectory=queue_job_web_notify
