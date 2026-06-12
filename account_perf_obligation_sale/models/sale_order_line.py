@@ -55,7 +55,7 @@ class SaleOrderLine(models.Model):
         start_date, end_date = self._get_perf_obligation_dates()
         vals = {
             "perf_type": "income",
-            "total_amount": self._get_obligation_amount(),
+            "total_amount": self._get_perf_obligation_amount(),
             "start_date": start_date,
             "end_date": end_date,
             "recognition_at_date_method": "daily",
@@ -123,5 +123,5 @@ class SaleOrderLine(models.Model):
             vals["perf_obligation_id"] = self.perf_obligation_id.id
         return vals
 
-    def _get_obligation_amount(self):
+    def _get_perf_obligation_amount(self):
         return self.price_subtotal
