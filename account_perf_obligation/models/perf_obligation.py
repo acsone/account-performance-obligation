@@ -734,13 +734,36 @@ class PerfObligation(models.Model):
                 sources.append(records)
         return sources
 
+    def _remove_source(self, source_record, reason=None):
+        """Detach source_record from this obligation.
+
+        If other sources remain, the obligation is kept and its total_amount
+        is recomputed from what's left. If source_record was the sole source,
+        the obligation is deleted.
+        """
+        self.ensure_one()
+        source_record.perf_obligation_id = False
+        if self._get_sources():
+            new_amount = self._compute_total_amount_from_sources()
+            self.sudo()._update_total_amount(
+                new_amount,
+                reason
+                or _(
+                    "Total amount recomputed after %(removed_source)s was removed; "
+                    "obligation is still linked to other source(s).",
+                    removed_source=source_record.display_name,
+                ),
+            )
+        else:
+            self.sudo().unlink()
+
     def _compute_total_amount_from_sources(self):
         """Sum the contribution of all sources linked to this obligation."""
         self.ensure_one()
         total = 0.0
         for source_records in self._get_sources():
             for record in source_records:
-                total += record._get_obligation_amount()
+                total += record._get_perf_obligation_amount()
         return total
 
     def _update_total_amount(self, amount, reason):

@@ -11,6 +11,6 @@ class PerfObligationTestSource(models.TransientModel):
 
     amount = fields.Float()
 
-    def _get_obligation_amount(self):
+    def _get_perf_obligation_amount(self):
         self.ensure_one()
         return self.amount

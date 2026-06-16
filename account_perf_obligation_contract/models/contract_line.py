@@ -27,8 +27,9 @@ class ContractLine(models.Model):
         for line in self:
             obligation = line.perf_obligation_id
             if obligation:
-                line.perf_obligation_id = False
-                obligation.sudo().unlink()
+                obligation._remove_source(
+                    line,
+                )
         return super().unlink()
 
     @api.model_create_multi

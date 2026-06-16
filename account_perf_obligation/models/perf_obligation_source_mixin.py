@@ -18,14 +18,14 @@ class PerfObligationSourceMixin(models.AbstractModel):
         index=True,
     )
 
-    def _get_obligation_amount(self):
+    def _get_perf_obligation_amount(self):
         """Return the amount this source contributes to its performance
         obligation.
         """
         self.ensure_one()
         raise NotImplementedError(
             _(
-                "%(model)s must implement _get_obligation_amount().",
+                "%(model)s must implement _get_perf_obligation_amount().",
                 model=self._name,
             )
         )

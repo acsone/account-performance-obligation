@@ -119,3 +119,12 @@ class SaleOrderLine(models.Model):
 
     def _get_perf_obligation_amount(self):
         return self.price_subtotal
+
+    def unlink(self):
+        for line in self:
+            obligation = line.perf_obligation_id
+            if obligation:
+                obligation._remove_source(
+                    line,
+                )
+        return super().unlink()

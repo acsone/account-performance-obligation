@@ -366,6 +366,39 @@ class TestContractPerfObligation(TransactionCase):
         line.unlink()
         self.assertFalse(self.env["perf.obligation"].browse(po_id).exists())
 
+    def test_unlink_with_multiple_sources_recomputes_amount(self):
+        """Unlinking a contract line whose obligation is shared with another
+        source detaches it and recomputes total_amount from what's left,
+        rather than blocking the deletion."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        po = line.perf_obligation_id
+        line.write({"is_canceled": True})
+        contract2 = self._make_contract(
+            (
+                self.product,
+                1,
+                800.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        contract2.contract_line_ids.perf_obligation_id = po
+        line.unlink()
+        self.assertFalse(line.exists())
+        self.assertTrue(po.exists())
+        self.assertEqual(po.total_amount, 800)
+
     # ------------------------------------------------------------------
     # Invoice line propagation
     # ------------------------------------------------------------------
