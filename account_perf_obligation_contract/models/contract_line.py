@@ -85,11 +85,13 @@ class ContractLine(models.Model):
                     contract=self.contract_id.display_name,
                 )
             )
+        start_date = self._get_obligation_start_date()
+        end_date = self._get_obligation_end_date()
         vals = {
             "perf_type": perf_type,
             "total_amount": self._get_perf_obligation_amount(),
-            "start_date": self.date_start,
-            "end_date": self.date_end,
+            "start_date": start_date,
+            "end_date": end_date,
             "description": _(
                 "Auto-created from contract %(contract)s",
                 contract=self.contract_id.name,
@@ -103,6 +105,14 @@ class ContractLine(models.Model):
             vals["pl_account_id"] = pl_account.id
         return vals
 
+    def _get_obligation_start_date(self):
+        self.ensure_one()
+        return self.service_start_date or self.date_start
+
+    def _get_obligation_end_date(self):
+        self.ensure_one()
+        return self.service_end_date or self.date_end
+
     def _get_obligation_recognition_at_date_method(self):
         """Return the recognition method to use on the performance obligation.
 
@@ -111,7 +121,7 @@ class ContractLine(models.Model):
         method cannot be applied without a known end date.
         """
         self.ensure_one()
-        if self.date_start and self.date_end:
+        if self._get_obligation_start_date() and self._get_obligation_end_date():
             return "daily"
         raise UserError(
             _(
