@@ -366,6 +366,41 @@ class TestContractPerfObligation(TransactionCase):
         line.unlink()
         self.assertFalse(self.env["perf.obligation"].browse(po_id).exists())
 
+    def test_unlink_raises_when_multiple_sources(self):
+        """Unlinking a contract line whose obligation is shared with another
+        source must raise ValidationError — the obligation cannot be safely
+        deleted."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        po = line.perf_obligation_id
+        # Cancel first, while the obligation still has a single source
+        line.write({"is_canceled": True})
+        # Now attach a second source — unlink must refuse to delete the obligation
+        contract2 = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        contract2.contract_line_ids.perf_obligation_id = po
+        with self.assertRaisesRegex(
+            ValidationError, "originates from multiple sources"
+        ):
+            line.unlink()
+
     # ------------------------------------------------------------------
     # Invoice line propagation
     # ------------------------------------------------------------------
