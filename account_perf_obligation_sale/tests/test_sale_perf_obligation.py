@@ -408,3 +408,23 @@ class TestSalePerfObligation(TransactionCase):
         order.action_confirm()
         po = order.order_line.perf_obligation_id
         self.assertEqual(po.pl_account_id, account)
+
+    # ------------------------------------------------------------------
+    # Deletion
+    # ------------------------------------------------------------------
+
+    def test_unlink_raises_when_multiple_sources(self):
+        """Unlinking a SOL whose obligation is shared with another source
+        must raise ValidationError — the obligation cannot be safely deleted."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.action_confirm()
+        line = order.order_line
+        po = line.perf_obligation_id
+        # Manually attach a second confirmed order's line to the same obligation
+        order2 = self._make_order((self.product_at_once, 1, 500.0))
+        order2.action_confirm()
+        order2.order_line.perf_obligation_id = po
+        with self.assertRaisesRegex(
+            ValidationError, "originates from multiple sources"
+        ):
+            line.unlink()
