@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-06-11 18:42+0000\n"
-"Last-Translator: Gregory Menu <gregory.menu@acsone.eu>\n"
+"PO-Revision-Date: 2026-06-17 12:42+0000\n"
+"Last-Translator: Guillaume Vandamme <guillaume.vandamme@acsone.eu>\n"
 "Language-Team: none\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -31,12 +31,12 @@ msgstr ""
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "(Re)generate Schedule Entries"
-msgstr ""
+msgstr "(Re)générer l'échéancier des pièces"
 
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "<span class=\"o_form_label\">Performance Obligation</span>"
-msgstr ""
+msgstr "<span class=\"o_form_label\">Obligation de performance</span>"
 
 #. module: account_perf_obligation
 #. odoo-python
@@ -50,7 +50,7 @@ msgstr ""
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
 msgid "Accrual Account (Balance Sheet)"
-msgstr "Compte d'exercice (Bilan)"
+msgstr "Compte de report FAE (Bilan)"
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_needaction
@@ -200,7 +200,7 @@ msgstr "Date"
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
 msgid "Deferral Account (Balance Sheet)"
-msgstr "Compte de report (Bilan)"
+msgstr "Compte de report (PCA) (Bilan)"
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__deferred_accrued_amount
@@ -208,13 +208,13 @@ msgstr "Compte de report (Bilan)"
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__deferred_accrued_amount
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__deferred_accrued_amount
 msgid "Deferred / Accrued"
-msgstr "Différé / à recevoir"
+msgstr "Constaté d'avance / à établir"
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__description
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__description
 msgid "Description"
-msgstr "Dascription"
+msgstr "Description"
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__display_name
@@ -399,7 +399,7 @@ msgstr "Ecriture comptable"
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__move_line_ids
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "Journal Items"
-msgstr "2critures comptables"
+msgstr "Ecritures comptables"
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__move_line_count
