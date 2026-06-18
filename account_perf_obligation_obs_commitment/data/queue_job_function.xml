@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="queue_job_function_adjust_obs_commitment" model="queue.job.function">
+        <field name="model_id" ref="account_perf_obligation.model_perf_obligation" />
+        <field name="method">_adjust_obs_commitment_job</field>
+        <field name="is_web_notify_failure_enabled">1</field>
+    </record>
+</odoo>
