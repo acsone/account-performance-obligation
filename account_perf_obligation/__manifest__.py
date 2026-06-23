@@ -17,11 +17,12 @@
         "security/ir.model.access.csv",
         "security/ir_rule.xml",
         "data/ir_sequence.xml",
-        "wizards/perf_obligation_recognize.xml",
         "views/res_config_settings.xml",
         "views/account_move_line.xml",
         "views/perf_obligation.xml",
         "views/ir_ui_menu.xml",
+        "wizards/perf_obligation_post_recognition_moves.xml",
+        "wizards/perf_obligation_recognize.xml",
     ],
     "assets": {
         "web.assets_backend": [

@@ -2,7 +2,6 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 from datetime import date
-from unittest.mock import patch
 
 from odoo.exceptions import ValidationError
 
@@ -10,17 +9,6 @@ from .common import PerfObligationDatesCommon
 
 
 class TestSchedule(PerfObligationDatesCommon):
-    def _mock_today(self, today):
-        """Return a context manager that mocks fields.Date.context_today.
-
-        Only needed to allow posting moves with auto_post='at_date'
-        whose date is in the future relative to the real today.
-        """
-        return patch(
-            "odoo.fields.Date.context_today",
-            return_value=today,
-        )
-
     # =========================================================
     # Supports schedule
     # =========================================================
@@ -159,11 +147,7 @@ class TestSchedule(PerfObligationDatesCommon):
         )
         result = wizard.action_confirm()
         move = self.env["account.move"].browse(result["res_id"])
-
-        # Mock today to the move date so Odoo allows posting
-        with self._mock_today(date(2026, 1, 31)):
-            move.action_post()
-
+        move.action_post()
         # schedule_start = last_posted = Jan 31 (no max with start_date now)
         # -> skip Jan month-end (== schedule_start)
         dates = po._get_schedule_dates()
@@ -196,9 +180,7 @@ class TestSchedule(PerfObligationDatesCommon):
         )
         result = wizard.action_confirm()
         move = self.env["account.move"].browse(result["res_id"])
-        with self._mock_today(date(2026, 3, 31)):
-            move.action_post()
-
+        move.action_post()
         dates = po._get_schedule_dates()
         self.assertEqual(dates, [date(2026, 4, 30)])
 
@@ -228,7 +210,6 @@ class TestSchedule(PerfObligationDatesCommon):
 
         for move in draft_moves:
             self.assertEqual(move.state, "draft")
-            self.assertEqual(move.auto_post, "at_date")
             self.assertEqual(move.journal_id, self.reco_journal)
             for line in move.line_ids:
                 self.assertEqual(line.perf_obligation_id, po)
@@ -309,11 +290,7 @@ class TestSchedule(PerfObligationDatesCommon):
         )
         result = wizard.action_confirm()
         posted_move = self.env["account.move"].browse(result["res_id"])
-
-        # Mock today to the move date so Odoo allows posting
-        with self._mock_today(date(2026, 1, 31)):
-            posted_move.action_post()
-
+        posted_move.action_post()
         # Posted move still exists
         self.assertTrue(posted_move.exists())
         self.assertEqual(posted_move.state, "posted")
@@ -468,9 +445,7 @@ class TestSchedule(PerfObligationDatesCommon):
         )
         result = wizard.action_confirm()
         move = self.env["account.move"].browse(result["res_id"])
-        with self._mock_today(date(2026, 2, 28)):
-            move.action_post()
-
+        move.action_post()
         dates = po._get_schedule_dates()
         # schedule_start = last_posted = Feb 28 (NOT Jan 15)
         # -> Jan month-end NOT included, Feb 28 skipped (== start)
@@ -511,8 +486,7 @@ class TestSchedule(PerfObligationDatesCommon):
             )
             result = wizard.action_confirm()
             move = self.env["account.move"].browse(result["res_id"])
-            with self._mock_today(reco_date):
-                move.action_post()
+            move.action_post()
         po.end_date = date(2026, 4, 15)
         dates = po._get_schedule_dates()
         self.assertEqual(dates, [date(2026, 6, 30)])
