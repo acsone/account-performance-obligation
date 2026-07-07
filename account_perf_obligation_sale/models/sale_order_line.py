@@ -32,21 +32,15 @@ class SaleOrderLine(models.Model):
         return obligation
 
     def _update_perf_obligation(self, obligation):
-        """Update an existing performance obligation with current line data.
-
-        Called on re-confirmation of a sale order. Brings dates, total amount
-        and any other computed fields back in sync with the current SOL state,
-        as if the obligation had just been created from scratch.
-        """
+        """Resync an existing obligation with current sale order line data."""
         self.ensure_one()
         obligation._ensure_sole_source(self)
-        vals = self._prepare_perf_obligation_vals()
-        obligation.sudo().write(vals)
-        obligation.sudo()._message_log(
-            body=_(
-                "Values updated on re-confirmation of sale order %(order)s.",
+        obligation._update_vals(
+            self._prepare_perf_obligation_vals(),
+            _(
+                "Values updated from sale order line (order %(order)s).",
                 order=self.order_id.name,
-            )
+            ),
         )
 
     def _prepare_perf_obligation_vals(self):
