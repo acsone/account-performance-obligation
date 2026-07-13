@@ -192,7 +192,9 @@ msgstr ""
 #. module: account_perf_obligation_sale
 #. odoo-python
 #: code:addons/account_perf_obligation_sale/models/sale_order_line.py:0
-msgid "Values updated on re-confirmation of sale order %(order)s."
+#, fuzzy
+#| msgid "Values updated on re-confirmation of sale order %(order)s."
+msgid "Values updated from sale order line (order %(order)s)."
 msgstr "Valeurs mises à jour à la reconfirmation de la commande %(order)s."
 
 #. module: account_perf_obligation_sale
