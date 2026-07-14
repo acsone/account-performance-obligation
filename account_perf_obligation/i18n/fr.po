@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-07-13 16:46+0000\n"
+"PO-Revision-Date: 2026-07-14 15:46+0000\n"
 "Last-Translator: Gregory Menu <gregory.menu@acsone.eu>\n"
 "Language-Team: none\n"
 "Language: fr\n"
@@ -20,7 +20,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/account_perf_obligation/models/perf_obligation_source_mixin.py:0
 msgid "%(model)s must implement _get_obligation_amount()."
-msgstr ""
+msgstr "%(model)s doit intégrer _get_obligation_amount()."
 
 #. module: account_perf_obligation
 #. odoo-python
@@ -48,7 +48,7 @@ msgid ""
 msgstr ""
 "Le compte '%(account)s' ne peut pas être utilisé avec une OdP. Seuls les "
 "comptes de les revenus, dépenses, actifs courant et dépenses courantes sont "
-"autorisés"
+"autorisés."
 
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
@@ -63,7 +63,7 @@ msgstr "Action nécessaire"
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "Add a description..."
-msgstr "Ajouter une description"
+msgstr "Ajouter une description..."
 
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
@@ -84,13 +84,13 @@ msgstr "Nombre de pièces jointes"
 #: model:ir.model.fields,help:account_perf_obligation.field_res_company__po_expense_credit_bs_account_id
 #: model:ir.model.fields,help:account_perf_obligation.field_res_config_settings__po_expense_credit_bs_account_id
 msgid "Balance sheet account for accrued expense."
-msgstr "Compte de bilan pour charges à payer"
+msgstr "Compte de bilan pour charges à payer."
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,help:account_perf_obligation.field_res_company__po_income_debit_bs_account_id
 #: model:ir.model.fields,help:account_perf_obligation.field_res_config_settings__po_income_debit_bs_account_id
 msgid "Balance sheet account for accrued income."
-msgstr "Compte de bilan pour revenus à recevoir"
+msgstr "Compte de bilan pour revenus à recevoir."
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,help:account_perf_obligation.field_res_company__po_expense_debit_bs_account_id
@@ -102,7 +102,7 @@ msgstr "Compte de bilan pour les charges différées."
 #: model:ir.model.fields,help:account_perf_obligation.field_res_company__po_income_credit_bs_account_id
 #: model:ir.model.fields,help:account_perf_obligation.field_res_config_settings__po_income_credit_bs_account_id
 msgid "Balance sheet account for deferred income."
-msgstr "Compte de bilan pour les produits constatés d'avance"
+msgstr "Compte de bilan pour les produits constatés d'avance."
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__billed_amount
@@ -659,7 +659,7 @@ msgstr "Erreur d'envoi de SMS"
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__schedule_needs_regeneration
 msgid "Schedule Needs Regeneration"
-msgstr "Le calendrier a besoin d'être régénéré."
+msgstr "Le calendrier a besoin d'être régénéré"
 
 #. module: account_perf_obligation
 #. odoo-python
