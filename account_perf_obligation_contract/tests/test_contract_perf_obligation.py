@@ -675,3 +675,27 @@ class TestContractPerfObligation(TransactionCase):
         line.write({"date_end": new_end})
         self.assertEqual(po.end_date, new_end)
         self.assertEqual(len(po.message_ids), msg_count_before + 1)
+
+    def test_cancel_then_unrelated_write_does_not_reopen_amount(self):
+        """After cancellation clamps total_amount to the
+        already-invoiced sum, a later write touching only an unrelated field
+        must not recompute and overwrite it."""
+        contract = self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            )
+        )
+        line = contract.contract_line_ids
+        po = line.perf_obligation_id
+        invoice = contract._recurring_create_invoice()
+        invoice.action_post()
+        invoiced = po._get_invoiced_amount()
+        line.write({"is_canceled": True})
+        self.assertAlmostEqual(po.total_amount, invoiced)
+        line.write({"name": "Updated description after cancellation"})
+        self.assertAlmostEqual(po.total_amount, invoiced)
