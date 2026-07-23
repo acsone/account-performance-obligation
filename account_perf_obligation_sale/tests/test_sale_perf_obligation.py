@@ -408,3 +408,25 @@ class TestSalePerfObligation(TransactionCase):
         order.action_confirm()
         po = order.order_line.perf_obligation_id
         self.assertEqual(po.pl_account_id, account)
+
+    # ------------------------------------------------------------------
+    # Deletion
+    # ------------------------------------------------------------------
+
+    def test_unlink_with_multiple_sources_recomputes_amount(self):
+        """Unlinking a SOL whose obligation is shared with another source
+        detaches it and recomputes total_amount from what's left, rather than
+        blocking the deletion."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.action_confirm()
+        line = order.order_line
+        po = line.perf_obligation_id
+        # Cancel the order so core Odoo allows the line to be unlinked
+        order.with_context(disable_cancel_warning=True).action_cancel()
+        order2 = self._make_order((self.product_at_once, 1, 500.0))
+        order2.action_confirm()
+        order2.order_line.perf_obligation_id = po
+        line.unlink()
+        self.assertFalse(line.exists())
+        self.assertTrue(po.exists())
+        self.assertEqual(po.total_amount, 500.0)

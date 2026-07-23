@@ -16,7 +16,7 @@ msgstr ""
 #. module: account_perf_obligation
 #. odoo-python
 #: code:addons/account_perf_obligation/models/perf_obligation_source_mixin.py:0
-msgid "%(model)s must implement _get_obligation_amount()."
+msgid "%(model)s must implement _get_perf_obligation_amount()."
 msgstr ""
 
 #. module: account_perf_obligation
