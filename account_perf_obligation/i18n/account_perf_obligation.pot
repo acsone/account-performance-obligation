@@ -731,6 +731,14 @@ msgstr ""
 #. module: account_perf_obligation
 #. odoo-python
 #: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Total amount recomputed after %(removed_source)s was removed; obligation is "
+"still linked to other source(s)."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
 msgid "Total amount updated to %(amount)s from source contributions."
 msgstr ""
 
