@@ -14,9 +14,25 @@ class ContractLine(models.Model):
         string="Auto-create Performance Obligation",
     )
 
+    def _get_perf_obligation_trigger_fields(self):
+        """Return the set of contract.line fields whose change should
+        trigger a recompute of the linked performance obligation.
+        """
+        return {
+            "date_start",
+            "date_end",
+            "recurring_rule_type",
+            "recurring_interval",
+            "price_unit",
+            "discount",
+            "quantity",
+            "product_id",
+            "perf_obligation_auto_create",
+        }
+
     def write(self, vals):
         res = super().write(vals)
-        if set(vals) - {"perf_obligation_id"}:
+        if self._get_perf_obligation_trigger_fields() & vals.keys():
             for line in self:
                 line._create_or_update_perf_obligation()
         if vals.get("is_canceled"):
@@ -47,7 +63,10 @@ class ContractLine(models.Model):
         - the perf_obligation_auto_create is checked
         """
         self.ensure_one()
-        if not self.perf_obligation_auto_create:
+        # Do nothing if auto-creation is disabled or if the line is canceled.
+        # Obligation adjustments on cancellation are handled separately via
+        # _cancel_perf_obligations().
+        if not self.perf_obligation_auto_create or self.is_canceled:
             return None
         if self.perf_obligation_id:
             self._update_perf_obligation(self.perf_obligation_id)
