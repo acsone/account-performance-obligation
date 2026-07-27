@@ -42,12 +42,14 @@ msgid "<span class=\"o_form_label\">Performance Obligation</span>"
 msgstr ""
 
 #. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_account_account
+msgid "Account"
+msgstr ""
+
+#. module: account_perf_obligation
 #. odoo-python
 #: code:addons/account_perf_obligation/models/account_move_line.py:0
-msgid ""
-"Account '%(account)s' cannot be used with a performance obligation. Only "
-"Income, Expense, Current Assets and Current Liabilities accounts are "
-"allowed."
+msgid "Account '%(account)s' cannot be used with a performance obligation."
 msgstr ""
 
 #. module: account_perf_obligation
