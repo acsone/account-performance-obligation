@@ -31,6 +31,12 @@ msgid "(Re)generate Schedule Entries"
 msgstr ""
 
 #. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid "... and %(count)s more"
+msgstr ""
+
+#. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "<span class=\"o_form_label\">Performance Obligation</span>"
 msgstr ""
@@ -105,6 +111,7 @@ msgid "Billed"
 msgstr ""
 
 #. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_post_recognition_moves_form
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_recognize_form
 msgid "Cancel"
 msgstr ""
@@ -116,6 +123,14 @@ msgid ""
 "Cannot delete performance obligation '%(name)s': it has posted accounting "
 "entries. Consider updating the performance obligation amount to 0 if the "
 "obligation has been cancelled."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Cannot post performance obligation recognition entries on or before %(date)s: the following draft journal entries are linked to a performance obligation and are not in a recognition journal. Please post or remove them first:\n"
+"%(moves)s"
 msgstr ""
 
 #. module: account_perf_obligation
@@ -160,12 +175,14 @@ msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__create_uid
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_post_recognition_moves__create_uid
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__create_date
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_post_recognition_moves__create_date
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__create_date
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "Created on"
@@ -210,6 +227,7 @@ msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__display_name
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_post_recognition_moves__display_name
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__display_name
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__display_name
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__display_name
@@ -224,6 +242,19 @@ msgstr ""
 #: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_income__state__draft
 #: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_income_monthly__state__draft
 msgid "Draft"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation_post_recognition_moves__date
+msgid "Draft recognition entries dated on or before this date will be posted."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/wizards/perf_obligation_post_recognition_moves.py:0
+msgid ""
+"Eligible recognition moves have been marked for posting and will be posted "
+"shortly."
 msgstr ""
 
 #. module: account_perf_obligation
@@ -293,6 +324,7 @@ msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__id
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_post_recognition_moves__id
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__id
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__id
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__id
@@ -400,12 +432,14 @@ msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__write_uid
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_post_recognition_moves__write_uid
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__write_date
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_post_recognition_moves__write_date
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__write_date
 msgid "Last Updated on"
 msgstr ""
@@ -545,6 +579,8 @@ msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.actions.act_window,name:account_perf_obligation.action_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_post_recognition_moves__perf_obligation_ids
+#: model:ir.ui.menu,name:account_perf_obligation.menu_perf_obligation
 #: model:ir.ui.menu,name:account_perf_obligation.menu_perf_obligation_list
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
 msgid "Performance Obligations"
@@ -559,11 +595,51 @@ msgid ""
 msgstr ""
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation_post_recognition_moves__perf_obligation_ids
+msgid ""
+"Performance obligations to post recognition moves for. If empty, processes "
+"all pending moves."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_post_recognition_moves_form
+msgid "Post"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.actions.act_window,name:account_perf_obligation.action_perf_obligation_post_recognition_moves_from_menu
+msgid "Post All Recognition Moves"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model,name:account_perf_obligation.model_perf_obligation_post_recognition_moves
+msgid "Post Performance Obligation Recognition Moves"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.actions.act_window,name:account_perf_obligation.action_perf_obligation_post_recognition_moves
+#: model:ir.ui.menu,name:account_perf_obligation.menu_perf_obligation_post_recognition_moves
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_post_recognition_moves_form
+msgid "Post Recognition Moves"
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_expense__state__posted
 #: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_expense_monthly__state__posted
 #: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_income__state__posted
 #: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_income_monthly__state__posted
 msgid "Posted"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_post_recognition_moves__date
+msgid "Posting Date"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/wizards/perf_obligation_post_recognition_moves.py:0
+msgid "Posting scheduled"
 msgstr ""
 
 #. module: account_perf_obligation
