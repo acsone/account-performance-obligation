@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="view_perf_obligation_obs_commitment_adjust_wizard" model="ir.ui.view">
+        <field name="name">perf.obligation.obs.commitment.adjust.wizard.form</field>
+        <field name="model">perf.obligation.obs.commitment.adjust.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Adjust Off-Balance Sheet Commitments">
+                <group>
+                    <field name="date" />
+                </group>
+                <footer>
+                    <button
+                        name="action_adjust"
+                        type="object"
+                        string="Adjust"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record
+        id="action_perf_obligation_obs_commitment_adjust_wizard"
+        model="ir.actions.act_window"
+    >
+        <field name="name">Adjust Off-Balance Sheet Commitments</field>
+        <field name="res_model">perf.obligation.obs.commitment.adjust.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field
+            name="binding_model_id"
+            ref="account_perf_obligation.model_perf_obligation"
+        />
+        <field name="binding_view_types">list</field>
+    </record>
+
+    <menuitem
+        id="menu_perf_obligation_obs_commitment_adjust"
+        name="Adjust Off-Balance Sheet Commitments"
+        action="action_perf_obligation_obs_commitment_adjust_wizard"
+        parent="account_perf_obligation.menu_perf_obligation"
+        sequence="30"
+    />
+</odoo>
