@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="perf_obligation_post_recognition_moves_form" model="ir.ui.view">
+        <field name="name">perf.obligation.post.recognition.moves.form</field>
+        <field name="model">perf.obligation.post.recognition.moves</field>
+        <field name="arch" type="xml">
+            <form string="Post Recognition Moves">
+                <group>
+                    <field
+                        name="perf_obligation_ids"
+                        widget="many2many_tags"
+                        invisible="not perf_obligation_ids"
+                        readonly="1"
+                    />
+                    <field name="date" />
+                </group>
+                <footer>
+                    <button
+                        name="action_confirm"
+                        string="Post"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record
+        id="action_perf_obligation_post_recognition_moves"
+        model="ir.actions.act_window"
+    >
+        <field name="name">Post Recognition Moves</field>
+        <field name="res_model">perf.obligation.post.recognition.moves</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_perf_obligation" />
+        <field name="binding_view_types">list,form</field>
+    </record>
+
+    <record
+        id="action_perf_obligation_post_recognition_moves_from_menu"
+        model="ir.actions.act_window"
+    >
+        <field name="name">Post All Recognition Moves</field>
+        <field name="res_model">perf.obligation.post.recognition.moves</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_perf_obligation_post_recognition_moves"
+        name="Post Recognition Moves"
+        action="action_perf_obligation_post_recognition_moves_from_menu"
+        parent="menu_perf_obligation"
+        sequence="20"
+    />
+</odoo>

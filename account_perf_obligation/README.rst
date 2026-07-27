@@ -21,7 +21,7 @@ at a given date, the module computes the adjustment needed and generates the
 appropriate accrual or deferral journal entry.
 
 A **Generate Schedule Entries** action allows generating all future
-recognition journal entries in draft (with ``auto_post = at_date``),
+recognition journal entries in draft,
 based on the configured recognition method. Calling this action again
 deletes existing draft entries and regenerates them, preserving any
 already-posted entries.
@@ -72,7 +72,6 @@ Usage
    to open the recognition wizard
 #. Enter the cumulative amount to recognize at the given date, and a description
 #. Confirm: the module creates a draft accrual or deferral journal entry
-   (with ``auto_post = at_date``)
 #. Alternatively, use the **Generate Schedule Entries** button to
    automatically create draft recognition entries for each period
    until the end of the obligation

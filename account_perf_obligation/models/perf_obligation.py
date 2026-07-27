@@ -391,7 +391,6 @@ class PerfObligation(models.Model):
             "journal_id": config.journal.id,
             "date": date,
             "ref": f"{self.name} - {description}" if description else self.name,
-            "auto_post": "at_date",
             "line_ids": [Command.create(vals) for vals in lines],
         }
         if schedule:
@@ -871,3 +870,107 @@ class PerfObligation(models.Model):
                     record=source_record.display_name,
                 )
             )
+
+    def _get_recognition_journals(self):
+        """Return the recognition journals (income and expense) configured
+        on the companies of the obligations in self."""
+        return self._get_recognition_journals_for_companies(self.company_id)
+
+    @api.model
+    def _get_recognition_journals_for_companies(self, companies):
+        """Return the recognition journals (income and expense) configured
+        on the given companies."""
+        return companies.po_income_journal_id | companies.po_expense_journal_id
+
+    def _check_blocking_draft_moves(self, date, companies=None):
+        """Raise a UserError if there are draft journal entries, with at
+        least one line linked to a performance obligation, dated on or
+        before *date*, posted in a company of one of the obligations in
+        self (or in *companies* if given), and posted in a journal other
+        than the configured income/expense recognition journals.
+
+        :param companies: optional company scope to use instead of
+            ``self.company_id``. Required when *self* is empty, e.g. when
+            checking across all obligations without materializing them.
+        """
+        companies = self.company_id if companies is None else companies
+        reco_journals = self._get_recognition_journals_for_companies(companies)
+        domain = [
+            ("company_id", "in", companies.ids),
+            ("state", "=", "draft"),
+            ("date", "<=", date),
+            ("line_ids.perf_obligation_id", "!=", False),
+            ("journal_id", "not in", reco_journals.ids),
+        ]
+        if self:
+            domain.append(("line_ids.perf_obligation_id", "in", self.ids))
+        limit = 10
+        blocking_moves = self.env["account.move"].search(domain, limit=limit)
+        if blocking_moves:
+            total = self.env["account.move"].search_count(domain)
+            moves_text = "\n".join(
+                f"- {move.name or move.ref or move.id} "
+                f"({move.journal_id.display_name}, {move.date})"
+                for move in blocking_moves
+            )
+            if total > limit:
+                moves_text += "\n" + _("... and %(count)s more", count=total - limit)
+            raise UserError(
+                _(
+                    "Cannot post performance obligation recognition entries "
+                    "on or before %(date)s: the following draft journal "
+                    "entries are linked to a performance obligation and are "
+                    "not in a recognition journal. Please post or remove "
+                    "them first:\n%(moves)s",
+                    date=date,
+                    moves=moves_text,
+                )
+            )
+
+    @api.model
+    def _post_recognition_moves(self, date, obligations=None, companies=None):
+        """Mark eligible draft recognition moves dated on or before *date*
+        for auto-posting, and trigger the auto-post mechanism.
+
+        :param obligations: if given, restrict to moves with at least one
+            line linked to one of these performance obligations. If not
+            given, all performance obligations are eligible.
+        :param companies: company scope for the recognition journals and
+            the blocking-moves check. Defaults to the companies of
+            *obligations*, or ``self.env.companies`` if *obligations* is
+            also not given.
+        """
+        if companies is None:
+            companies = obligations.company_id if obligations else self.env.companies
+        reco_journals = self._get_recognition_journals_for_companies(companies)
+        domain = [
+            ("journal_id", "in", reco_journals.ids),
+            ("state", "=", "draft"),
+            ("date", "<=", date),
+        ]
+        if obligations is not None:
+            domain.append(("line_ids.perf_obligation_id", "in", obligations.ids))
+        else:
+            domain.append(("line_ids.perf_obligation_id", "!=", False))
+        moves = self.env["account.move"].search(domain)
+        if moves:
+            involved_obligations = moves.line_ids.perf_obligation_id
+            involved_obligations._check_blocking_draft_moves(date, companies=companies)
+            moves.write({"auto_post": "at_date", "checked": True})
+            self.env.ref("account.ir_cron_auto_post_draft_entry")._trigger()
+
+    def action_post_recognition_moves(self, date):
+        """UI action: mark eligible draft recognition moves linked to the
+        obligations in self for auto-posting."""
+        self._post_recognition_moves(date, obligations=self)
+
+    @api.model
+    def _post_all_recognition_moves(self, date, companies=None):
+        """Mark all eligible draft recognition moves dated on or before
+        *date* for auto-posting, across all performance obligations.
+
+        Unlike `action_post_recognition_moves`, this does not filter by a
+        specific set of performance obligations, so it scales independently
+        of the number of obligations pending posting.
+        """
+        self._post_recognition_moves(date, companies=companies)
