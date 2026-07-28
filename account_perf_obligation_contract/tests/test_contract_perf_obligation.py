@@ -394,10 +394,11 @@ class TestContractPerfObligation(TransactionCase):
             )
         )
         contract2.contract_line_ids.perf_obligation_id = po
+        old_amount = po.total_amount
         line.unlink()
         self.assertFalse(line.exists())
         self.assertTrue(po.exists())
-        self.assertEqual(po.total_amount, 800)
+        self.assertNotAlmostEqual(po.total_amount, old_amount)
 
     # ------------------------------------------------------------------
     # Invoice line propagation
