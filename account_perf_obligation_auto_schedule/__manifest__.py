@@ -9,7 +9,7 @@
     "category": "Accounting",
     "license": "LGPL-3",
     "author": "ACSONE SA/NV",
-    "website": "https://github.com/acsone/ifrs15",
+    "website": "https://github.com/acsone/account-performance-obligation",
     "depends": [
         "account_perf_obligation",
         "queue_job",

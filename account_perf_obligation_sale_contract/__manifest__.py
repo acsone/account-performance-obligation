@@ -8,7 +8,7 @@
     "version": "18.0.1.0.0",
     "license": "AGPL-3",
     "author": "ACSONE SA/NV",
-    "website": "https://github.com/acsone/ifrs15",
+    "website": "https://github.com/acsone/account-performance-obligation",
     "depends": [
         "account_perf_obligation_contract",
         "account_perf_obligation_sale",
