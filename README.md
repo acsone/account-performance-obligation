@@ -2,9 +2,9 @@
 
 # Odoo modules to support IFRS 15 accounting
 <!-- /!\ Non OCA Context : Set here the badge of your runbot / runboat instance. -->
-[![Pre-commit Status](https://github.com/acsone/ifrs15/actions/workflows/pre-commit.yml/badge.svg?branch=18.0)](https://github.com/acsone/ifrs15/actions/workflows/pre-commit.yml?query=branch%3A18.0)
-[![Build Status](https://github.com/acsone/ifrs15/actions/workflows/test.yml/badge.svg?branch=18.0)](https://github.com/acsone/ifrs15/actions/workflows/test.yml?query=branch%3A18.0)
-[![codecov](https://codecov.io/gh/acsone/ifrs15/branch/18.0/graph/badge.svg)](https://codecov.io/gh/acsone/ifrs15)
+[![Pre-commit Status](https://github.com/acsone/account-performance-obligation/actions/workflows/pre-commit.yml/badge.svg?branch=18.0)](https://github.com/acsone/account-performance-obligation/actions/workflows/pre-commit.yml?query=branch%3A18.0)
+[![Build Status](https://github.com/acsone/account-performance-obligation/actions/workflows/test.yml/badge.svg?branch=18.0)](https://github.com/acsone/account-performance-obligation/actions/workflows/test.yml?query=branch%3A18.0)
+[![codecov](https://codecov.io/gh/acsone/account-performance-obligation/branch/18.0/graph/badge.svg)](https://codecov.io/gh/acsone/account-performance-obligation)
 <!-- /!\ Non OCA Context : Set here the badge of your translation instance. -->
 
 <!-- /!\ do not modify above this line -->

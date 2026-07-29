@@ -53,13 +53,13 @@ repos:
       # update the NOT INSTALLABLE ADDONS section above
       - id: oca-update-pre-commit-excluded-addons
       - id: oca-fix-manifest-website
-        args: ["https://github.com/acsone/ifrs15"]
+        args: ["https://github.com/acsone/account-performance-obligation"]
       - id: oca-gen-addon-readme
         args:
           - --addons-dir=.
           - --branch=18.0
           - --org-name=acsone
-          - --repo-name=ifrs15
+          - --repo-name=account-performance-obligation
           - --if-source-changed
           - --keep-source-digest
           - --convert-fragments-to-markdown

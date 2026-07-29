@@ -21,8 +21,8 @@ rebel_module_groups: []
 repo_description: Odoo modules to support the IFRS 15 accounting standard (https://en.wikipedia.org/wiki/IFRS_15).
     These modules implement the concept of Performance Obligation.
 repo_name: Odoo modules to support IFRS 15 accounting
-repo_slug: ifrs15
-repo_website: https://github.com/acsone/ifrs15
+repo_slug: account-performance-obligation
+repo_website: https://github.com/acsone/account-performance-obligation
 use_pyproject_toml: true
 use_ruff: true
 
