@@ -798,7 +798,7 @@ class PerfObligation(models.Model):
         :param reason: human-readable explanation logged to the chatter.
         """
         self.ensure_one()
-        current = self._convert_to_write({k: self[k] for k in vals})
+        current = self.sudo()._convert_to_write({k: self.sudo()[k] for k in vals})
         changed = {k: v for k, v in vals.items() if current.get(k) != v}
         if not changed:
             return
