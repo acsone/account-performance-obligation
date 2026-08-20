@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-07-14 15:46+0000\n"
+"PO-Revision-Date: 2026-08-20 08:00+0000\n"
 "Last-Translator: Gregory Menu <gregory.menu@acsone.eu>\n"
 "Language-Team: none\n"
 "Language: fr\n"
@@ -37,7 +37,7 @@ msgstr "(Re)générer l'échéancier des pièces"
 #. odoo-python
 #: code:addons/account_perf_obligation/models/perf_obligation.py:0
 msgid "... and %(count)s more"
-msgstr ""
+msgstr "... et %(count)s de plus"
 
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
@@ -47,21 +47,13 @@ msgstr "<span class=\"o_form_label\">Obligation de performance</span>"
 #. module: account_perf_obligation
 #: model:ir.model,name:account_perf_obligation.model_account_account
 msgid "Account"
-msgstr ""
+msgstr "Compte"
 
 #. module: account_perf_obligation
 #. odoo-python
 #: code:addons/account_perf_obligation/models/account_move_line.py:0
-#, fuzzy
-#| msgid ""
-#| "Account '%(account)s' cannot be used with a performance obligation. Only "
-#| "Income, Expense, Current Assets and Current Liabilities accounts are "
-#| "allowed."
 msgid "Account '%(account)s' cannot be used with a performance obligation."
-msgstr ""
-"Le compte '%(account)s' ne peut pas être utilisé avec une OdP. Seuls les "
-"comptes de les revenus, dépenses, actifs courant et dépenses courantes sont "
-"autorisés."
+msgstr "Le compte '%(account)s' ne peut pas être utilisé avec une OdP."
 
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
@@ -151,6 +143,12 @@ msgid ""
 "first:\n"
 "%(moves)s"
 msgstr ""
+"Impossible de comptabiliser les écritures de reconnaissance des obligations "
+"de performance à la date %(date)s ou avant : les écritures comptables "
+"brouillon suivantes sont liées à une obligation de performance, mais ne sont "
+"pas dans un journal de reconnaissance. Veuillez d’abord les comptabiliser ou "
+"les supprimer :\n"
+"%(moves)s"
 
 #. module: account_perf_obligation
 #: model:ir.model,name:account_perf_obligation.model_res_company
@@ -269,6 +267,8 @@ msgstr "Brouillon"
 #: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation_post_recognition_moves__date
 msgid "Draft recognition entries dated on or before this date will be posted."
 msgstr ""
+"Les entrées de reconnaissance brouillons datant de cette date ou avant "
+"seront publiées."
 
 #. module: account_perf_obligation
 #. odoo-python
@@ -277,6 +277,8 @@ msgid ""
 "Eligible recognition moves have been marked for posting and will be posted "
 "shortly."
 msgstr ""
+"Les écritures de reconnaissance éligibles ont été marquées pour "
+"comptabilisation et seront comptabilisées prochainement."
 
 #. module: account_perf_obligation
 #: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation__perf_type__expense
@@ -463,7 +465,7 @@ msgstr "Dernière mise à jour par"
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_post_recognition_moves__write_date
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__write_date
 msgid "Last Updated on"
-msgstr "Dzernière mise à jour le"
+msgstr "Dernière mise à jour le"
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_has_error
@@ -636,36 +638,31 @@ msgid ""
 "Performance obligations to post recognition moves for. If empty, processes "
 "all pending moves."
 msgstr ""
+"Obligations de performance à comptabiliser. Si vide, toutes les écritures en "
+"attente sont traitées."
 
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_post_recognition_moves_form
-#, fuzzy
-#| msgid "Posted"
 msgid "Post"
-msgstr "Publié"
+msgstr "Publier"
 
 #. module: account_perf_obligation
 #: model:ir.actions.act_window,name:account_perf_obligation.action_perf_obligation_post_recognition_moves_from_menu
-#, fuzzy
-#| msgid "Recognition Method"
 msgid "Post All Recognition Moves"
-msgstr "Méthode de reconnaissance"
+msgstr "Comptabiliser toutes les écritures de reconnaissance"
 
 #. module: account_perf_obligation
 #: model:ir.model,name:account_perf_obligation.model_perf_obligation_post_recognition_moves
-#, fuzzy
-#| msgid "Performance Obligation Recognition Schedule (Income)"
 msgid "Post Performance Obligation Recognition Moves"
-msgstr "Tableau de reconnaissance des obligations de performance (revenus)"
+msgstr ""
+"Comptabiliser les écritures de reconnaissance des obligations de performance"
 
 #. module: account_perf_obligation
 #: model:ir.actions.act_window,name:account_perf_obligation.action_perf_obligation_post_recognition_moves
 #: model:ir.ui.menu,name:account_perf_obligation.menu_perf_obligation_post_recognition_moves
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_post_recognition_moves_form
-#, fuzzy
-#| msgid "Recognition Method"
 msgid "Post Recognition Moves"
-msgstr "Méthode de reconnaissance"
+msgstr "Comptabiliser toutes les écritures de reconnaissance"
 
 #. module: account_perf_obligation
 #: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_expense__state__posted
@@ -677,18 +674,14 @@ msgstr "Publié"
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_post_recognition_moves__date
-#, fuzzy
-#| msgid "Recognition Date"
 msgid "Posting Date"
-msgstr "Date de reconnaissance"
+msgstr "Date de comptabilisation"
 
 #. module: account_perf_obligation
 #. odoo-python
 #: code:addons/account_perf_obligation/wizards/perf_obligation_post_recognition_moves.py:0
-#, fuzzy
-#| msgid "Recognition Schedule"
 msgid "Posting scheduled"
-msgstr "Tableau de reconnaissance"
+msgstr "Comptabilisation planifiée"
 
 #. module: account_perf_obligation
 #: model:ir.actions.server,name:account_perf_obligation.action_process_pending_regenerations_server
@@ -873,6 +866,8 @@ msgid ""
 "Total amount recomputed after %(removed_source)s was removed; obligation is "
 "still linked to other source(s)."
 msgstr ""
+"Montant total recalculé après suppression de %(removed_source)s; "
+"l'obligation est toujours liée à d'autre(s) source(s)."
 
 #. module: account_perf_obligation
 #. odoo-python
