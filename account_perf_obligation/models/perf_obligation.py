@@ -622,10 +622,8 @@ class PerfObligation(models.Model):
         """Generate draft recognition entries for each schedule date."""
         self.ensure_one()
         dates = self._get_schedule_dates()
-        perf_type_label = dict(self._fields["perf_type"].selection).get(
-            self.perf_type, self.perf_type
-        )
-
+        selection = dict(self._fields["perf_type"]._description_selection(self.env))
+        perf_type_label = selection.get(self.perf_type, self.perf_type)
         for schedule_date in dates:
             amount = self._compute_amount_to_recognize_at_date(schedule_date)
             description = _(
