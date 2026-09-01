@@ -6,29 +6,33 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2026-09-01 13:49+0000\n"
+"Last-Translator: Gregory Menu <gregory.menu@acsone.eu>\n"
 "Language-Team: none\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 3.6.1\n"
 
 #. module: account_perf_obligation_obs_commitment
 #. odoo-python
 #: code:addons/account_perf_obligation_obs_commitment/wizards/perf_obligation_obs_commitment_adjust_wizard.py:0
 msgid "%(count)s job(s) enqueued. Check the Queue Jobs menu for their status."
 msgstr ""
+"%(count)s job(s) en file d'attente. Vérifiez le menu Queue Jobs pour leur "
+"statut."
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model,name:account_perf_obligation_obs_commitment.model_account_account
 msgid "Account"
-msgstr ""
+msgstr "Compte"
 
 #. module: account_perf_obligation_obs_commitment
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_obs_commitment.view_perf_obligation_obs_commitment_adjust_wizard
 msgid "Adjust"
-msgstr ""
+msgstr "Ajuster"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.actions.act_window,name:account_perf_obligation_obs_commitment.action_perf_obligation_obs_commitment_adjust_wizard
@@ -36,17 +40,17 @@ msgstr ""
 #: model:ir.ui.menu,name:account_perf_obligation_obs_commitment.menu_perf_obligation_obs_commitment_adjust
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_obs_commitment.view_perf_obligation_obs_commitment_adjust_wizard
 msgid "Adjust Off-Balance Sheet Commitments"
-msgstr ""
+msgstr "Ajuster les engagements hors bilan"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_perf_obligation_obs_commitment_adjust_wizard__date
 msgid "Adjustment Date"
-msgstr ""
+msgstr "Date d'ajustement"
 
 #. module: account_perf_obligation_obs_commitment
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_obs_commitment.view_perf_obligation_obs_commitment_adjust_wizard
 msgid "Cancel"
-msgstr ""
+msgstr "Annuler"
 
 #. module: account_perf_obligation_obs_commitment
 #. odoo-python
@@ -55,16 +59,19 @@ msgid ""
 "Cannot adjust the off-balance sheet commitment for %(name)s: entry %(move)s,"
 " dated on or before %(date)s, is not posted yet. Post it first."
 msgstr ""
+"Impossible d’ajuster l’engagement hors bilan pour %(name)s : l’écriture "
+"%(move)s, datée du %(date)s ou antérieurement, n’est pas encore "
+"comptabilisée. Veuillez d’abord la comptabiliser."
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model,name:account_perf_obligation_obs_commitment.model_res_company
 msgid "Companies"
-msgstr ""
+msgstr "Sociétés"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model,name:account_perf_obligation_obs_commitment.model_res_config_settings
 msgid "Config Settings"
-msgstr ""
+msgstr "Paramètres de configuration"
 
 #. module: account_perf_obligation_obs_commitment
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_obs_commitment.res_config_settings_view_form_perf_obligation_obs_commitment
@@ -73,42 +80,44 @@ msgid ""
 "off-balance sheet commitments linked to performance"
 "                           obligations."
 msgstr ""
+"Configurer le journal et les comptes utilisés pour enregistrer les "
+"engagements hors bilan liés aux obligations de performance."
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_perf_obligation_obs_commitment_adjust_wizard__create_uid
 msgid "Created by"
-msgstr ""
+msgstr "Créé par"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_perf_obligation_obs_commitment_adjust_wizard__create_date
 msgid "Created on"
-msgstr ""
+msgstr "Créé le"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_perf_obligation_obs_commitment_adjust_wizard__display_name
 msgid "Display Name"
-msgstr ""
+msgstr "Nom d'affichage"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_perf_obligation_obs_commitment_adjust_wizard__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: account_perf_obligation_obs_commitment
 #. odoo-python
 #: code:addons/account_perf_obligation_obs_commitment/models/perf_obligation.py:0
 msgid "Journal Entry (%(id)s)"
-msgstr ""
+msgstr "Écriture comptable (%(id)s)"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_perf_obligation_obs_commitment_adjust_wizard__write_uid
 msgid "Last Updated by"
-msgstr ""
+msgstr "Dernière mise à jour par"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_perf_obligation_obs_commitment_adjust_wizard__write_date
 msgid "Last Updated on"
-msgstr ""
+msgstr "Dernière mise à jour le"
 
 #. module: account_perf_obligation_obs_commitment
 #. odoo-python
@@ -116,81 +125,83 @@ msgstr ""
 msgid ""
 "Missing off-balance sheet configuration on company '%(company)s': %(fields)s"
 msgstr ""
+"Configuration des engagements hors bilan manquante pour la société « "
+"%(company)s » : %(fields)s"
 
 #. module: account_perf_obligation_obs_commitment
 #. odoo-python
 #: code:addons/account_perf_obligation_obs_commitment/models/perf_obligation.py:0
 msgid "No adjustment needed for obligation %(name)s."
-msgstr ""
+msgstr "Pas d'ajustement nécessaire pour l'obligation %(name)s."
 
 #. module: account_perf_obligation_obs_commitment
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_obs_commitment.res_config_settings_view_form_perf_obligation_obs_commitment
 msgid "OBS Commitment Counterpart Account"
-msgstr ""
+msgstr "Compte de contrepartie des engagements hors bilan"
 
 #. module: account_perf_obligation_obs_commitment
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_obs_commitment.res_config_settings_view_form_perf_obligation_obs_commitment
 msgid "OBS Commitment Expense Account"
-msgstr ""
+msgstr "Compte de charges des engagements hors bilan"
 
 #. module: account_perf_obligation_obs_commitment
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_obs_commitment.res_config_settings_view_form_perf_obligation_obs_commitment
 msgid "OBS Commitment Income Account"
-msgstr ""
+msgstr "Compte de produits des engagements hors bilan"
 
 #. module: account_perf_obligation_obs_commitment
 #. odoo-python
 #: code:addons/account_perf_obligation_obs_commitment/models/perf_obligation.py:0
 msgid "OBS commitment adjustment – %(name)s"
-msgstr ""
+msgstr "Ajustement de l’engagement hors bilan – %(name)s"
 
 #. module: account_perf_obligation_obs_commitment
 #. odoo-python
 #: code:addons/account_perf_obligation_obs_commitment/models/perf_obligation.py:0
 msgid "OBS – decrease commitment %(name)s"
-msgstr ""
+msgstr "Hors bilan – Diminution de l’engagement %(name)s"
 
 #. module: account_perf_obligation_obs_commitment
 #. odoo-python
 #: code:addons/account_perf_obligation_obs_commitment/models/perf_obligation.py:0
 msgid "OBS – increase commitment %(name)s"
-msgstr ""
+msgstr "Hors bilan – Augmentation de l’engagement %(name)s"
 
 #. module: account_perf_obligation_obs_commitment
 #. odoo-python
 #: code:addons/account_perf_obligation_obs_commitment/wizards/perf_obligation_obs_commitment_adjust_wizard.py:0
 msgid "Off-Balance Sheet Adjustments"
-msgstr ""
+msgstr "Ajustements des engagements hors bilan"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_res_company__po_obs_commitment_counterpart_account_id
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_res_config_settings__po_obs_commitment_counterpart_account_id
 msgid "Off-Balance Sheet Commitment Counterpart Account"
-msgstr ""
+msgstr "Compte de contrepartie des engagements hors bilan"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_res_company__po_obs_commitment_expense_account_id
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_res_config_settings__po_obs_commitment_expense_account_id
 msgid "Off-Balance Sheet Commitment Expense Account"
-msgstr ""
+msgstr "Compte de charges des engagements hors bilan"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_res_company__po_obs_commitment_income_account_id
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_res_config_settings__po_obs_commitment_income_account_id
 msgid "Off-Balance Sheet Commitment Income Account"
-msgstr ""
+msgstr "Compte de produits des engagements hors bilan"
 
 #. module: account_perf_obligation_obs_commitment
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_obs_commitment.res_config_settings_view_form_perf_obligation_obs_commitment
 msgid "Off-Balance Sheet Commitments"
-msgstr ""
+msgstr "Engagements hors bilan"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_res_company__po_obs_commitment_journal_id
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_res_config_settings__po_obs_commitment_journal_id
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_obs_commitment.res_config_settings_view_form_perf_obligation_obs_commitment
 msgid "Off-Balance Sheet Journal"
-msgstr ""
+msgstr "Journal des engagements hors bilan"
 
 #. module: account_perf_obligation_obs_commitment
 #. odoo-python
@@ -198,28 +209,32 @@ msgstr ""
 msgid ""
 "Off-balance sheet adjustment entry %(move)s created for obligation %(name)s."
 msgstr ""
+"L’écriture d’ajustement de l’engagement hors bilan %(move)s a été créée pour "
+"l’obligation %(name)s."
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model,name:account_perf_obligation_obs_commitment.model_perf_obligation
 msgid "Performance Obligation"
-msgstr ""
+msgstr "Obligation de Performance"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model,name:account_perf_obligation_obs_commitment.model_perf_obligation_schedule_expense
 msgid "Performance Obligation Recognition Schedule (Expense)"
-msgstr ""
+msgstr "Échéancier de reconnaissance des obligations de performance (charges)"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model,name:account_perf_obligation_obs_commitment.model_perf_obligation_schedule_income
 msgid "Performance Obligation Recognition Schedule (Income)"
-msgstr ""
+msgstr "Échéancier de reconnaissance des obligations de performance (revenu)"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model,name:account_perf_obligation_obs_commitment.model_perf_obligation_schedule_expense_monthly
 msgid "Performance Obligation Recognition Schedule by Month (Expense)"
 msgstr ""
+"Échéancier mensuel de reconnaissance des obligations de performance (charges)"
 
 #. module: account_perf_obligation_obs_commitment
 #: model:ir.model,name:account_perf_obligation_obs_commitment.model_perf_obligation_schedule_income_monthly
 msgid "Performance Obligation Recognition Schedule by Month (Income)"
 msgstr ""
+"Échéancier mensuel de reconnaissance des obligations de performance (revenus)"
