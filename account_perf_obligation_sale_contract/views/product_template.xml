@@ -15,8 +15,9 @@
                     role="alert"
                     invisible="not (perf_obligation_sale_auto_create and is_contract)"
                 >
-                    This product generates contract lines. When a sale order is
-                    confirmed, the performance obligation dates will be driven by
+                    This product generates contract lines. If it is used on a quotation,
+                    when the quotation is confirmed and becomes a sale order, the
+                    performance obligation dates will be driven by
                     the contract line dates.
                 </div>
             </field>
