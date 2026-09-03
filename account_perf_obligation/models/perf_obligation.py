@@ -180,7 +180,10 @@ class PerfObligation(models.Model):
 
     def action_view_move_lines(self):
         self.ensure_one()
-        return {
+        move_lines = self.move_line_ids.filtered(
+            lambda line: line.parent_state in ("draft", "posted")
+        )
+        action = {
             "type": "ir.actions.act_window",
             "name": _("Journal Items"),
             "res_model": "account.move.line",
@@ -191,6 +194,9 @@ class PerfObligation(models.Model):
             ],
             "context": {"create": False},
         }
+        if len(move_lines) == 1:
+            action.update({"view_mode": "form", "res_id": move_lines.id})
+        return action
 
     def _get_recognition_config(self) -> RecognitionConfig:
         """Return recognition configuration for this obligation."""
