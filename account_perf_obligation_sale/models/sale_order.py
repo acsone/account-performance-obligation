@@ -24,7 +24,7 @@ class SaleOrder(models.Model):
     def action_view_perf_obligations(self):
         self.ensure_one()
         obligation_ids = self.order_line.mapped("perf_obligation_id").ids
-        return {
+        action = {
             "type": "ir.actions.act_window",
             "name": _("Performance Obligations"),
             "res_model": "perf.obligation",
@@ -32,6 +32,9 @@ class SaleOrder(models.Model):
             "domain": [("id", "in", obligation_ids)],
             "context": {"create": False},
         }
+        if len(obligation_ids) == 1:
+            action.update({"view_mode": "form", "res_id": obligation_ids[0]})
+        return action
 
     def action_confirm(self):
         res = super().action_confirm()

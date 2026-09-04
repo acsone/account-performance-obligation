@@ -23,7 +23,7 @@ class ContractContract(models.Model):
     def action_view_perf_obligations(self):
         self.ensure_one()
         obligation_ids = self.contract_line_ids.mapped("perf_obligation_id").ids
-        return {
+        action = {
             "type": "ir.actions.act_window",
             "name": _("Performance Obligations"),
             "res_model": "perf.obligation",
@@ -31,3 +31,6 @@ class ContractContract(models.Model):
             "domain": [("id", "in", obligation_ids)],
             "context": {"create": False},
         }
+        if len(obligation_ids) == 1:
+            action.update({"view_mode": "form", "res_id": obligation_ids[0]})
+        return action

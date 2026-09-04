@@ -25,7 +25,7 @@ class PerfObligation(models.Model):
 
     def action_view_contract_lines(self):
         self.ensure_one()
-        return {
+        action = {
             "type": "ir.actions.act_window",
             "name": _("Contract Lines"),
             "res_model": "contract.line",
@@ -33,3 +33,6 @@ class PerfObligation(models.Model):
             "domain": [("perf_obligation_id", "=", self.id)],
             "context": {"create": False},
         }
+        if len(self.contract_line_ids) == 1:
+            action.update({"view_mode": "form", "res_id": self.contract_line_ids.id})
+        return action
