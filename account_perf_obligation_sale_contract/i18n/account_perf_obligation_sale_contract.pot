@@ -19,11 +19,6 @@ msgid "Contract Line"
 msgstr ""
 
 #. module: account_perf_obligation_sale_contract
-#: model:ir.model,name:account_perf_obligation_sale_contract.model_product_template
-msgid "Product"
-msgstr ""
-
-#. module: account_perf_obligation_sale_contract
 #: model:ir.model,name:account_perf_obligation_sale_contract.model_sale_order_line
 msgid "Sales Order Line"
 msgstr ""
