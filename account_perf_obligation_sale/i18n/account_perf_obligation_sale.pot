@@ -19,14 +19,6 @@ msgid "# Sale Order Lines"
 msgstr ""
 
 #. module: account_perf_obligation_sale
-#. odoo-python
-#: code:addons/account_perf_obligation_sale/models/product_template.py:0
-msgid ""
-"A recognition duration method is required when automatic performance "
-"obligation creation is enabled on product '%(name)s'."
-msgstr ""
-
-#. module: account_perf_obligation_sale
 #: model:ir.model.fields.selection,name:account_perf_obligation_sale.selection__product_template__perf_obligation_sale_recognition_method__at_once
 msgid "At once"
 msgstr ""
