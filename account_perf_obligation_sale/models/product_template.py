@@ -36,25 +36,6 @@ class ProductTemplate(models.Model):
     )
 
     @api.constrains(
-        "perf_obligation_sale_auto_create",
-        "perf_obligation_sale_recognition_method",
-    )
-    def _check_perf_obligation_sale_recognition_method(self):
-        for rec in self:
-            if (
-                rec.perf_obligation_sale_auto_create
-                and not rec.perf_obligation_sale_recognition_method
-            ):
-                raise ValidationError(
-                    _(
-                        "A recognition duration method is required when "
-                        "automatic performance obligation creation is enabled "
-                        "on product '%(name)s'.",
-                        name=rec.display_name,
-                    )
-                )
-
-    @api.constrains(
         "perf_obligation_sale_recognition_method",
         "perf_obligation_sale_months_duration",
     )

@@ -1,6 +1,5 @@
 # Copyright 2026 ACSONE SA/NV
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -90,20 +89,6 @@ class TestPerfObligationSaleContract(TransactionCase):
                 "property_contract_template_id": self.contract_template.id,
             }
         )
-
-    def test_non_contract_product_requires_recognition_method(self):
-        """A non-contract product with auto-create enabled must have a
-        recognition method set."""
-        with self.assertRaisesRegex(ValidationError, "recognition duration method"):
-            self.env["product.product"].create(
-                {
-                    "name": "Non-Contract Product No Method",
-                    "type": "service",
-                    "is_contract": False,
-                    "perf_obligation_sale_auto_create": True,
-                    "perf_obligation_sale_recognition_method": False,
-                }
-            )
 
     def test_switching_to_contract_clears_constraint(self):
         """Toggling is_contract to True on an existing non-contract product

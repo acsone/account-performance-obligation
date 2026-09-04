@@ -18,7 +18,6 @@
                         <field
                             name="perf_obligation_sale_recognition_method"
                             invisible="not perf_obligation_sale_auto_create"
-                            required="perf_obligation_sale_auto_create"
                         />
                         <field
                             name="perf_obligation_sale_months_duration"

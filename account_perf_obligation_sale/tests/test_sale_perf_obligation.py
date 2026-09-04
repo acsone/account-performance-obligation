@@ -57,6 +57,13 @@ class TestSalePerfObligation(TransactionCase):
                 "type": "service",
             }
         )
+        cls.product_no_dates = cls.env["product.product"].create(
+            {
+                "name": "No Dates Product",
+                "type": "service",
+                "perf_obligation_sale_auto_create": True,
+            }
+        )
 
     def _make_order(self, *lines):
         """Build a draft sale order. Each line is (product, qty, price_unit)."""
@@ -430,3 +437,14 @@ class TestSalePerfObligation(TransactionCase):
         self.assertFalse(line.exists())
         self.assertTrue(po.exists())
         self.assertEqual(po.total_amount, 500.0)
+
+    def test_no_dates_creates_obligation(self):
+        order = self._make_order((self.product_no_dates, 1, 500.0))
+        order.action_confirm()
+        po = order.order_line.perf_obligation_id
+        self.assertTrue(po)
+        self.assertEqual(po.perf_type, "income")
+        self.assertEqual(po.total_amount, 500.0)
+        self.assertFalse(po.start_date)
+        self.assertFalse(po.end_date)
+        self.assertFalse(po.recognition_at_date_method)

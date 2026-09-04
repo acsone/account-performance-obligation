@@ -20,8 +20,6 @@ class SaleOrderLine(models.Model):
         product = self.product_id
         if not product.perf_obligation_sale_auto_create:
             return None
-        if not product.perf_obligation_sale_recognition_method:
-            return None
         # Duplicate guard: update existing obligation instead of creating a new one
         if self.perf_obligation_id:
             self._update_perf_obligation(self.perf_obligation_id)
@@ -52,7 +50,9 @@ class SaleOrderLine(models.Model):
             "total_amount": self._get_perf_obligation_amount(),
             "start_date": start_date,
             "end_date": end_date,
-            "recognition_at_date_method": "daily",
+            "recognition_at_date_method": "daily"
+            if (start_date and end_date)
+            else False,
             "description": _(
                 "Auto-created from sale order %(order)s - %(product)s",
                 order=self.order_id.name,
@@ -76,32 +76,32 @@ class SaleOrderLine(models.Model):
     def _get_perf_obligation_dates(self):
         """Return (start_date, end_date) for the performance obligation.
 
-        - 'at_once': start = end = order confirmation date
-        - 'months': start = confirmation date,
-                    end = start + N calendar months
-        - 'days':   start = confirmation date,
-                    end = start + N days
+        Depending on `product_id.perf_obligation_sale_recognition_method:`
+        - False / None: returns (False, False)
+        - 'at_once':    start = end = order confirmation date
+        - 'months':     start = confirmation date,
+                        end = start + N calendar months
+        - 'days':       start = confirmation date,
+                        end = start + N days
         """
         self.ensure_one()
         product = self.product_id
         method = product.perf_obligation_sale_recognition_method
+        if not method:
+            return False, False
         confirmation_date = self.order_id.date_order.date()
-
         if method == "at_once":
             return confirmation_date, confirmation_date
-
         if method == "months":
             months = product.perf_obligation_sale_months_duration
             end_date = (
                 confirmation_date + relativedelta(months=months) - relativedelta(days=1)
             )
             return confirmation_date, end_date
-
         if method == "days":
             days = product.perf_obligation_sale_days_duration
             end_date = confirmation_date + relativedelta(days=days - 1)
             return confirmation_date, end_date
-
         raise ValidationError(
             _(
                 "Unknown performance obligation recognition method '%(method)s' "

@@ -26,9 +26,6 @@
                 <attribute name="invisible">
                     not perf_obligation_sale_auto_create or is_contract
                 </attribute>
-                <attribute name="required">
-                    perf_obligation_sale_auto_create and not is_contract
-                </attribute>
             </field>
 
             <field name="perf_obligation_sale_months_duration" position="attributes">
