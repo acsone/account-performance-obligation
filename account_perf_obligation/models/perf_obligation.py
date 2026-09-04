@@ -782,12 +782,13 @@ class PerfObligation(models.Model):
         :param reason: human-readable explanation logged to the chatter.
         """
         self.ensure_one()
-        current = self._convert_to_write({k: self[k] for k in vals})
+        self_sudo = self.sudo()
+        current = self_sudo._convert_to_write({k: self_sudo[k] for k in vals})
         changed = {k: v for k, v in vals.items() if current.get(k) != v}
         if not changed:
             return
-        self.sudo().write(changed)
-        self.sudo()._message_log(body=reason)
+        self_sudo.write(changed)
+        self_sudo._message_log(body=reason)
 
     def _update_amount_from_sources(self, reason=None):
         """Recompute total_amount from all linked sources and update it
