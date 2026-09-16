@@ -117,6 +117,39 @@ class PerfObligation(models.Model):
         help="Optional. If set, overrides the P&L account defined in the "
         "accounting configuration for recognition entries.",
     )
+    recognized_amount = fields.Monetary(
+        compute="_compute_recognized_amount",
+        help="Amount already recognized, i.e. the balance of the P&L "
+        "(income or expense) accounts on posted journal items linked to "
+        "this performance obligation.",
+    )
+    progress = fields.Float(
+        compute="_compute_recognized_amount",
+        help="Recognized amount as a percentage of the total amount to recognize.",
+    )
+
+    @api.depends("total_amount")
+    def _compute_recognized_amount(self):
+        """Compute the posted P&L balance for all obligations"""
+        result = self.env["account.move.line"]._read_group(
+            domain=[
+                ("perf_obligation_id", "in", self.ids),
+                ("parent_state", "=", "posted"),
+                ("account_id.internal_group", "in", ("income", "expense")),
+            ],
+            groupby=["perf_obligation_id"],
+            aggregates=["balance:sum"],
+        )
+        balance_per_obligation = dict(result)
+        for rec in self:
+            balance = balance_per_obligation.get(rec, 0.0)
+            rec.recognized_amount = -balance if rec.perf_type == "income" else balance
+            if float_is_zero(
+                rec.total_amount, precision_rounding=rec.currency_id.rounding
+            ):
+                rec.progress = 0.0
+            else:
+                rec.progress = rec.recognized_amount / rec.total_amount * 100
 
     def unlink(self):
         posted = self.env["account.move.line"].search(
