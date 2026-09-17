@@ -11,6 +11,8 @@
                 <field name="perf_type" />
                 <field name="currency_id" column_invisible="1" />
                 <field name="total_amount" />
+                <field name="recognized_amount" />
+                <field name="progress" widget="progressbar" />
                 <field name="company_id" groups="base.group_multi_company" />
                 <field name="description" optional="hide" />
             </list>
@@ -30,6 +32,7 @@
                         class="btn-primary"
                         invisible="not supports_schedule"
                     />
+                    <field name="progress" widget="progressbar" />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -65,6 +68,7 @@
                                 name="total_amount"
                                 string="Total Amount to Recognize"
                             />
+                            <field name="recognized_amount" />
                             <field
                                 name="recognition_at_date_method"
                                 string="Recognition Method"
