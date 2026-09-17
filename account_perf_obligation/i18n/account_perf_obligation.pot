@@ -73,6 +73,13 @@ msgid "Administration"
 msgstr ""
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__recognized_amount
+msgid ""
+"Amount already recognized, i.e. the balance of the P&L (income or expense) "
+"accounts on posted journal items linked to this performance obligation."
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__amount_to_recognize
 msgid "Amount to Recognize at Date"
 msgstr ""
@@ -650,6 +657,11 @@ msgid "Process Pending Regenerations"
 msgstr ""
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__progress
+msgid "Progress"
+msgstr ""
+
+#. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "Recognition"
 msgstr ""
@@ -696,6 +708,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__recognized_amount
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__recognized_amount
 msgid "Recognized"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__recognized_amount
+msgid "Recognized Amount"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__progress
+msgid "Recognized amount as a percentage of the total amount to recognize."
 msgstr ""
 
 #. module: account_perf_obligation
