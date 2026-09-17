@@ -58,6 +58,7 @@ class SaleOrderLine(models.Model):
                 order=self.order_id.name,
                 product=self.product_id.display_name,
             ),
+            "product_id": self.product_id.id,
         }
         income_account = self._get_perf_obligation_income_account()
         if income_account:
