@@ -117,6 +117,14 @@ class PerfObligation(models.Model):
         help="Optional. If set, overrides the P&L account defined in the "
         "accounting configuration for recognition entries.",
     )
+    partner_id = fields.Many2one(
+        comodel_name="res.partner",
+        check_company=True,
+        tracking=True,
+        index=True,
+        help="Commercial partner of this performance obligation, set on the "
+        "journal items of its recognition entries.",
+    )
     recognized_amount = fields.Monetary(
         compute="_compute_recognized_amount",
         help="Amount already recognized, i.e. the balance of the P&L "
@@ -150,6 +158,22 @@ class PerfObligation(models.Model):
                 rec.progress = 0.0
             else:
                 rec.progress = rec.recognized_amount / rec.total_amount * 100
+
+    @api.constrains("partner_id")
+    def _check_partner_id_commercial(self):
+        for rec in self:
+            if (
+                rec.partner_id
+                and rec.partner_id != rec.partner_id.commercial_partner_id
+            ):
+                raise ValidationError(
+                    _(
+                        "The partner of performance obligation %(name)s must be a "
+                        "commercial partner, not the contact %(partner)s.",
+                        name=rec.display_name,
+                        partner=rec.partner_id.display_name,
+                    )
+                )
 
     def unlink(self):
         posted = self.env["account.move.line"].search(
@@ -570,6 +594,7 @@ class PerfObligation(models.Model):
             "debit": debit,
             "credit": credit,
             "perf_obligation_id": self.id,
+            "partner_id": self.partner_id.id,
         }
 
     # ------------------------------------------------------------------
@@ -700,7 +725,12 @@ class PerfObligation(models.Model):
         Override this method in modules that add fields impacting
         the schedule (e.g. start_date, end_date).
         """
-        return ["total_amount", "recognition_at_date_method", "pl_account_id"]
+        return [
+            "total_amount",
+            "recognition_at_date_method",
+            "pl_account_id",
+            "partner_id",
+        ]
 
     def write(self, vals):
         res = super().write(vals)

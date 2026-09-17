@@ -20,6 +20,12 @@ class ContractContract(models.Model):
                 contract.contract_line_ids.mapped("perf_obligation_id")
             )
 
+    def write(self, vals):
+        res = super().write(vals)
+        if "partner_id" in vals or "invoice_partner_id" in vals:
+            self.contract_line_ids._update_perf_obligation_partner()
+        return res
+
     def action_view_perf_obligations(self):
         self.ensure_one()
         obligation_ids = self.contract_line_ids.mapped("perf_obligation_id").ids

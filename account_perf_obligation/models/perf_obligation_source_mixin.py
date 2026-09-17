@@ -30,6 +30,20 @@ class PerfObligationSourceMixin(models.AbstractModel):
             )
         )
 
+    def _get_perf_obligation_partner(self):
+        """Return the commercial partner this source sets on its performance
+        obligation. Override in source models."""
+        self.ensure_one()
+        return self.env["res.partner"]
+
+    def _update_perf_obligation_partner(self):
+        """Sync the partner of the linked obligations from their sources."""
+        for rec in self.filtered("perf_obligation_id"):
+            rec.perf_obligation_id.sudo()._update_vals(
+                {"partner_id": rec._get_perf_obligation_partner().id},
+                _("Partner updated from %(record)s.", record=rec.display_name),
+            )
+
     def _notify_obligation_amount_changed(self):
         """Notify the linked obligation(s) that this source's amount may
         have changed.
