@@ -778,3 +778,47 @@ class TestContractPerfObligation(TransactionCase):
         po = line.perf_obligation_id
         self.assertEqual(po.start_date, fields.Date.from_string("2026-01-01"))
         self.assertEqual(po.end_date, fields.Date.from_string("2026-12-31"))
+
+    # ------------------------------------------------------------------
+    # Partner
+    # ------------------------------------------------------------------
+
+    def _make_single_line_contract(self, contract_type="sale"):
+        return self._make_contract(
+            (
+                self.product,
+                1,
+                1200.0,
+                fields.Date.from_string("2026-01-01"),
+                fields.Date.from_string("2026-12-31"),
+                True,
+            ),
+            contract_type=contract_type,
+        )
+
+    def test_partner_set_from_contract(self):
+        contract = self._make_single_line_contract()
+        po = contract.contract_line_ids.perf_obligation_id
+        self.assertEqual(po.partner_id, self.partner)
+
+    def test_partner_set_on_purchase_contract(self):
+        contract = self._make_single_line_contract(contract_type="purchase")
+        po = contract.contract_line_ids.perf_obligation_id
+        self.assertEqual(po.perf_type, "expense")
+        self.assertEqual(po.partner_id, self.partner)
+
+    def test_partner_is_commercial_partner_of_invoice_contact(self):
+        contract = self._make_single_line_contract()
+        contact = self.env["res.partner"].create(
+            {"name": "Invoice Contact", "parent_id": self.partner.id}
+        )
+        contract.invoice_partner_id = contact
+        po = contract.contract_line_ids.perf_obligation_id
+        self.assertEqual(po.partner_id, self.partner)
+
+    def test_partner_updated_when_invoice_partner_changes(self):
+        contract = self._make_single_line_contract()
+        po = contract.contract_line_ids.perf_obligation_id
+        other_customer = self.env["res.partner"].create({"name": "Other Customer"})
+        contract.invoice_partner_id = other_customer
+        self.assertEqual(po.partner_id, other_customer)

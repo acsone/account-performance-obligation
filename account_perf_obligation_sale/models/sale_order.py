@@ -36,6 +36,12 @@ class SaleOrder(models.Model):
             action.update({"view_mode": "form", "res_id": obligation_ids[0]})
         return action
 
+    def write(self, vals):
+        res = super().write(vals)
+        if "partner_id" in vals or "partner_invoice_id" in vals:
+            self.order_line._update_perf_obligation_partner()
+        return res
+
     def action_confirm(self):
         res = super().action_confirm()
         self._create_perf_obligations()

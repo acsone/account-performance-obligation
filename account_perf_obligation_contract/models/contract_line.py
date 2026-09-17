@@ -121,11 +121,19 @@ class ContractLine(models.Model):
             "recognition_at_date_method": (
                 self._get_obligation_recognition_at_date_method()
             ),
+            "partner_id": self._get_perf_obligation_partner().id,
         }
         pl_account = self._get_perf_obligation_pl_account()
         if pl_account:
             vals["pl_account_id"] = pl_account.id
         return vals
+
+    def _get_perf_obligation_partner(self):
+        self.ensure_one()
+        contract = self.contract_id
+        return (
+            contract.invoice_partner_id or contract.partner_id
+        ).commercial_partner_id
 
     def _get_obligation_start_date(self):
         self.ensure_one()
