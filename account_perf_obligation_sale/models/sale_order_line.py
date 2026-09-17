@@ -59,11 +59,16 @@ class SaleOrderLine(models.Model):
                 product=self.product_id.display_name,
             ),
             "product_id": self.product_id.id,
+            "partner_id": self._get_perf_obligation_partner().id,
         }
         income_account = self._get_perf_obligation_income_account()
         if income_account:
             vals["pl_account_id"] = income_account.id
         return vals
+
+    def _get_perf_obligation_partner(self):
+        self.ensure_one()
+        return self.order_id.partner_invoice_id.commercial_partner_id
 
     def _get_perf_obligation_income_account(self):
         """Return the income account to set on the performance obligation."""

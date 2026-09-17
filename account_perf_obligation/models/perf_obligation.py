@@ -123,6 +123,15 @@ class PerfObligation(models.Model):
         "set from the originating sale order line or contract line, and "
         "carried over to the journal items of generated recognition entries.",
     )
+    partner_id = fields.Many2one(
+        comodel_name="res.partner",
+        check_company=True,
+        tracking=True,
+        index=True,
+        domain="[('parent_id', '=', False)]",
+        help="Partner of this performance obligation, set on the journal "
+        "items of its recognition entries. Only top-level contacts can be selected.",
+    )
     recognized_amount = fields.Monetary(
         compute="_compute_recognized_amount",
         help="Amount already recognized, i.e. the balance of the P&L "
@@ -156,6 +165,20 @@ class PerfObligation(models.Model):
                 rec.progress = 0.0
             else:
                 rec.progress = rec.recognized_amount / rec.total_amount * 100
+
+    @api.constrains("partner_id")
+    def _check_partner_id_is_parent(self):
+        for rec in self:
+            if rec.partner_id.parent_id:
+                raise ValidationError(
+                    _(
+                        "The partner of performance obligation %(name)s must be a "
+                        "parent contact: %(partner)s is a child of %(parent)s.",
+                        name=rec.display_name,
+                        partner=rec.partner_id.display_name,
+                        parent=rec.partner_id.parent_id.display_name,
+                    )
+                )
 
     def unlink(self):
         posted = self.env["account.move.line"].search(
@@ -577,6 +600,7 @@ class PerfObligation(models.Model):
             "credit": credit,
             "perf_obligation_id": self.id,
             "product_id": self.product_id.id,
+            "partner_id": self.partner_id.id,
         }
 
     # ------------------------------------------------------------------
@@ -707,7 +731,11 @@ class PerfObligation(models.Model):
         Override this method in modules that add fields impacting
         the schedule (e.g. start_date, end_date).
         """
-        return ["total_amount", "recognition_at_date_method", "pl_account_id"]
+        return [
+            "total_amount",
+            "recognition_at_date_method",
+            "pl_account_id",
+        ]
 
     def write(self, vals):
         res = super().write(vals)

@@ -7,7 +7,7 @@ from freezegun import freeze_time
 
 from odoo import Command
 from odoo.exceptions import ValidationError
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, new_test_user
 
 
 class TestSalePerfObligation(TransactionCase):
@@ -448,3 +448,32 @@ class TestSalePerfObligation(TransactionCase):
         self.assertFalse(po.start_date)
         self.assertFalse(po.end_date)
         self.assertFalse(po.recognition_at_date_method)
+
+    # ------------------------------------------------------------------
+    # Partner
+    # ------------------------------------------------------------------
+
+    def _make_invoice_address(self, parent):
+        return self.env["res.partner"].create(
+            {"name": "Invoice Address", "type": "invoice", "parent_id": parent.id}
+        )
+
+    def test_partner_is_commercial_partner_of_invoice_address(self):
+        invoice_address = self._make_invoice_address(self.partner)
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.partner_invoice_id = invoice_address
+        order.action_confirm()
+        self.assertEqual(order.order_line.perf_obligation_id.partner_id, self.partner)
+
+    def test_partner_set_by_non_accounting_user(self):
+        """A salesperson cannot write on obligations: confirming must still
+        set the partner (the obligation is created with sudo)."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        salesman = new_test_user(
+            self.env,
+            login="perf_obligation_salesman",
+            groups="sales_team.group_sale_salesman_all_leads",
+        )
+        order.with_user(salesman).action_confirm()
+        po = order.order_line.perf_obligation_id
+        self.assertEqual(po.partner_id, self.partner)

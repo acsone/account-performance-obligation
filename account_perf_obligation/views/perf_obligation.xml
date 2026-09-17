@@ -10,6 +10,7 @@
                 <field name="name" />
                 <field name="perf_type" />
                 <field name="product_id" optional="hide" />
+                <field name="partner_id" optional="show" />
                 <field name="currency_id" column_invisible="1" />
                 <field name="total_amount" />
                 <field name="recognized_amount" />
@@ -94,6 +95,7 @@
                             </group>
                             <group name="reporting_info" string="Reporting">
                                 <field name="product_id" />
+                                <field name="partner_id" />
                             </group>
                         </group>
                     </group>
@@ -222,6 +224,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="name" />
+                <field name="partner_id" />
                 <filter
                     name="income"
                     string="Income"
@@ -243,6 +246,11 @@
                         name="group_by_type"
                         string="Type"
                         context="{'group_by': 'perf_type'}"
+                    />
+                    <filter
+                        name="group_by_partner"
+                        string="Partner"
+                        context="{'group_by': 'partner_id'}"
                     />
                 </group>
             </search>
