@@ -117,6 +117,13 @@ class PerfObligation(models.Model):
         help="Optional. If set, overrides the P&L account defined in the "
         "accounting configuration for recognition entries.",
     )
+    product_id = fields.Many2one(
+        comodel_name="product.product",
+        help="Product this performance obligation relates to. Automatically "
+        "set from the originating sale order line or contract line, and "
+        "carried over to the revenue/expense line of generated recognition "
+        "entries.",
+    )
     recognized_amount = fields.Monetary(
         compute="_compute_recognized_amount",
         help="Amount already recognized, i.e. the balance of the P&L "
@@ -565,12 +572,19 @@ class PerfObligation(models.Model):
 
     def _make_line(self, account_id, debit, credit):
         """Return a journal item value-dict."""
-        return {
+        vals = {
             "account_id": account_id,
             "debit": debit,
             "credit": credit,
             "perf_obligation_id": self.id,
         }
+        if (
+            self.product_id
+            and account_id == self._get_recognition_config().pl_account.id
+        ):
+            vals["product_id"] = self.product_id.id
+
+        return vals
 
     # ------------------------------------------------------------------
     # Schedule generation

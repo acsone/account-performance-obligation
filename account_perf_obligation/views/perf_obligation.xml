@@ -9,6 +9,7 @@
             <list>
                 <field name="name" />
                 <field name="perf_type" />
+                <field name="product_id" optional="hide" />
                 <field name="currency_id" column_invisible="1" />
                 <field name="total_amount" />
                 <field name="recognized_amount" />
@@ -64,6 +65,7 @@
                         <group name="recognition_info" string="Recognition">
                             <field name="currency_id" invisible="1" />
                             <field name="perf_type" string="Type" />
+                            <field name="product_id" />
                             <field
                                 name="total_amount"
                                 string="Total Amount to Recognize"

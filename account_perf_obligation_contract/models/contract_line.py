@@ -121,6 +121,7 @@ class ContractLine(models.Model):
             "recognition_at_date_method": (
                 self._get_obligation_recognition_at_date_method()
             ),
+            "product_id": self.product_id.id,
         }
         pl_account = self._get_perf_obligation_pl_account()
         if pl_account:
