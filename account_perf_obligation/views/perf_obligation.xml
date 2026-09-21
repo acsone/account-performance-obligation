@@ -96,6 +96,11 @@
                             <group name="reporting_info" string="Reporting">
                                 <field name="product_id" />
                                 <field name="partner_id" />
+                                <field
+                                    name="analytic_distribution"
+                                    widget="analytic_distribution"
+                                    groups="analytic.group_analytic_accounting"
+                                />
                             </group>
                         </group>
                     </group>

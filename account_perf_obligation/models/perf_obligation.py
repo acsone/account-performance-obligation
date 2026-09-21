@@ -20,7 +20,7 @@ class RecognitionConfig:
 class PerfObligation(models.Model):
     _name = "perf.obligation"
     _description = "Performance Obligation"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "analytic.mixin"]
 
     company_id = fields.Many2one(
         comodel_name="res.company",
@@ -594,7 +594,7 @@ class PerfObligation(models.Model):
 
     def _make_line(self, account_id, debit, credit):
         """Return a journal item value-dict."""
-        return {
+        vals = {
             "account_id": account_id,
             "debit": debit,
             "credit": credit,
@@ -602,6 +602,13 @@ class PerfObligation(models.Model):
             "product_id": self.product_id.id,
             "partner_id": self.partner_id.id,
         }
+        if (
+            self.analytic_distribution
+            and account_id == self._get_recognition_config().pl_account.id
+        ):
+            # Only on the P&L line
+            vals["analytic_distribution"] = self.analytic_distribution
+        return vals
 
     # ------------------------------------------------------------------
     # Schedule generation
