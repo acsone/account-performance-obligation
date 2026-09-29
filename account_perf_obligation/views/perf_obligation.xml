@@ -9,6 +9,7 @@
             <list>
                 <field name="name" />
                 <field name="perf_type" />
+                <field name="product_id" optional="hide" />
                 <field name="currency_id" column_invisible="1" />
                 <field name="total_amount" />
                 <field name="recognized_amount" />
@@ -60,7 +61,7 @@
                         nolabel="1"
                         placeholder="Add a description..."
                     />
-                    <group>
+                    <group col="2">
                         <group name="recognition_info" string="Recognition">
                             <field name="currency_id" invisible="1" />
                             <field name="perf_type" string="Type" />
@@ -79,16 +80,21 @@
                             />
                         </group>
 
-                        <group name="administration_info" string="Administration">
-                            <field
-                                name="create_date"
-                                string="Created on"
-                                readonly="1"
-                            />
-                            <field
-                                name="company_id"
-                                groups="base.group_multi_company"
-                            />
+                        <group col="1">
+                            <group name="administration_info" string="Administration">
+                                <field
+                                    name="create_date"
+                                    string="Created on"
+                                    readonly="1"
+                                />
+                                <field
+                                    name="company_id"
+                                    groups="base.group_multi_company"
+                                />
+                            </group>
+                            <group name="reporting_info" string="Reporting">
+                                <field name="product_id" />
+                            </group>
                         </group>
                     </group>
                     <notebook>

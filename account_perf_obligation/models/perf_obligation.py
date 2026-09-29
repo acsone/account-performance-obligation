@@ -117,6 +117,12 @@ class PerfObligation(models.Model):
         help="Optional. If set, overrides the P&L account defined in the "
         "accounting configuration for recognition entries.",
     )
+    product_id = fields.Many2one(
+        comodel_name="product.product",
+        help="Product this performance obligation relates to. Automatically "
+        "set from the originating sale order line or contract line, and "
+        "carried over to the journal items of generated recognition entries.",
+    )
     recognized_amount = fields.Monetary(
         compute="_compute_recognized_amount",
         help="Amount already recognized, i.e. the balance of the P&L "
@@ -570,6 +576,7 @@ class PerfObligation(models.Model):
             "debit": debit,
             "credit": credit,
             "perf_obligation_id": self.id,
+            "product_id": self.product_id.id,
         }
 
     # ------------------------------------------------------------------
