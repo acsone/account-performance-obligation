@@ -657,6 +657,19 @@ msgid "Process Pending Regenerations"
 msgstr ""
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__product_id
+msgid "Product"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__product_id
+msgid ""
+"Product this performance obligation relates to. Automatically set from the "
+"originating sale order line or contract line, and carried over to the "
+"journal items of generated recognition entries."
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__progress
 msgid "Progress"
 msgstr ""
@@ -723,6 +736,11 @@ msgstr ""
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__name
 msgid "Reference"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Reporting"
 msgstr ""
 
 #. module: account_perf_obligation
