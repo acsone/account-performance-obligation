@@ -544,6 +544,19 @@ msgid "P&L Recognition Account"
 msgstr ""
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__partner_id
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_search
+msgid "Partner"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__partner_id
+msgid ""
+"Partner of this performance obligation, set on the journal items of its "
+"recognition entries. Only top-level contacts can be selected."
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_account_bank_statement_line__perf_obligation_schedule_move
 #: model:ir.model.fields,field_description:account_perf_obligation.field_account_move__perf_obligation_schedule_move
 msgid "Perf Obligation Schedule Move"
@@ -809,6 +822,14 @@ msgstr ""
 msgid ""
 "The cumulative amount that should be recognized as of the given date. Must "
 "not exceed the total amount on the obligation."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"The partner of performance obligation %(name)s must be a parent contact: "
+"%(partner)s is a child of %(parent)s."
 msgstr ""
 
 #. module: account_perf_obligation
