@@ -85,6 +85,16 @@ msgid "Amount to Recognize at Date"
 msgstr ""
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__analytic_distribution
+msgid "Analytic Distribution"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__analytic_precision
+msgid "Analytic Precision"
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_attachment_count
 msgid "Attachment Count"
 msgstr ""
@@ -243,6 +253,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__display_name
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__display_name
 msgid "Display Name"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__distribution_analytic_account_ids
+msgid "Distribution Analytic Account"
 msgstr ""
 
 #. module: account_perf_obligation
