@@ -1,3 +1,4 @@
+from . import test_analytic_distribution
 from . import test_auto_regenerate
 from . import test_partner
 from . import test_post_recognition_moves
