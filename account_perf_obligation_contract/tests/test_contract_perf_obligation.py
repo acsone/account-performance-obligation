@@ -839,3 +839,55 @@ class TestContractPerfObligation(TransactionCase):
         )
         self.assertEqual(contract.invoice_partner_id, contact)
         self.assertEqual(line.perf_obligation_id.partner_id, self.partner)
+
+    # ------------------------------------------------------------------
+    # Analytic distribution
+    # ------------------------------------------------------------------
+
+    def _make_analytic_distribution(self):
+        plan = self.env["account.analytic.plan"].create({"name": "Test Plan"})
+        analytic_account = self.env["account.analytic.account"].create(
+            {"name": "Test Analytic Account", "plan_id": plan.id}
+        )
+        return {str(analytic_account.id): 100.0}
+
+    def test_analytic_distribution_propagated_on_create(self):
+        distribution = self._make_analytic_distribution()
+        contract = self.env["contract.contract"].create(
+            {
+                "name": "Test Contract",
+                "partner_id": self.partner.id,
+                "contract_type": "sale",
+                "line_recurrence": True,
+            }
+        )
+        line = self.env["contract.line"].create(
+            {
+                "contract_id": contract.id,
+                "product_id": self.product.id,
+                "name": self.product.name,
+                "quantity": 1,
+                "price_unit": 1200.0,
+                "date_start": fields.Date.from_string("2026-01-01"),
+                "date_end": fields.Date.from_string("2026-12-31"),
+                "recurring_next_date": fields.Date.from_string("2026-01-01"),
+                "recurring_interval": 1,
+                "recurring_rule_type": "monthly",
+                "recurring_invoicing_type": "pre-paid",
+                "uom_id": self.product.uom_id.id,
+                "perf_obligation_auto_create": True,
+                "analytic_distribution": distribution,
+            }
+        )
+        self.assertEqual(line.perf_obligation_id.analytic_distribution, distribution)
+
+    def test_analytic_distribution_change_updates_obligation(self):
+        contract = self._make_single_line_contract()
+        line = contract.contract_line_ids
+        po = line.perf_obligation_id
+        distribution = self._make_analytic_distribution()
+        line.analytic_distribution = distribution
+        self.assertEqual(line.perf_obligation_id, po)
+        self.assertEqual(po.analytic_distribution, distribution)
+        line.analytic_distribution = False
+        self.assertFalse(po.analytic_distribution)
