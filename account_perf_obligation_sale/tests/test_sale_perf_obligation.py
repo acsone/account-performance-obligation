@@ -477,3 +477,42 @@ class TestSalePerfObligation(TransactionCase):
         order.with_user(salesman).action_confirm()
         po = order.order_line.perf_obligation_id
         self.assertEqual(po.partner_id, self.partner)
+
+    # ------------------------------------------------------------------
+    # Analytic distribution
+    # ------------------------------------------------------------------
+
+    def _make_analytic_distribution(self):
+        plan = self.env["account.analytic.plan"].create({"name": "Test Plan"})
+        analytic_account = self.env["account.analytic.account"].create(
+            {"name": "Test Analytic Account", "plan_id": plan.id}
+        )
+        return {str(analytic_account.id): 100.0}
+
+    def test_analytic_distribution_propagated_on_confirm(self):
+        distribution = self._make_analytic_distribution()
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.order_line.analytic_distribution = distribution
+        order.action_confirm()
+        po = order.order_line.perf_obligation_id
+        self.assertEqual(po.analytic_distribution, distribution)
+
+    def test_no_analytic_distribution_when_unset_on_line(self):
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.order_line.analytic_distribution = False
+        order.action_confirm()
+        po = order.order_line.perf_obligation_id
+        self.assertFalse(po.analytic_distribution)
+
+    def test_reconfirm_updates_obligation_analytic_distribution(self):
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.action_confirm()
+        line = order.order_line
+        po = line.perf_obligation_id
+        order.with_context(disable_cancel_warning=True).action_cancel()
+        distribution = self._make_analytic_distribution()
+        line.analytic_distribution = distribution
+        order.action_draft()
+        order.action_confirm()
+        self.assertEqual(line.perf_obligation_id, po)
+        self.assertEqual(po.analytic_distribution, distribution)

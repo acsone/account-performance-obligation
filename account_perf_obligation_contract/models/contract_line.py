@@ -29,6 +29,7 @@ class ContractLine(models.Model):
             "discount",
             "quantity",
             "product_id",
+            "analytic_distribution",
             "perf_obligation_auto_create",
         }
 
@@ -123,6 +124,7 @@ class ContractLine(models.Model):
             ),
             "product_id": self.product_id.id,
             "partner_id": self._get_perf_obligation_partner().id,
+            "analytic_distribution": self.analytic_distribution,
         }
         pl_account = self._get_perf_obligation_pl_account()
         if pl_account:

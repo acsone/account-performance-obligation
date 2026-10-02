@@ -60,6 +60,7 @@ class SaleOrderLine(models.Model):
             ),
             "product_id": self.product_id.id,
             "partner_id": self._get_perf_obligation_partner().id,
+            "analytic_distribution": self.analytic_distribution,
         }
         income_account = self._get_perf_obligation_income_account()
         if income_account:
