@@ -173,6 +173,15 @@ class TestAutoRegenerate(PerfObligationCommon):
         po = self._create_obligation()
         self.assertIn("pl_account_id", po._get_recognition_trigger_fields())
 
+    def test_product_partner_analytic_in_trigger_fields(self):
+        """product_id, partner_id and analytic_distribution are carried
+        to the recognition entries and must trigger regeneration."""
+        po = self._create_obligation()
+        fields_list = po._get_recognition_trigger_fields()
+        self.assertIn("product_id", fields_list)
+        self.assertIn("partner_id", fields_list)
+        self.assertIn("analytic_distribution", fields_list)
+
     def test_mark_flags_when_schedule_unsupported_but_drafts_exist(self):
         """_mark_needs_recognition flags an obligation that no longer
         supports scheduling but still has draft recognition moves

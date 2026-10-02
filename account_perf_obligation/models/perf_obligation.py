@@ -742,6 +742,9 @@ class PerfObligation(models.Model):
             "total_amount",
             "recognition_at_date_method",
             "pl_account_id",
+            "product_id",
+            "partner_id",
+            "analytic_distribution",
         ]
 
     def write(self, vals):
