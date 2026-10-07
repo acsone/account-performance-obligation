@@ -9,6 +9,13 @@
             <list>
                 <field name="name" />
                 <field name="perf_type" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-warning="state == 'in_progress'"
+                    decoration-success="state == 'done'"
+                />
                 <field name="product_id" optional="hide" />
                 <field name="partner_id" optional="show" />
                 <field name="currency_id" column_invisible="1" />
@@ -32,7 +39,31 @@
                         string="(Re)generate Schedule Entries"
                         type="object"
                         class="btn-primary"
-                        invisible="not supports_schedule"
+                        invisible="not supports_schedule or state == 'done'"
+                    />
+                    <button
+                        name="action_start"
+                        string="Start"
+                        type="object"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_done"
+                        string="Done"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'in_progress'"
+                    />
+                    <button
+                        name="action_reopen"
+                        string="Set to In Progress"
+                        type="object"
+                        invisible="state != 'done'"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,in_progress,done"
                     />
                     <field name="progress" widget="progressbar" />
                 </header>
@@ -61,23 +92,31 @@
                         name="description"
                         nolabel="1"
                         placeholder="Add a description..."
+                        readonly="state == 'done'"
                     />
                     <group col="2">
                         <group name="recognition_info" string="Recognition">
                             <field name="currency_id" invisible="1" />
-                            <field name="perf_type" string="Type" />
+                            <field
+                                name="perf_type"
+                                string="Type"
+                                readonly="state == 'done'"
+                            />
                             <field
                                 name="total_amount"
                                 string="Total Amount to Recognize"
+                                readonly="state == 'done'"
                             />
                             <field name="recognized_amount" />
                             <field
                                 name="recognition_at_date_method"
                                 string="Recognition Method"
+                                readonly="state == 'done'"
                             />
                             <field
                                 name="pl_account_id"
                                 domain="([('internal_group', '=', perf_type)] if perf_type else []) + [('deprecated', '=', False)]"
+                                readonly="state == 'done'"
                             />
                         </group>
 
@@ -94,11 +133,12 @@
                                 />
                             </group>
                             <group name="reporting_info" string="Reporting">
-                                <field name="product_id" />
-                                <field name="partner_id" />
+                                <field name="product_id" readonly="state == 'done'" />
+                                <field name="partner_id" readonly="state == 'done'" />
                                 <field
                                     name="analytic_distribution"
                                     widget="analytic_distribution"
+                                    readonly="state == 'done'"
                                     groups="analytic.group_analytic_accounting"
                                 />
                             </group>
@@ -231,6 +271,18 @@
                 <field name="name" />
                 <field name="partner_id" />
                 <filter
+                    name="draft"
+                    string="Draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    name="in_progress"
+                    string="In Progress"
+                    domain="[('state', '=', 'in_progress')]"
+                />
+                <filter name="done" string="Done" domain="[('state', '=', 'done')]" />
+                <separator />
+                <filter
                     name="income"
                     string="Income"
                     domain="[('perf_type', '=', 'income')]"
@@ -247,6 +299,11 @@
                     domain="[('schedule_needs_regeneration', '=', True)]"
                 />
                 <group expand="0" string="Group By">
+                    <filter
+                        name="group_by_state"
+                        string="Status"
+                        context="{'group_by': 'state'}"
+                    />
                     <filter
                         name="group_by_type"
                         string="Type"

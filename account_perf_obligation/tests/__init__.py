@@ -6,5 +6,6 @@ from . import test_recognition
 from . import test_recognized_amount
 from . import test_schedule
 from . import test_source
+from . import test_state
 from . import test_product
 from . import test_wizard

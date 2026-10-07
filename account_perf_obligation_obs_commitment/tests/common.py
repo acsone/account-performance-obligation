@@ -180,12 +180,15 @@ class PerfObligationObsCommitmentCommon(TransactionCase):
             }
         )
 
-    def _create_obligation(self, perf_type="income", total_amount=1000.0):
+    def _create_obligation(
+        self, perf_type="income", total_amount=1000.0, state="draft"
+    ):
         return self.env["perf.obligation"].create(
             {
                 "perf_type": perf_type,
                 "total_amount": total_amount,
                 "company_id": self.company.id,
+                "state": state,
             }
         )
 

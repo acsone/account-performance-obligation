@@ -22,6 +22,23 @@ class PerfObligation(models.Model):
     _description = "Performance Obligation"
     _inherit = ["mail.thread", "analytic.mixin"]
 
+    state = fields.Selection(
+        selection=[
+            ("draft", "Draft"),
+            ("in_progress", "In Progress"),
+            ("done", "Done"),
+        ],
+        default="draft",
+        readonly=True,
+        copy=False,
+        index=True,
+        required=True,
+        tracking=True,
+        help="Draft: the schedule is computed, but recognition entries cannot be "
+        "posted. In Progress: the service has started and recognition entries can "
+        "be posted. Done: fully recognized and invoiced; the obligation is locked "
+        "until it is set back to In Progress.",
+    )
     company_id = fields.Many2one(
         comodel_name="res.company",
         required=True,
@@ -181,6 +198,10 @@ class PerfObligation(models.Model):
                 )
 
     def unlink(self):
+        if self.filtered(lambda po: po.state == "done"):
+            raise UserError(
+                _("A performance obligation that is done cannot be deleted.")
+            )
         posted = self.env["account.move.line"].search(
             [
                 ("perf_obligation_id", "in", self.ids),
@@ -635,6 +656,14 @@ class PerfObligation(models.Model):
     def action_generate_schedule(self):
         """UI action to regenerate recognition schedule entries."""
         for po in self:
+            if po.state == "done":
+                raise UserError(
+                    _(
+                        "Performance obligation %(name)s is done: its schedule "
+                        "can no longer be regenerated.",
+                        name=po.display_name,
+                    )
+                )
             if not po._supports_schedule():
                 raise ValidationError(
                     _(
@@ -748,6 +777,7 @@ class PerfObligation(models.Model):
         ]
 
     def write(self, vals):
+        self._check_write_allowed(vals)
         res = super().write(vals)
         trigger_fields = self._get_recognition_trigger_fields()
         if any(field in vals for field in trigger_fields):
@@ -770,6 +800,8 @@ class PerfObligation(models.Model):
         have draft recognition moves pending cleanup.
         """
         if not self.env.context.get("perf_obligation_in_regeneration"):
+            # A done obligation is locked: its schedule is not touched anymore.
+            self = self.filtered(lambda po: po.state != "done")
             self.filtered(lambda po: po._supports_schedule())._mark_for_regeneration()
             self.filtered(
                 lambda po: not po._supports_schedule()
@@ -783,7 +815,9 @@ class PerfObligation(models.Model):
         )
 
     def _process_pending_regenerations(self):
-        for po in self.filtered("schedule_needs_regeneration"):
+        for po in self.filtered(
+            lambda po: po.schedule_needs_regeneration and po.state != "done"
+        ):
             po._regenerate_schedule()
 
     def action_process_pending_regenerations(self):
@@ -899,8 +933,10 @@ class PerfObligation(models.Model):
                 body += " " + reason
             obligation._update_total_amount(new_amount, body)
 
-    def _get_invoiced_amount(self):
+    def _get_invoiced_amount(self, states=("draft", "posted")):
         """Return the invoiced/billed amount for this obligation.
+
+        :param states: parent move states to take into account.
 
         Income: -(income account balance) - (BS account balance)
         Expense: (expense account balance) + (BS account balance)
@@ -909,7 +945,7 @@ class PerfObligation(models.Model):
         [(pl_balance,)] = self.env["account.move.line"]._read_group(
             domain=[
                 ("perf_obligation_id", "=", self.id),
-                ("parent_state", "in", ("draft", "posted")),
+                ("parent_state", "in", states),
                 ("account_id.internal_group", "=", self._get_pl_internal_group()),
             ],
             aggregates=["balance:sum"],
@@ -917,7 +953,7 @@ class PerfObligation(models.Model):
         [(bs_balance,)] = self.env["account.move.line"]._read_group(
             domain=[
                 ("perf_obligation_id", "=", self.id),
-                ("parent_state", "in", ("draft", "posted")),
+                ("parent_state", "in", states),
                 (
                     "account_id.account_type",
                     "in",
@@ -1026,10 +1062,23 @@ class PerfObligation(models.Model):
         if companies is None:
             companies = obligations.company_id if obligations else self.env.companies
         reco_journals = self._get_recognition_journals_for_companies(companies)
+        # Draft obligations: nothing is posted, their start is postponed
+        # (hook, see _postpone_draft_obligations).
+        draft_obligations_domain = [
+            ("state", "=", "draft"),
+            ("company_id", "in", companies.ids),
+        ]
+        if obligations is not None:
+            draft_obligations_domain.append(("id", "in", obligations.ids))
+        self.env["perf.obligation"].search(
+            draft_obligations_domain
+        )._postpone_draft_obligations(date)
+        # Only 'in progress' obligations are posted ('done' ones are locked).
         domain = [
             ("journal_id", "in", reco_journals.ids),
             ("state", "=", "draft"),
             ("date", "<=", date),
+            ("line_ids.perf_obligation_id.state", "=", "in_progress"),
         ]
         if obligations is not None:
             domain.append(("line_ids.perf_obligation_id", "in", obligations.ids))
@@ -1057,3 +1106,139 @@ class PerfObligation(models.Model):
         of the number of obligations pending posting.
         """
         self._post_recognition_moves(date, companies=companies)
+
+    # ------------------------------------------------------------------
+    # Status
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _get_fields_writable_when_done(self):
+        """Fields that can still be written on a 'done' obligation."""
+        return {
+            "state",
+            "schedule_needs_regeneration",
+            "message_main_attachment_id",
+        }
+
+    def _check_write_allowed(self, vals):
+        for po in self:
+            if po.state == "done" and set(vals) - po._get_fields_writable_when_done():
+                raise UserError(
+                    _(
+                        "Performance obligation %(name)s is done and can no "
+                        "longer be modified. Set it back to 'In Progress' first.",
+                        name=po.display_name,
+                    )
+                )
+
+    def _start(self):
+        """Move draft obligations to 'in progress'.
+
+        To be called by the modules that know when the service really starts
+        (contract dates, activation event, ...). Already started obligations
+        are left untouched.
+        """
+        self.filtered(lambda po: po.state == "draft").write({"state": "in_progress"})
+
+    def action_start(self):
+        for po in self:
+            if po.state != "draft":
+                raise UserError(
+                    _(
+                        "Performance obligation %(name)s is not in draft.",
+                        name=po.display_name,
+                    )
+                )
+        self._start()
+
+    def _postpone_draft_obligations(self, date):
+        """Hook called on the draft obligations in scope of a recognition
+        posting run dated *date*.
+
+        Nothing is posted for them. Modules that know the start date of the
+        service must:
+          - ignore the obligations whose start date is after *date*;
+          - move the start date of the others to the first day of the next
+            month and regenerate their schedule.
+        Without any start date notion (base module), this is a no-op.
+        """
+        return
+
+    def _get_not_done_reasons(self):
+        """Return the list of reasons why this obligation cannot be set to
+        'done' (empty list if it can)."""
+        self.ensure_one()
+        if self.state != "in_progress":
+            return [_("Only an obligation that is in progress can be set to done.")]
+        reasons = []
+        currency = self.currency_id
+        self.invalidate_recordset(["recognized_amount", "progress"])
+        if currency.compare_amounts(self.recognized_amount, self.total_amount):
+            reasons.append(
+                _(
+                    "The recognized amount (%(recognized)s) differs from the "
+                    "total amount (%(total)s).",
+                    recognized=format_amount(
+                        self.env, self.recognized_amount, currency
+                    ),
+                    total=format_amount(self.env, self.total_amount, currency),
+                )
+            )
+        invoiced = self._get_invoiced_amount(states=("posted",))
+        if currency.compare_amounts(invoiced, self.total_amount):
+            reasons.append(
+                _(
+                    "The invoiced amount (%(invoiced)s) differs from the "
+                    "total amount (%(total)s).",
+                    invoiced=format_amount(self.env, invoiced, currency),
+                    total=format_amount(self.env, self.total_amount, currency),
+                )
+            )
+        draft_count = self.env["account.move"].search_count(
+            [
+                ("state", "=", "draft"),
+                ("line_ids.perf_obligation_id", "=", self.id),
+            ]
+        )
+        if draft_count:
+            reasons.append(
+                _(
+                    "%(count)s draft journal entries are linked to it.",
+                    count=draft_count,
+                )
+            )
+        return reasons
+
+    def action_done(self):
+        for po in self:
+            reasons = po._get_not_done_reasons()
+            if reasons:
+                raise UserError(
+                    _(
+                        "Performance obligation %(name)s cannot be set to done:"
+                        "\n%(reasons)s",
+                        name=po.display_name,
+                        reasons="\n".join(f"- {reason}" for reason in reasons),
+                    )
+                )
+        self.write({"state": "done"})
+
+    def _auto_set_done(self):
+        """Set to 'done' the in-progress obligations that satisfy all the
+        conditions; the others are silently left as is. Called after journal
+        entries linked to obligations are posted."""
+        for po in self.filtered(lambda po: po.state == "in_progress"):
+            if not po._get_not_done_reasons():
+                po_sudo = po.sudo()
+                po_sudo.write({"state": "done"})
+                po_sudo._message_log(
+                    body=_(
+                        "Automatically set to done: the total amount is "
+                        "recognized and invoiced."
+                    )
+                )
+
+    def action_reopen(self):
+        done = self.filtered(lambda po: po.state == "done")
+        done.write({"state": "in_progress"})
+        done._mark_needs_recognition()
