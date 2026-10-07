@@ -479,6 +479,46 @@ class TestSalePerfObligation(TransactionCase):
         self.assertEqual(po.partner_id, self.partner)
 
     # ------------------------------------------------------------------
+    # Status
+    # ------------------------------------------------------------------
+
+    def test_obligation_started_on_confirmation(self):
+        """At once / several months / several days: the service is delivered
+        from the confirmation, the obligation is in progress."""
+        for product in (self.product_at_once, self.product_months, self.product_days):
+            with self.subTest(product=product.name):
+                order = self._make_order((product, 1, 1000.0))
+                order.action_confirm()
+                po = order.order_line.perf_obligation_id
+                self.assertEqual(po.state, "in_progress")
+
+    def test_obligation_without_method_stays_draft(self):
+        order = self._make_order((self.product_no_dates, 1, 1000.0))
+        order.action_confirm()
+        self.assertEqual(order.order_line.perf_obligation_id.state, "draft")
+
+    def test_obligation_started_by_non_accounting_user(self):
+        """A salesperson cannot write on obligations: confirming must still
+        start them."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        salesman = new_test_user(
+            self.env,
+            login="perf_obligation_state_salesman",
+            groups="sales_team.group_sale_salesman_all_leads",
+        )
+        order.with_user(salesman).action_confirm()
+        self.assertEqual(order.order_line.perf_obligation_id.state, "in_progress")
+
+    def test_reconfirm_does_not_restart_obligation(self):
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.action_confirm()
+        po = order.order_line.perf_obligation_id
+        order.with_context(disable_cancel_warning=True).action_cancel()
+        order.action_draft()
+        order.action_confirm()
+        self.assertEqual(po.state, "in_progress")
+
+    # ------------------------------------------------------------------
     # Analytic distribution
     # ------------------------------------------------------------------
 
