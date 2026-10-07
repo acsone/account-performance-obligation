@@ -2,7 +2,7 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 
 class AccountMoveLine(models.Model):
@@ -29,6 +29,24 @@ class AccountMoveLine(models.Model):
                         account=line.account_id.display_name,
                     )
                 )
+
+    @api.constrains("perf_obligation_id", "parent_state")
+    def _check_no_draft_line_on_done_obligation(self):
+        lines = self.filtered(
+            lambda line: line.parent_state == "draft"
+            and line.perf_obligation_id.state == "done"
+        )
+        if lines:
+            raise UserError(
+                _(
+                    "Cannot have draft entries (%(moves)s) linked to done "
+                    "performance obligation %(obligations)s. Reopen it first.",
+                    moves=", ".join(lines.move_id.mapped("display_name")),
+                    obligations=", ".join(
+                        lines.perf_obligation_id.mapped("display_name")
+                    ),
+                )
+            )
 
     @api.model_create_multi
     def create(self, vals_list):
