@@ -132,6 +132,7 @@ class TestSchedule(PerfObligationDatesCommon):
     def test_schedule_dates_skips_posted_months(self):
         """Months with posted recognition entries are skipped."""
         po = self._create_obligation(
+            state="in_progress",
             perf_type="income",
             total_amount=600.0,
             recognition_at_date_method="daily",
@@ -165,6 +166,7 @@ class TestSchedule(PerfObligationDatesCommon):
     def test_schedule_dates_when_fully_recognized(self):
         """Returns next month date when last posted entry covers end_date."""
         po = self._create_obligation(
+            state="in_progress",
             perf_type="income",
             total_amount=900.0,
             recognition_at_date_method="daily",
@@ -275,6 +277,7 @@ class TestSchedule(PerfObligationDatesCommon):
     def test_generate_schedule_preserves_posted_moves(self):
         """Posted recognition moves are not deleted on regeneration."""
         po = self._create_obligation(
+            state="in_progress",
             perf_type="income",
             total_amount=900.0,
             recognition_at_date_method="daily",
@@ -436,6 +439,7 @@ class TestSchedule(PerfObligationDatesCommon):
             ],
             date="2026-01-15",
         )
+        po._start()
         # Posted reco for Feb 28
         wizard = self._create_wizard(
             po,
@@ -471,6 +475,7 @@ class TestSchedule(PerfObligationDatesCommon):
         """When end_date is pulled back before last_posted, a corrective
         entry is generated."""
         po = self._create_obligation(
+            state="in_progress",
             perf_type="income",
             total_amount=1000.0,
             recognition_at_date_method="daily",

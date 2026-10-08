@@ -12,11 +12,13 @@ class PerfObligationDatesCommon(PerfObligationCommon):
         recognition_at_date_method=None,
         start_date=None,
         end_date=None,
+        state="draft",
     ):
         vals = {
             "perf_type": perf_type,
             "total_amount": total_amount,
             "company_id": self.company.id,
+            "state": state,
         }
         if recognition_at_date_method:
             vals["recognition_at_date_method"] = recognition_at_date_method
