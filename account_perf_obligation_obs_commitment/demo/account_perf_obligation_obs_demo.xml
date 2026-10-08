@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo noupdate="1">
+    <record id="demo_account_po_obs_income" model="account.account">
+        <field name="code">899001</field>
+        <field name="name">Off-Balance Sheet Commitment - Income</field>
+        <field name="account_type">off_balance</field>
+        <field name="reconcile" eval="False" />
+        <field name="company_ids" eval="[Command.link(ref('base.main_company'))]" />
+    </record>
+    <record id="demo_account_po_obs_expense" model="account.account">
+        <field name="code">899002</field>
+        <field name="name">Off-Balance Sheet Commitment - Expense</field>
+        <field name="account_type">off_balance</field>
+        <field name="reconcile" eval="False" />
+        <field name="company_ids" eval="[Command.link(ref('base.main_company'))]" />
+    </record>
+    <record id="demo_account_po_obs_counterpart" model="account.account">
+        <field name="code">899003</field>
+        <field name="name">Off-Balance Sheet Commitment - Counterpart</field>
+        <field name="account_type">off_balance</field>
+        <field name="reconcile" eval="False" />
+        <field name="company_ids" eval="[Command.link(ref('base.main_company'))]" />
+    </record>
+
+    <record id="demo_journal_po_obs" model="account.journal">
+        <field name="name">Off-Balance Sheet Commitments</field>
+        <field name="code">POOBS</field>
+        <field name="type">general</field>
+        <field name="company_id" ref="base.main_company" />
+    </record>
+
+    <record id="base.main_company" model="res.company">
+        <field name="po_obs_commitment_journal_id" ref="demo_journal_po_obs" />
+        <field
+            name="po_obs_commitment_income_account_id"
+            ref="demo_account_po_obs_income"
+        />
+        <field
+            name="po_obs_commitment_expense_account_id"
+            ref="demo_account_po_obs_expense"
+        />
+        <field
+            name="po_obs_commitment_counterpart_account_id"
+            ref="demo_account_po_obs_counterpart"
+        />
+    </record>
+</odoo>
