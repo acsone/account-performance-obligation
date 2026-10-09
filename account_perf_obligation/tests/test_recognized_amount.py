@@ -83,6 +83,7 @@ class TestRecognizedAmount(PerfObligationCommon):
                 (self.income_account, 0, 300, po),
             ],
         )
+        po._start()
         self._create_and_post_move(
             self.reco_journal,
             [
