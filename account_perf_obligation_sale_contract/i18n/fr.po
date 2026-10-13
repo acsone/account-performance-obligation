@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-06-11 18:42+0000\n"
+"PO-Revision-Date: 2026-10-13 16:51+0000\n"
 "Last-Translator: Gregory Menu <gregory.menu@acsone.eu>\n"
 "Language-Team: none\n"
 "Language: fr\n"
@@ -19,7 +19,7 @@ msgstr ""
 #. module: account_perf_obligation_sale_contract
 #: model:ir.model,name:account_perf_obligation_sale_contract.model_contract_line
 msgid "Contract Line"
-msgstr ""
+msgstr "Ligne de contrat"
 
 #. module: account_perf_obligation_sale_contract
 #: model:ir.model,name:account_perf_obligation_sale_contract.model_sale_order_line
@@ -28,12 +28,6 @@ msgstr "Ligne de commande"
 
 #. module: account_perf_obligation_sale_contract
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_sale_contract.product_template_form_view
-#, fuzzy
-#| msgid ""
-#| "This product generates contract lines. When a sale order is\n"
-#| "                    confirmed, the performance obligation dates will be "
-#| "driven by\n"
-#| "                    the contract line dates."
 msgid ""
 "This product generates contract lines. If it is used on a quotation,\n"
 "                    when the quotation is confirmed and becomes a sale "
@@ -41,9 +35,10 @@ msgid ""
 "                    performance obligation dates will be driven by\n"
 "                    the contract line dates."
 msgstr ""
-"Ce produit crée des lignes de contrat. Quand une commande est confirmée, les "
-"dates de l'obligation de performance seront générées sur base des dates de "
-"la ligne de contrat."
+"Ce produit crée des lignes de contrat. Si ce champ est utilisé sur un devis, "
+"lorsque celui-ci est confirmé et devient une commande client, les dates de "
+"l'obligation de performance seront générées sur base des dates de la ligne "
+"de contrat."
 
 #~ msgid "Product"
 #~ msgstr "Produit"
