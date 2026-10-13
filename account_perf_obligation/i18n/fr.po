@@ -76,9 +76,26 @@ msgid "Administration"
 msgstr "Administration"
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__recognized_amount
+msgid ""
+"Amount already recognized, i.e. the balance of the P&L (income or expense) "
+"accounts on posted journal items linked to this performance obligation."
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_recognize__amount_to_recognize
 msgid "Amount to Recognize at Date"
 msgstr "Montant à reconnaître à date"
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__analytic_distribution
+msgid "Analytic Distribution"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__analytic_precision
+msgid "Analytic Precision"
+msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_attachment_count
@@ -254,6 +271,11 @@ msgstr "Description"
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__display_name
 msgid "Display Name"
 msgstr "Nom affiché"
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__distribution_analytic_account_ids
+msgid "Distribution Analytic Account"
+msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation_schedule_expense__state__draft
@@ -568,6 +590,19 @@ msgid "P&L Recognition Account"
 msgstr "Compte de reconnaissance de P&L"
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__partner_id
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_search
+msgid "Partner"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__partner_id
+msgid ""
+"Partner of this performance obligation, set on the journal items of its "
+"recognition entries. Only top-level contacts can be selected."
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_account_bank_statement_line__perf_obligation_schedule_move
 #: model:ir.model.fields,field_description:account_perf_obligation.field_account_move__perf_obligation_schedule_move
 msgid "Perf Obligation Schedule Move"
@@ -689,6 +724,24 @@ msgid "Process Pending Regenerations"
 msgstr "Processus en attente de régénérations"
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__product_id
+msgid "Product"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__product_id
+msgid ""
+"Product this performance obligation relates to. Automatically set from the "
+"originating sale order line or contract line, and carried over to the "
+"journal items of generated recognition entries."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__progress
+msgid "Progress"
+msgstr ""
+
+#. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "Recognition"
 msgstr "Reconnaissance"
@@ -738,9 +791,26 @@ msgid "Recognized"
 msgstr "Reconnu"
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__recognized_amount
+#, fuzzy
+#| msgid "Recognized"
+msgid "Recognized Amount"
+msgstr "Reconnu"
+
+#. module: account_perf_obligation
+#: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__progress
+msgid "Recognized amount as a percentage of the total amount to recognize."
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__name
 msgid "Reference"
 msgstr "Référence"
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Reporting"
+msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__message_has_sms_error
@@ -823,6 +893,14 @@ msgid ""
 msgstr ""
 "Le montant cumulé à reconnaître à la date indiquée. Ne doit pas excéder le "
 "montant total de l'obligation."
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"The partner of performance obligation %(name)s must be a parent contact: "
+"%(partner)s is a child of %(parent)s."
+msgstr ""
 
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__total_amount
