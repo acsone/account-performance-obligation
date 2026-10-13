@@ -16,18 +16,22 @@
                     <group>
                         <field name="perf_obligation_sale_auto_create" />
                         <field
-                            name="perf_obligation_sale_recognition_method"
+                            name="perf_obligation_at_date_method"
                             invisible="not perf_obligation_sale_auto_create"
                         />
                         <field
+                            name="perf_obligation_sale_recognition_method"
+                            invisible="not perf_obligation_sale_auto_create or perf_obligation_at_date_method != 'daily'"
+                        />
+                        <field
                             name="perf_obligation_sale_months_duration"
-                            invisible="perf_obligation_sale_recognition_method != 'months'"
-                            required="perf_obligation_sale_recognition_method == 'months'"
+                            invisible="perf_obligation_at_date_method != 'daily' or perf_obligation_sale_recognition_method != 'months'"
+                            required="perf_obligation_at_date_method == 'daily' and perf_obligation_sale_recognition_method == 'months'"
                         />
                         <field
                             name="perf_obligation_sale_days_duration"
-                            invisible="perf_obligation_sale_recognition_method != 'days'"
-                            required="perf_obligation_sale_recognition_method == 'days'"
+                            invisible="perf_obligation_at_date_method != 'daily' or perf_obligation_sale_recognition_method != 'days'"
+                            required="perf_obligation_at_date_method == 'daily' and perf_obligation_sale_recognition_method == 'days'"
                         />
                     </group>
                 </page>
