@@ -193,6 +193,7 @@ class TestPostRecognitionMoves(PerfObligationCommon):
                 (self.income_account, 0, 1000, po),
             ],
         )
+        po._start()
         move = po._recognize(500, "2026-01-31", "Test")
         self.assertEqual(move.state, "draft")
         po.action_post_recognition_moves(fields.Date.from_string("2026-01-31"))
@@ -210,6 +211,7 @@ class TestPostRecognitionMoves(PerfObligationCommon):
                 (self.income_account, 0, 1000, po),
             ],
         )
+        po._start()
         move1 = po._recognize(300, "2026-01-31", "Jan")
         move2 = po._recognize(600, "2026-02-28", "Feb")
         move3 = po._recognize(1000, "2026-03-31", "Mar")
@@ -230,6 +232,7 @@ class TestPostRecognitionMoves(PerfObligationCommon):
                 (self.income_account, 0, 1000, po),
             ],
         )
+        po._start()
         move_early = po._recognize(300, "2026-01-15", "Early")
         move_late = po._recognize(600, "2026-02-15", "Late")
         po.action_post_recognition_moves(fields.Date.from_string("2026-01-31"))
@@ -268,7 +271,9 @@ class TestPostRecognitionMoves(PerfObligationCommon):
     def test_action_post_recognition_moves_checks_blocking_first(self):
         """action_post_recognition_moves checks for blocking draft moves
         before posting anything."""
-        po = self._create_obligation(perf_type="income", total_amount=1000)
+        po = self._create_obligation(
+            perf_type="income", total_amount=1000, state="in_progress"
+        )
         # Create a blocking draft move
         self._create_draft_move_in_journal(
             self.sale_journal, perf_obligation=po, date="2026-01-15"
@@ -290,6 +295,7 @@ class TestPostRecognitionMoves(PerfObligationCommon):
                 (self.income_account, 0, 1000, po),
             ],
         )
+        po._start()
         move_early = po._recognize(300, "2026-01-15", "Early")
         move_late = po._recognize(600, "2026-02-15", "Late")
         po.action_post_recognition_moves(fields.Date.from_string("2026-01-31"))
@@ -308,6 +314,7 @@ class TestPostRecognitionMoves(PerfObligationCommon):
                 (self.income_account, 0, 1000, po),
             ],
         )
+        po._start()
         move = po._recognize(500, "2026-01-31", "Test")
         self._create_draft_move_in_journal(
             self.sale_journal, perf_obligation=po, date="2026-01-15"
@@ -326,6 +333,7 @@ class TestPostRecognitionMoves(PerfObligationCommon):
                     (self.income_account, 0, po.total_amount, po),
                 ],
             )
+        (po1 | po2)._start()
         move1 = po1._recognize(500, "2026-01-31", "Test")
         move2 = po2._recognize(500, "2026-01-31", "Test")
         self.env["perf.obligation"]._post_all_recognition_moves(
@@ -344,6 +352,7 @@ class TestPostRecognitionMoves(PerfObligationCommon):
                 (self.income_account, 0, 1000, po),
             ],
         )
+        po._start()
         move_early = po._recognize(300, "2026-01-15", "Early")
         move_late = po._recognize(600, "2026-02-15", "Late")
         self.env["perf.obligation"]._post_all_recognition_moves(
@@ -362,6 +371,7 @@ class TestPostRecognitionMoves(PerfObligationCommon):
                 (self.income_account, 0, 1000, po),
             ],
         )
+        po._start()
         move = po._recognize(500, "2026-01-31", "Test")
         self._create_draft_move_in_journal(
             self.sale_journal, perf_obligation=po, date="2026-01-15"
@@ -385,6 +395,7 @@ class TestPostRecognitionMoves(PerfObligationCommon):
                 (self.income_account, 0, 1000, po),
             ],
         )
+        po._start()
         move = po._recognize(500, "2026-01-31", "Test")
         wizard = self.env["perf.obligation.post.recognition.moves"].create(
             {
@@ -407,6 +418,7 @@ class TestPostRecognitionMoves(PerfObligationCommon):
                     (self.income_account, 0, 1000, po),
                 ],
             )
+        (po1 | po2)._start()
         move1 = po1._recognize(500, "2026-01-31", "Test 1")
         move2 = po2._recognize(500, "2026-01-31", "Test 2")
 
