@@ -17,8 +17,14 @@
                     options="{'end_date_field': 'end_date'}"
                     invisible="not is_start_date_required and not is_end_date_required"
                     required="is_start_date_required"
+                    readonly="state == 'done'"
                 />
-                <field name="end_date" invisible="1" required="is_end_date_required" />
+                <field
+                    name="end_date"
+                    invisible="1"
+                    required="is_end_date_required"
+                    readonly="state == 'done'"
+                />
             </field>
         </field>
     </record>
