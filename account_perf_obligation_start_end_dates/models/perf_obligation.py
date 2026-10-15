@@ -26,12 +26,24 @@ class PerfObligation(models.Model):
         compute="_compute_is_date_required",
     )
 
+    @api.model
+    def _get_recognition_methods_requiring_start_date(self):
+        """Return the recognition methods that need a start date."""
+        return ["daily"]
+
+    @api.model
+    def _get_recognition_methods_requiring_end_date(self):
+        """Return the recognition methods that need an end date."""
+        return ["daily"]
+
     @api.depends("recognition_at_date_method")
     def _compute_is_date_required(self):
+        start_methods = self._get_recognition_methods_requiring_start_date()
+        end_methods = self._get_recognition_methods_requiring_end_date()
         for rec in self:
             method = rec.recognition_at_date_method
-            rec.is_start_date_required = method == "daily"
-            rec.is_end_date_required = method == "daily"
+            rec.is_start_date_required = method in start_methods
+            rec.is_end_date_required = method in end_methods
 
     @api.constrains("start_date", "end_date")
     def _check_dates(self):
@@ -55,8 +67,8 @@ class PerfObligation(models.Model):
             ):
                 raise ValidationError(
                     _(
-                        "Start and end dates are required when the daily "
-                        "pro-rata recognition method is selected "
+                        "The dates required by the selected recognition "
+                        "method are missing "
                         "on performance obligation %(name)s.",
                         name=rec.display_name,
                     )
@@ -104,10 +116,12 @@ class PerfObligation(models.Model):
 
     def _supports_schedule(self):
         """Scheduling is supported when a recognition method is configured
-        and both start and end dates are set."""
+        and the dates required by this method are set."""
         self.ensure_one()
-        return (
-            self._supports_recognition_at_date() and self.start_date and self.end_date
+        return bool(
+            self._supports_recognition_at_date()
+            and (self.start_date or not self.is_start_date_required)
+            and (self.end_date or not self.is_end_date_required)
         )
 
     def _get_schedule_start_date(self, min_move_date=None, last_posted=None):
