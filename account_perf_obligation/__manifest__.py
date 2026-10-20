@@ -25,6 +25,9 @@
         "wizards/perf_obligation_post_recognition_moves.xml",
         "wizards/perf_obligation_recognize.xml",
     ],
+    "demo": [
+        "demo/account_perf_obligation_demo.xml",
+    ],
     "assets": {
         "web.assets_backend": [
             "account_perf_obligation/static/src/css/perf_obligation.css",
