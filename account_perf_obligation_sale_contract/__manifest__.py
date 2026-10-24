@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 {
-    "name": "Account Perf Obligation Sale Contract",
+    "name": "Performance Obligations - Product Contract",
     "summary": """Bridge module between `account_perf_obligation_sale`,
     `account_perf_obligation_contract` and `product_contract`""",
     "version": "18.0.1.0.0",
