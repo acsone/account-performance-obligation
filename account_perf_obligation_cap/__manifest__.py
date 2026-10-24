@@ -2,7 +2,7 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 {
-    "name": "Account Perf Obligation Cap",
+    "name": "Performance Obligations - Cap",
     "summary": """Limit the maximum amount that can be recognized on a performance
     obligation""",
     "version": "18.0.1.0.0",
