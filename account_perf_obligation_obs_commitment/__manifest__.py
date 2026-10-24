@@ -20,4 +20,7 @@
         "wizards/perf_obligation_obs_commitment_adjust_wizard.xml",
         "views/res_config_settings.xml",
     ],
+    "demo": [
+        "demo/account_perf_obligation_obs_demo.xml",
+    ],
 }
