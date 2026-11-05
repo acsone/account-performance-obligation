@@ -121,7 +121,8 @@ class PerfObligation(models.Model):
         comodel_name="product.product",
         help="Product this performance obligation relates to. Automatically "
         "set from the originating sale order line or contract line, and "
-        "carried over to the journal items of generated recognition entries.",
+        "carried over to the income or expense journal item of generated "
+        "recognition entries.",
     )
     partner_id = fields.Many2one(
         comodel_name="res.partner",
@@ -599,15 +600,12 @@ class PerfObligation(models.Model):
             "debit": debit,
             "credit": credit,
             "perf_obligation_id": self.id,
-            "product_id": self.product_id.id,
             "partner_id": self.partner_id.id,
         }
-        if (
-            self.analytic_distribution
-            and account_id == self._get_recognition_config().pl_account.id
-        ):
-            # Only on the P&L line
-            vals["analytic_distribution"] = self.analytic_distribution
+        if account_id == self._get_recognition_config().pl_account.id:
+            vals["product_id"] = self.product_id.id
+            if self.analytic_distribution:
+                vals["analytic_distribution"] = self.analytic_distribution
         return vals
 
     # ------------------------------------------------------------------
