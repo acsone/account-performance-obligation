@@ -693,8 +693,8 @@ msgstr ""
 #: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__product_id
 msgid ""
 "Product this performance obligation relates to. Automatically set from the "
-"originating sale order line or contract line, and carried over to the "
-"journal items of generated recognition entries."
+"originating sale order line or contract line, and carried over to the income"
+" or expense journal item of generated recognition entries."
 msgstr ""
 
 #. module: account_perf_obligation
