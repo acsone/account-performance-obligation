@@ -8,3 +8,4 @@ from . import test_schedule
 from . import test_source
 from . import test_product
 from . import test_wizard
+from . import test_invoiced_amount
