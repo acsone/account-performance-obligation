@@ -77,7 +77,9 @@ class TestObsCommitmentAdjustment(PerfObligationObsCommitmentCommon):
 
     def test_no_adjustment_after_full_recognition(self):
         """_adjust_obs_commitment returns None when obligation is fully recognized."""
-        po = self._create_obligation(perf_type="income", total_amount=500)
+        po = self._create_obligation(
+            perf_type="income", total_amount=500, state="in_progress"
+        )
         po._adjust_obs_commitment(date=datetime.date(2026, 1, 1))
         self._create_and_post_move(
             self.reco_journal,
@@ -94,7 +96,9 @@ class TestObsCommitmentAdjustment(PerfObligationObsCommitmentCommon):
     def test_adjustment_a_greater_than_b_income(self):
         """When A > B (some income recognized), _adjust_obs_commitment creates a
         decreasing entry: credit commitment account, debit counterpart account."""
-        po = self._create_obligation(perf_type="income", total_amount=1000)
+        po = self._create_obligation(
+            perf_type="income", total_amount=1000, state="in_progress"
+        )
         po._adjust_obs_commitment(date=datetime.date(2026, 1, 1))
         self._create_and_post_move(
             self.reco_journal,
@@ -125,7 +129,9 @@ class TestObsCommitmentAdjustment(PerfObligationObsCommitmentCommon):
 
     def test_adjustment_a_greater_than_b_expense(self):
         """Same A > B logic applies to expense obligations."""
-        po = self._create_obligation(perf_type="expense", total_amount=800)
+        po = self._create_obligation(
+            perf_type="expense", total_amount=800, state="in_progress"
+        )
         po._adjust_obs_commitment(date=datetime.date(2026, 1, 1))
         self._create_and_post_move(
             self.exp_reco_journal,
@@ -149,7 +155,9 @@ class TestObsCommitmentAdjustment(PerfObligationObsCommitmentCommon):
 
     def test_adjustment_amount_a_greater_than_b(self):
         """The adjustment amount equals A - B exactly."""
-        po = self._create_obligation(perf_type="income", total_amount=1000)
+        po = self._create_obligation(
+            perf_type="income", total_amount=1000, state="in_progress"
+        )
         po._adjust_obs_commitment(date=datetime.date(2026, 1, 1))
         self._create_and_post_move(
             self.reco_journal,
@@ -190,7 +198,9 @@ class TestObsCommitmentAdjustment(PerfObligationObsCommitmentCommon):
 
     def test_adjustment_move_is_posted(self):
         """The adjustment entry is posted immediately."""
-        po = self._create_obligation(perf_type="income", total_amount=1000)
+        po = self._create_obligation(
+            perf_type="income", total_amount=1000, state="in_progress"
+        )
         self._create_and_post_move(
             self.reco_journal,
             [(self.inc_debit_bs, 100, 0, po), (self.inc_pl, 0, 100, po)],
@@ -201,7 +211,9 @@ class TestObsCommitmentAdjustment(PerfObligationObsCommitmentCommon):
 
     def test_adjustment_move_ref_is_obligation_name(self):
         """The adjustment entry's ref equals the obligation's reference."""
-        po = self._create_obligation(perf_type="income", total_amount=1000)
+        po = self._create_obligation(
+            perf_type="income", total_amount=1000, state="in_progress"
+        )
         self._create_and_post_move(
             self.reco_journal,
             [(self.inc_debit_bs, 100, 0, po), (self.inc_pl, 0, 100, po)],
@@ -215,7 +227,9 @@ class TestObsCommitmentAdjustment(PerfObligationObsCommitmentCommon):
         obligation, via `perf_obligation_id`. Neither line appears in the
         recognition schedule because off-balance sheet accounts are excluded
         from schedule views."""
-        po = self._create_obligation(perf_type="income", total_amount=1000)
+        po = self._create_obligation(
+            perf_type="income", total_amount=1000, state="in_progress"
+        )
         self._create_and_post_move(
             self.reco_journal,
             [(self.inc_debit_bs, 100, 0, po), (self.inc_pl, 0, 100, po)],
@@ -235,7 +249,9 @@ class TestObsCommitmentAdjustment(PerfObligationObsCommitmentCommon):
     def test_adjustment_after_adjust_returns_none(self):
         """Running _adjust_obs_commitment a second time with no further change
         returns None."""
-        po = self._create_obligation(perf_type="income", total_amount=1000)
+        po = self._create_obligation(
+            perf_type="income", total_amount=1000, state="in_progress"
+        )
         self._create_and_post_move(
             self.reco_journal,
             [(self.inc_debit_bs, 300, 0, po), (self.inc_pl, 0, 300, po)],
@@ -332,7 +348,9 @@ class TestObsCommitmentWizard(PerfObligationObsCommitmentCommon):
 
     def test_wizard_adjusts_at_given_date(self):
         """Wizard creates adjustment entries at the chosen date."""
-        po = self._create_obligation(perf_type="income", total_amount=1000)
+        po = self._create_obligation(
+            perf_type="income", total_amount=1000, state="in_progress"
+        )
         self._create_and_post_move(
             self.reco_journal,
             [(self.inc_debit_bs, 400, 0, po), (self.inc_pl, 0, 400, po)],
@@ -348,7 +366,9 @@ class TestObsCommitmentWizard(PerfObligationObsCommitmentCommon):
 
     def test_wizard_adjustment_dated_at_wizard_date(self):
         """The adjustment entry is dated at the date chosen in the wizard."""
-        po = self._create_obligation(perf_type="income", total_amount=1000)
+        po = self._create_obligation(
+            perf_type="income", total_amount=1000, state="in_progress"
+        )
         po._adjust_obs_commitment(date=datetime.date(2026, 1, 1))
         self._create_and_post_move(
             self.reco_journal,
@@ -386,7 +406,9 @@ class TestObsCommitmentEndToEnd(PerfObligationObsCommitmentCommon):
 
     def test_income_obligation_full_lifecycle(self):
         """Full income lifecycle: creation → partial recognition → full recognition."""
-        po = self._create_obligation(perf_type="income", total_amount=900)
+        po = self._create_obligation(
+            perf_type="income", total_amount=900, state="in_progress"
+        )
         po._adjust_obs_commitment(date=datetime.date(2026, 1, 1))
         self.assertAlmostEqual(self._obs_commitment_balance(po), -900)
         self.assertIsNone(po._adjust_obs_commitment(date=datetime.date(2026, 1, 1)))
@@ -420,7 +442,9 @@ class TestObsCommitmentEndToEnd(PerfObligationObsCommitmentCommon):
 
     def test_expense_obligation_full_lifecycle(self):
         """Full expense lifecycle mirrors income, using expense P&L accounts."""
-        po = self._create_obligation(perf_type="expense", total_amount=600)
+        po = self._create_obligation(
+            perf_type="expense", total_amount=600, state="in_progress"
+        )
         po._adjust_obs_commitment(date=datetime.date(2026, 1, 1))
         self.assertAlmostEqual(self._obs_commitment_balance(po), 600)
         self.assertIsNone(po._adjust_obs_commitment(date=datetime.date(2026, 1, 1)))
@@ -437,7 +461,9 @@ class TestObsCommitmentEndToEnd(PerfObligationObsCommitmentCommon):
     def test_obs_debit_balance_after_two_adjustments(self):
         """Two successive partial recognitions produce two adjustments and
         the commitment balance tracks correctly at each step."""
-        po = self._create_obligation(perf_type="income", total_amount=1200)
+        po = self._create_obligation(
+            perf_type="income", total_amount=1200, state="in_progress"
+        )
         po._adjust_obs_commitment(date=datetime.date(2026, 1, 1))
         self._create_and_post_move(
             self.reco_journal,

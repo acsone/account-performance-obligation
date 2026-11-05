@@ -5,7 +5,7 @@
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_round
 
 
@@ -167,3 +167,49 @@ class PerfObligation(models.Model):
             "start_date",
             "end_date",
         ]
+
+    # ------------------------------------------------------------------
+    # Draft obligations: slide the start date month after month
+    # ------------------------------------------------------------------
+
+    def _get_postponed_dates(self, new_start_date):
+        """Return the (start_date, end_date) of the obligation once postponed
+        to *new_start_date*.
+
+        When the start date equals the end date (one shot obligation recognized
+        at once), both dates are postponed. Otherwise the end date is kept.
+        """
+        self.ensure_one()
+        if self.start_date == self.end_date:
+            return new_start_date, new_start_date
+        return new_start_date, self.end_date
+
+    def _postpone_draft_obligations(self, date):
+        """Draft obligations are never recognized. When the posting date reaches
+        their start date (the service did not start), the start date is moved
+        to the first day of the month following the posting date and the
+        schedule is recomputed, so the forecast stays as close as possible to
+        reality. Obligations starting after *date* are ignored."""
+        res = super()._postpone_draft_obligations(date)
+        to_postpone = self.filtered(
+            lambda po: po.state == "draft" and po.start_date and po.start_date <= date
+        )
+        for po in to_postpone:
+            new_start_date = date + relativedelta(months=1, day=1)
+            start_date, end_date = po._get_postponed_dates(new_start_date)
+            if end_date and start_date > end_date:
+                raise UserError(
+                    _(
+                        "Cannot post recognition entries: the start date of "
+                        "draft performance obligation %(name)s would have to be "
+                        "postponed to %(start)s, which is after its end date "
+                        "(%(end)s). Please review its dates or start it.",
+                        name=po.display_name,
+                        start=start_date,
+                        end=end_date,
+                    )
+                )
+            po.write({"start_date": start_date, "end_date": end_date})
+            if po.schedule_needs_regeneration:
+                po._regenerate_schedule()
+        return res

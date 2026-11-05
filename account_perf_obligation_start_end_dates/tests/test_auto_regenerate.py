@@ -202,7 +202,7 @@ class TestAutoRegenerate(PerfObligationDatesCommon):
 
     def test_process_pending_preserves_posted_moves(self):
         """Posted recognition entries are preserved across regeneration."""
-        po = self._make_po()
+        po = self._make_po(state="in_progress")
         po._process_pending_regenerations()
 
         jan_draft = po._get_draft_schedule_moves().filtered(

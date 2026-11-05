@@ -49,7 +49,9 @@ class TestPerfObligationAnalyticDistribution(PerfObligationCommon):
         self.assertEqual(pl_line.analytic_distribution, self._distribution())
 
     def test_posting_creates_a_single_analytic_item(self):
-        po = self._create_obligation(perf_type="income", total_amount=300.0)
+        po = self._create_obligation(
+            perf_type="income", total_amount=300.0, state="in_progress"
+        )
         po.analytic_distribution = self._distribution()
         move = po._recognize(100, "2026-01-31", "Jan")
         move.action_post()

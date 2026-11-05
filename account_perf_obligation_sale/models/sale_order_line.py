@@ -118,6 +118,21 @@ class SaleOrderLine(models.Model):
             )
         )
 
+    def _is_perf_obligation_started_on_confirmation(self):
+        """Return True if the obligation of this line starts at the order
+        confirmation, i.e. when the service is delivered from the confirmation
+        (at once / over several months / over several days).
+
+        Override to add other recognition methods that start at another time
+        (the obligation then stays in draft until the service really starts).
+        """
+        self.ensure_one()
+        return bool(
+            self.perf_obligation_id
+            and self.product_id.perf_obligation_sale_recognition_method
+            in ("at_once", "months", "days")
+        )
+
     def _prepare_invoice_line(self, **optional_values):
         vals = super()._prepare_invoice_line(**optional_values)
         if self.perf_obligation_id:
