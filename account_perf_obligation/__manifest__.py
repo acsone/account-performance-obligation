@@ -16,6 +16,7 @@
     "data": [
         "security/ir.model.access.csv",
         "security/ir_rule.xml",
+        "security/res_groups.xml",
         "data/ir_sequence.xml",
         "views/res_config_settings.xml",
         "views/account_move_line.xml",
