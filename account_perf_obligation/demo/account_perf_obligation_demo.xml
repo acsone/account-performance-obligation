@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo noupdate="1">
+    <!-- Income recognition -->
+    <record id="demo_account_po_income_pl" model="account.account">
+        <field name="code">799001</field>
+        <field name="name">Performance Obligation - Recognized Income</field>
+        <field name="account_type">income</field>
+        <field name="reconcile" eval="False" />
+        <field name="company_ids" eval="[Command.link(ref('base.main_company'))]" />
+    </record>
+    <record id="demo_account_po_income_accrual_bs" model="account.account">
+        <field name="code">418901</field>
+        <field name="name">Performance Obligation - Accrued Income</field>
+        <field name="account_type">asset_current</field>
+        <field name="reconcile" eval="True" />
+        <field name="company_ids" eval="[Command.link(ref('base.main_company'))]" />
+    </record>
+    <record id="demo_account_po_income_deferral_bs" model="account.account">
+        <field name="code">487901</field>
+        <field name="name">Performance Obligation - Deferred Income</field>
+        <field name="account_type">liability_current</field>
+        <field name="reconcile" eval="True" />
+        <field name="company_ids" eval="[Command.link(ref('base.main_company'))]" />
+    </record>
+
+    <!-- Expense recognition -->
+    <record id="demo_account_po_expense_pl" model="account.account">
+        <field name="code">699001</field>
+        <field name="name">Performance Obligation - Recognized Expense</field>
+        <field name="account_type">expense</field>
+        <field name="reconcile" eval="False" />
+        <field name="company_ids" eval="[Command.link(ref('base.main_company'))]" />
+    </record>
+    <record id="demo_account_po_expense_deferral_bs" model="account.account">
+        <field name="code">486901</field>
+        <field name="name">Performance Obligation - Deferred Expense</field>
+        <field name="account_type">asset_current</field>
+        <field name="reconcile" eval="True" />
+        <field name="company_ids" eval="[Command.link(ref('base.main_company'))]" />
+    </record>
+    <record id="demo_account_po_expense_accrual_bs" model="account.account">
+        <field name="code">468901</field>
+        <field name="name">Performance Obligation - Accrued Expense</field>
+        <field name="account_type">liability_current</field>
+        <field name="reconcile" eval="True" />
+        <field name="company_ids" eval="[Command.link(ref('base.main_company'))]" />
+    </record>
+
+    <record id="demo_journal_po_income" model="account.journal">
+        <field name="name">Performance Obligation - Income Recognition</field>
+        <field name="code">POINC</field>
+        <field name="type">general</field>
+        <field name="company_id" ref="base.main_company" />
+    </record>
+    <record id="demo_journal_po_expense" model="account.journal">
+        <field name="name">Performance Obligation - Expense Recognition</field>
+        <field name="code">POEXP</field>
+        <field name="type">general</field>
+        <field name="company_id" ref="base.main_company" />
+    </record>
+
+    <record id="base.main_company" model="res.company">
+        <!-- Income recognition -->
+        <field name="po_income_journal_id" ref="demo_journal_po_income" />
+        <field name="po_income_pl_account_id" ref="demo_account_po_income_pl" />
+        <field
+            name="po_income_debit_bs_account_id"
+            ref="demo_account_po_income_accrual_bs"
+        />
+        <field
+            name="po_income_credit_bs_account_id"
+            ref="demo_account_po_income_deferral_bs"
+        />
+        <!-- Expense recognition -->
+        <field name="po_expense_journal_id" ref="demo_journal_po_expense" />
+        <field name="po_expense_pl_account_id" ref="demo_account_po_expense_pl" />
+        <field
+            name="po_expense_debit_bs_account_id"
+            ref="demo_account_po_expense_deferral_bs"
+        />
+        <field
+            name="po_expense_credit_bs_account_id"
+            ref="demo_account_po_expense_accrual_bs"
+        />
+    </record>
+</odoo>
