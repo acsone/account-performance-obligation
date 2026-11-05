@@ -68,3 +68,9 @@ class ProductTemplate(models.Model):
                         name=rec.display_name,
                     )
                 )
+
+    @api.onchange("perf_obligation_at_date_method")
+    def _onchange_perf_obligation_at_date_method(self):
+        """The duration options only apply to the date-based method."""
+        if self.perf_obligation_at_date_method != "daily":
+            self.perf_obligation_sale_recognition_method = False

@@ -113,8 +113,6 @@ class ContractLine(models.Model):
         vals = {
             "perf_type": perf_type,
             "total_amount": self._get_perf_obligation_amount(),
-            "start_date": start_date,
-            "end_date": end_date,
             "description": _(
                 "Auto-created from contract %(contract)s",
                 contract=self.contract_id.name,
@@ -126,6 +124,10 @@ class ContractLine(models.Model):
             "partner_id": self._get_perf_obligation_partner().id,
             "analytic_distribution": self.analytic_distribution,
         }
+        if start_date:
+            vals["start_date"] = start_date
+        if end_date:
+            vals["end_date"] = end_date
         pl_account = self._get_perf_obligation_pl_account()
         if pl_account:
             vals["pl_account_id"] = pl_account.id
@@ -149,21 +151,26 @@ class ContractLine(models.Model):
     def _get_obligation_recognition_at_date_method(self):
         """Return the recognition method to use on the performance obligation.
 
-        Returns 'daily' when both start and end dates are set.
-        Raises UserError for open-ended lines, since a date-based recognition
-        method cannot be applied without a known end date.
+        It is the method configured on the product (date-based by default).
+        The date-based method needs both a start and an end date: raises
+        UserError for open-ended lines, since it cannot be applied without a
+        known end date. For the other methods, the dates that cannot be
+        deduced from the line are filled in manually on the obligation.
         """
         self.ensure_one()
-        if self._get_obligation_start_date() and self._get_obligation_end_date():
-            return "daily"
-        raise UserError(
-            _(
-                "Cannot determine a recognition method for contract line '%s': "
-                "both a start date and an end date are required to auto-create "
-                "a performance obligation.",
-                self.display_name,
+        method = self.product_id.perf_obligation_at_date_method or "daily"
+        if method == "daily" and not (
+            self._get_obligation_start_date() and self._get_obligation_end_date()
+        ):
+            raise UserError(
+                _(
+                    "Cannot determine a recognition method for contract line '%s': "
+                    "both a start date and an end date are required to auto-create "
+                    "a performance obligation.",
+                    self.display_name,
+                )
             )
-        )
+        return method
 
     def _get_perf_obligation_pl_account(self):
         """Return the P&L account to set on the performance obligation.
