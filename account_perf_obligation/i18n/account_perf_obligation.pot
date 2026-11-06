@@ -617,6 +617,46 @@ msgid "Performance Obligation"
 msgstr ""
 
 #. module: account_perf_obligation
+#: model:account.account,name:account_perf_obligation.demo_account_po_expense_accrual_bs
+msgid "Performance Obligation - Accrued Expense"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:account.account,name:account_perf_obligation.demo_account_po_income_accrual_bs
+msgid "Performance Obligation - Accrued Income"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:account.account,name:account_perf_obligation.demo_account_po_expense_deferral_bs
+msgid "Performance Obligation - Deferred Expense"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:account.account,name:account_perf_obligation.demo_account_po_income_deferral_bs
+msgid "Performance Obligation - Deferred Income"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:account.journal,name:account_perf_obligation.demo_journal_po_expense
+msgid "Performance Obligation - Expense Recognition"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:account.journal,name:account_perf_obligation.demo_journal_po_income
+msgid "Performance Obligation - Income Recognition"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:account.account,name:account_perf_obligation.demo_account_po_expense_pl
+msgid "Performance Obligation - Recognized Expense"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:account.account,name:account_perf_obligation.demo_account_po_income_pl
+msgid "Performance Obligation - Recognized Income"
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model,name:account_perf_obligation.model_perf_obligation_schedule_expense
 msgid "Performance Obligation Recognition Schedule (Expense)"
 msgstr ""
