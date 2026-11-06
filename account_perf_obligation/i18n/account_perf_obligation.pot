@@ -311,6 +311,12 @@ msgid "Expense Recognition Journal"
 msgstr ""
 
 #. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_schedule_expense_monthly_view_graph
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_schedule_expense_monthly_view_pivot
+msgid "Expense Recognition Monthly"
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_res_company__po_expense_pl_account_id
 #: model:ir.model.fields,field_description:account_perf_obligation.field_res_config_settings__po_expense_pl_account_id
 msgid "Expense Recognition P&L Account"
@@ -395,6 +401,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:account_perf_obligation.field_res_company__po_income_journal_id
 #: model:ir.model.fields,field_description:account_perf_obligation.field_res_config_settings__po_income_journal_id
 msgid "Income Recognition Journal"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_schedule_income_monthly_view_graph
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_schedule_income_monthly_view_pivot
+msgid "Income Recognition Monthly"
 msgstr ""
 
 #. module: account_perf_obligation
@@ -504,6 +516,21 @@ msgstr ""
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__month
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "Month"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.actions.act_window,name:account_perf_obligation.action_perf_obligation_expense_monthly_graph
+msgid "Monthly Analysis (Expense)"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.actions.act_window,name:account_perf_obligation.action_perf_obligation_income_monthly_graph
+msgid "Monthly Analysis (Income)"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Monthly Graph"
 msgstr ""
 
 #. module: account_perf_obligation
