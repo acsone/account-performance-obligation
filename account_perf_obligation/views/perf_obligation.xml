@@ -34,6 +34,13 @@
                         class="btn-primary"
                         invisible="not supports_schedule"
                     />
+                    <button
+                        name="action_view_monthly_graph"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-bar-chart"
+                        string="Monthly Graph"
+                    />
                     <field name="progress" widget="progressbar" />
                 </header>
                 <sheet>
