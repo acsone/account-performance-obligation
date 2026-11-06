@@ -39,7 +39,27 @@ class SaleOrder(models.Model):
     def action_confirm(self):
         res = super().action_confirm()
         self._create_perf_obligations()
+        self._start_perf_obligations()
         return res
+
+    def _start_perf_obligations(self):
+        """Start the performance obligations whose service is delivered from the
+        order confirmation (see
+        ``sale.order.line._is_perf_obligation_started_on_confirmation``)."""
+        for line in self.order_line:
+            if not line._is_perf_obligation_started_on_confirmation():
+                continue
+            obligation = line.perf_obligation_id.sudo()
+            if not obligation.not_in_service:
+                continue
+            obligation._start()
+            obligation._message_log(
+                body=_(
+                    "Put in service from sale order confirmation (sale order"
+                    " %(order)s).",
+                    order=line.order_id.name,
+                )
+            )
 
     def _create_perf_obligations(self):
         """Create performance obligations for qualifying sale order lines."""
@@ -63,7 +83,8 @@ class SaleOrder(models.Model):
                     obligation._update_total_amount(
                         invoiced_amount,
                         _(
-                            "Total amount updated to already invoiced amount %(amount)s"
+                            "Total amount updated to already invoiced amount "
+                            "%(amount)s"
                             " on cancellation of %(cancelled_source)s.",
                             amount=format_amount(
                                 obligation.env,
