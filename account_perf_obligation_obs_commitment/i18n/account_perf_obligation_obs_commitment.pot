@@ -162,6 +162,21 @@ msgid "Off-Balance Sheet Adjustments"
 msgstr ""
 
 #. module: account_perf_obligation_obs_commitment
+#: model:account.account,name:account_perf_obligation_obs_commitment.demo_account_po_obs_counterpart
+msgid "Off-Balance Sheet Commitment - Counterpart"
+msgstr ""
+
+#. module: account_perf_obligation_obs_commitment
+#: model:account.account,name:account_perf_obligation_obs_commitment.demo_account_po_obs_expense
+msgid "Off-Balance Sheet Commitment - Expense"
+msgstr ""
+
+#. module: account_perf_obligation_obs_commitment
+#: model:account.account,name:account_perf_obligation_obs_commitment.demo_account_po_obs_income
+msgid "Off-Balance Sheet Commitment - Income"
+msgstr ""
+
+#. module: account_perf_obligation_obs_commitment
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_res_company__po_obs_commitment_counterpart_account_id
 #: model:ir.model.fields,field_description:account_perf_obligation_obs_commitment.field_res_config_settings__po_obs_commitment_counterpart_account_id
 msgid "Off-Balance Sheet Commitment Counterpart Account"
@@ -180,6 +195,7 @@ msgid "Off-Balance Sheet Commitment Income Account"
 msgstr ""
 
 #. module: account_perf_obligation_obs_commitment
+#: model:account.journal,name:account_perf_obligation_obs_commitment.demo_journal_po_obs
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation_obs_commitment.res_config_settings_view_form_perf_obligation_obs_commitment
 msgid "Off-Balance Sheet Commitments"
 msgstr ""
