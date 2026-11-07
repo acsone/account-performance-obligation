@@ -106,6 +106,8 @@ class TestRecognizedAmount(PerfObligationCommon):
         )
         po.invalidate_recordset()
         self.assertAlmostEqual(po.progress, 100.0)
+        # The invoice completes the obligation: reopen it to change its amount.
+        po.action_reopen()
         po.total_amount = 500.0
         self.assertAlmostEqual(po.recognized_amount, 1000.0)
         self.assertAlmostEqual(po.progress, 200.0)
