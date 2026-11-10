@@ -35,18 +35,22 @@ class ContractLine(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
+        # sudo: the user modifying the contract line may have no access to
+        # performance obligations nor to the other source models
         if self._get_perf_obligation_trigger_fields() & vals.keys():
-            for line in self:
+            for line in self.sudo():
                 line._create_or_update_perf_obligation()
         if vals.get("is_canceled"):
-            self._cancel_perf_obligations()
+            self.sudo()._cancel_perf_obligations()
         return res
 
     def unlink(self):
         for line in self:
             obligation = line.perf_obligation_id
             if obligation:
-                obligation._remove_source(
+                # sudo: the user deleting the line may have no access to
+                # performance obligations nor to the other source models
+                obligation.sudo()._remove_source(
                     line,
                 )
         return super().unlink()
@@ -54,7 +58,9 @@ class ContractLine(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         lines = super().create(vals_list)
-        for line in lines:
+        # sudo: the user creating the contract line may have no access to
+        # performance obligations nor to the other source models
+        for line in lines.sudo():
             line._create_or_update_perf_obligation()
         return lines
 
@@ -75,7 +81,7 @@ class ContractLine(models.Model):
             self._update_perf_obligation(self.perf_obligation_id)
             return self.perf_obligation_id
         vals = self._prepare_perf_obligation_vals()
-        obligation = self.env["perf.obligation"].sudo().create(vals)
+        obligation = self.env["perf.obligation"].create(vals)
         self.perf_obligation_id = obligation
         return obligation
 

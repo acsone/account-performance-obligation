@@ -25,7 +25,7 @@ class SaleOrderLine(models.Model):
             self._update_perf_obligation(self.perf_obligation_id)
             return self.perf_obligation_id
         vals = self._prepare_perf_obligation_vals()
-        obligation = self.env["perf.obligation"].sudo().create(vals)
+        obligation = self.env["perf.obligation"].create(vals)
         self.perf_obligation_id = obligation
         return obligation
 
@@ -131,7 +131,9 @@ class SaleOrderLine(models.Model):
         for line in self:
             obligation = line.perf_obligation_id
             if obligation:
-                obligation._remove_source(
+                # sudo: the user deleting the line may have no access to
+                # performance obligations nor to the other source models
+                obligation.sudo()._remove_source(
                     line,
                 )
         return super().unlink()
