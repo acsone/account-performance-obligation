@@ -38,7 +38,9 @@ class SaleOrder(models.Model):
 
     def action_confirm(self):
         res = super().action_confirm()
-        self._create_perf_obligations()
+        # sudo: the user confirming the order may have no access to
+        # performance obligations nor to the other source models
+        self.sudo()._create_perf_obligations()
         return res
 
     def _create_perf_obligations(self):
@@ -49,7 +51,9 @@ class SaleOrder(models.Model):
 
     def _action_cancel(self):
         res = super()._action_cancel()
-        self._cancel_perf_obligations()
+        # sudo: the user cancelling the order may have no access to
+        # performance obligations nor to the other source models
+        self.sudo()._cancel_perf_obligations()
         return res
 
     def _cancel_perf_obligations(self):

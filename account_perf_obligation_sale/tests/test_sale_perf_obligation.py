@@ -15,6 +15,13 @@ class TestSalePerfObligation(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.partner = cls.env["res.partner"].create({"name": "Test Customer"})
+        # Salesman without accounting rights
+        # (not in "Show Full Accounting Features")
+        cls.salesman = new_test_user(
+            cls.env,
+            login="perf_obligation_salesman",
+            groups="sales_team.group_sale_salesman_all_leads",
+        )
 
         cls.product_at_once = cls.env["product.product"].create(
             {
@@ -469,12 +476,7 @@ class TestSalePerfObligation(TransactionCase):
         """A salesperson cannot write on obligations: confirming must still
         set the partner (the obligation is created with sudo)."""
         order = self._make_order((self.product_at_once, 1, 1000.0))
-        salesman = new_test_user(
-            self.env,
-            login="perf_obligation_salesman",
-            groups="sales_team.group_sale_salesman_all_leads",
-        )
-        order.with_user(salesman).action_confirm()
+        order.with_user(self.salesman).action_confirm()
         po = order.order_line.perf_obligation_id
         self.assertEqual(po.partner_id, self.partner)
 
@@ -516,3 +518,58 @@ class TestSalePerfObligation(TransactionCase):
         order.action_confirm()
         self.assertEqual(line.perf_obligation_id, po)
         self.assertEqual(po.analytic_distribution, distribution)
+
+    # ------------------------------------------------------------------
+    # Users without accounting rights
+    #
+    # A salesman cannot write on performance obligations, yet confirming,
+    # cancelling or re-confirming an order must keep them in sync.
+    # ------------------------------------------------------------------
+
+    def test_salesman_has_no_write_access_on_obligations(self):
+        """Sanity check: the salesman of the tests below really lacks the
+        rights on performance obligations, otherwise they prove nothing."""
+        obligation_model = self.env["perf.obligation"].with_user(self.salesman)
+        self.assertFalse(obligation_model.has_access("write"))
+
+    def test_reconfirm_by_non_accounting_user_updates_obligation(self):
+        """Re-confirming as a salesman resyncs the obligation (amount and
+        chatter) although he has no write access on it."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.with_user(self.salesman).action_confirm()
+        line = order.order_line
+        po = line.perf_obligation_id
+        order.with_user(self.salesman).with_context(
+            disable_cancel_warning=True
+        ).action_cancel()
+        line.price_unit = 1500.0
+        order.with_user(self.salesman).action_draft()
+        msg_count_before = len(po.message_ids)
+        order.with_user(self.salesman).action_confirm()
+        self.assertEqual(line.perf_obligation_id, po)
+        self.assertEqual(po.total_amount, 1500.0)
+        self.assertEqual(len(po.message_ids), msg_count_before + 1)
+
+    def test_cancel_by_non_accounting_user_updates_obligation(self):
+        """Cancelling as a salesman freezes the obligation at its invoiced
+        amount although he has no write access on it."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.with_user(self.salesman).action_confirm()
+        po = order.order_line.perf_obligation_id
+        self.assertEqual(po.total_amount, 1000.0)
+        msg_count_before = len(po.message_ids)
+        order.with_user(self.salesman).with_context(
+            disable_cancel_warning=True
+        ).action_cancel()
+        self.assertEqual(po.total_amount, 0.0)
+        self.assertEqual(len(po.message_ids), msg_count_before + 1)
+
+    def test_unlink_line_by_non_accounting_user_deletes_obligation(self):
+        """Deleting the sole source line as a salesman deletes the obligation."""
+        order = self._make_order((self.product_at_once, 1, 1000.0))
+        order.action_confirm()
+        line = order.order_line
+        po_id = line.perf_obligation_id.id
+        order.with_context(disable_cancel_warning=True).action_cancel()
+        line.with_user(self.salesman).unlink()
+        self.assertFalse(self.env["perf.obligation"].browse(po_id).exists())
