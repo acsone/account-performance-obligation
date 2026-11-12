@@ -22,6 +22,18 @@ class PerfObligation(models.Model):
     _description = "Performance Obligation"
     _inherit = ["mail.thread", "analytic.mixin"]
 
+    state = fields.Selection(
+        selection=[
+            ("open", "Open"),
+            ("done", "Done"),
+        ],
+        default="open",
+        readonly=True,
+        copy=False,
+        index=True,
+        required=True,
+        tracking=True,
+    )
     company_id = fields.Many2one(
         comodel_name="res.company",
         required=True,
@@ -182,6 +194,10 @@ class PerfObligation(models.Model):
                 )
 
     def unlink(self):
+        if self.filtered(lambda po: po.state == "done"):
+            raise UserError(
+                _("A performance obligation that is done cannot be deleted.")
+            )
         posted = self.env["account.move.line"].search(
             [
                 ("perf_obligation_id", "in", self.ids),
@@ -630,9 +646,24 @@ class PerfObligation(models.Model):
         self.ensure_one()
         return False
 
+    def _supports_auto_done(self):
+        """Return whether this obligation may be set to 'done' automatically
+        when journal entries are posted.
+        """
+        self.ensure_one()
+        return self._supports_schedule()
+
     def action_generate_schedule(self):
         """UI action to regenerate recognition schedule entries."""
         for po in self:
+            if po.state == "done":
+                raise UserError(
+                    _(
+                        "Performance obligation %(name)s is done: its schedule "
+                        "can no longer be regenerated.",
+                        name=po.display_name,
+                    )
+                )
             if not po._supports_schedule():
                 raise ValidationError(
                     _(
@@ -746,6 +777,7 @@ class PerfObligation(models.Model):
         ]
 
     def write(self, vals):
+        self._check_write_allowed(vals)
         res = super().write(vals)
         trigger_fields = self._get_recognition_trigger_fields()
         if any(field in vals for field in trigger_fields):
@@ -768,6 +800,8 @@ class PerfObligation(models.Model):
         have draft recognition moves pending cleanup.
         """
         if not self.env.context.get("perf_obligation_in_regeneration"):
+            # A done obligation is locked: its schedule is not touched anymore.
+            self = self.filtered(lambda po: po.state != "done")
             self.filtered(lambda po: po._supports_schedule())._mark_for_regeneration()
             self.filtered(
                 lambda po: not po._supports_schedule()
@@ -781,7 +815,9 @@ class PerfObligation(models.Model):
         )
 
     def _process_pending_regenerations(self):
-        for po in self.filtered("schedule_needs_regeneration"):
+        for po in self.filtered(
+            lambda po: po.schedule_needs_regeneration and po.state != "done"
+        ):
             po._regenerate_schedule()
 
     def action_process_pending_regenerations(self):
@@ -832,6 +868,7 @@ class PerfObligation(models.Model):
                     "obligation is still linked to other source(s).",
                     removed_source=source_record.display_name,
                 ),
+                auto_reopen=True,
             )
         else:
             self.sudo().unlink()
@@ -845,23 +882,50 @@ class PerfObligation(models.Model):
                 total += record._get_perf_obligation_amount()
         return total
 
-    def _update_total_amount(self, amount, reason):
+    def _update_total_amount(self, amount, reason, auto_reopen=False):
         """Write total_amount and post a chatter message."""
         self.ensure_one()
-        self._update_vals({"total_amount": amount}, reason)
+        self._update_vals({"total_amount": amount}, reason, auto_reopen=auto_reopen)
 
-    def _update_vals(self, vals, reason):
+    def _reopen(self, reason=None):
+        """Set the 'done' obligations back to 'open' and flag them as needing
+        recognition.
+
+        If *reason* is given, it is logged to the chatter as an automatic
+        reopening.
+        """
+        done = self.filtered(lambda po: po.state == "done")
+        done.write({"state": "open"})
+        done._mark_needs_recognition()
+        if reason:
+            for po in done:
+                po._message_log(
+                    body=_("Automatically set back to Open: %(reason)s", reason=reason)
+                )
+
+    def _update_vals(self, vals, reason, auto_reopen=False):
         """Update the obligation with *vals* if they differ from the current
         state, and log *reason* to the chatter.
 
+        A 'done' obligation impacted by the change is reopened only if
+        *auto_reopen* is set, otherwise the write is refused.
+
         :param vals: dict of field values to sync (same format as write()).
         :param reason: human-readable explanation logged to the chatter.
+        :param auto_reopen: reopen a 'done' obligation when *vals* touch a
+            field that is locked on done obligations.
         """
         self.ensure_one()
         current = self._convert_to_write({k: self[k] for k in vals})
         changed = {k: v for k, v in vals.items() if current.get(k) != v}
         if not changed:
             return
+        if (
+            self.state == "done"
+            and auto_reopen
+            and set(changed) - self._get_fields_writable_when_done()
+        ):
+            self._reopen(reason)
         self.write(changed)
         self._message_log(body=reason)
 
@@ -894,10 +958,12 @@ class PerfObligation(models.Model):
             )
             if reason:
                 body += " " + reason
-            obligation._update_total_amount(new_amount, body)
+            obligation._update_total_amount(new_amount, body, auto_reopen=True)
 
-    def _get_invoiced_amount(self):
+    def _get_invoiced_amount(self, states=("draft", "posted")):
         """Return the invoiced/billed amount for this obligation.
+
+        :param states: parent move states to take into account.
 
         Income: -(income account balance) - (BS account balance)
         Expense: (expense account balance) + (BS account balance)
@@ -906,7 +972,7 @@ class PerfObligation(models.Model):
         [(pl_balance,)] = self.env["account.move.line"]._read_group(
             domain=[
                 ("perf_obligation_id", "=", self.id),
-                ("parent_state", "in", ("draft", "posted")),
+                ("parent_state", "in", states),
                 ("account_id.internal_group", "=", self._get_pl_internal_group()),
             ],
             aggregates=["balance:sum"],
@@ -914,7 +980,7 @@ class PerfObligation(models.Model):
         [(bs_balance,)] = self.env["account.move.line"]._read_group(
             domain=[
                 ("perf_obligation_id", "=", self.id),
-                ("parent_state", "in", ("draft", "posted")),
+                ("parent_state", "in", states),
                 (
                     "account_id.account_type",
                     "in",
@@ -1023,10 +1089,12 @@ class PerfObligation(models.Model):
         if companies is None:
             companies = obligations.company_id if obligations else self.env.companies
         reco_journals = self._get_recognition_journals_for_companies(companies)
+        # Only open obligations are posted ('done' ones are locked).
         domain = [
             ("journal_id", "in", reco_journals.ids),
             ("state", "=", "draft"),
             ("date", "<=", date),
+            ("line_ids.perf_obligation_id.state", "=", "open"),
         ]
         if obligations is not None:
             domain.append(("line_ids.perf_obligation_id", "in", obligations.ids))
@@ -1068,3 +1136,122 @@ class PerfObligation(models.Model):
             ).read()[0]
             action["domain"] = [("perf_obligation_id", "=", self.id)]
         return action
+
+    # ------------------------------------------------------------------
+    # Status
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _get_fields_writable_when_done(self):
+        """Fields that can still be written on a 'done' obligation."""
+        return {
+            "state",
+            "message_main_attachment_id",
+        }
+
+    def _check_write_allowed(self, vals):
+        for po in self:
+            if po.state == "done" and set(vals) - po._get_fields_writable_when_done():
+                raise UserError(
+                    _(
+                        "Performance obligation %(name)s is done and can no "
+                        "longer be modified. Reopen it first.",
+                        name=po.display_name,
+                    )
+                )
+
+    def _iter_not_done_reasons(self):
+        """Yield the reasons why this obligation cannot be set to 'done'.
+
+        Nothing is yielded if it can. The checks are ordered from the
+        cheapest to the most expensive, so a caller that only needs to know
+        whether there is at least one reason can stop at the first one.
+        """
+        self.ensure_one()
+        if self.state != "open":
+            yield _("Only an open obligation can be set to done.")
+            return
+        if self.schedule_needs_regeneration:
+            yield _(
+                "The recognition schedule is pending regeneration: the "
+                "remaining recognition entries are not generated yet."
+            )
+        draft_count = self.env["account.move.line"].search_count(
+            [
+                ("parent_state", "=", "draft"),
+                ("perf_obligation_id", "=", self.id),
+            ]
+        )
+        if draft_count:
+            yield _(
+                "%(count)s draft journal items are linked to it.",
+                count=draft_count,
+            )
+            # The amounts below are only meaningful once no draft entry is
+            # pending: comparing them now would give misleading reasons.
+            return
+        currency = self.currency_id
+        # recognized_amount and progress only depend on total_amount, not on
+        # the posted journal items they are read from, so the ORM does not
+        # recompute them when entries get posted. Invalidate the values
+        # possibly cached before the posting (both fields share one compute).
+        self.invalidate_recordset(["recognized_amount", "progress"])
+        if currency.compare_amounts(self.recognized_amount, self.total_amount):
+            yield _(
+                "The recognized amount (%(recognized)s) differs from the "
+                "total amount (%(total)s).",
+                recognized=format_amount(self.env, self.recognized_amount, currency),
+                total=format_amount(self.env, self.total_amount, currency),
+            )
+        invoiced = self._get_invoiced_amount(states=("posted",))
+        if currency.compare_amounts(invoiced, self.total_amount):
+            yield _(
+                "The invoiced amount (%(invoiced)s) differs from the "
+                "total amount (%(total)s).",
+                invoiced=format_amount(self.env, invoiced, currency),
+                total=format_amount(self.env, self.total_amount, currency),
+            )
+
+    def _get_not_done_reasons(self):
+        """Return the list of reasons why this obligation cannot be set to
+        'done' (empty list if it can)."""
+        return list(self._iter_not_done_reasons())
+
+    def action_done(self):
+        for po in self:
+            reasons = po._get_not_done_reasons()
+            if reasons:
+                raise UserError(
+                    _(
+                        "Performance obligation %(name)s cannot be set to done:"
+                        "\n%(reasons)s",
+                        name=po.display_name,
+                        reasons="\n".join(f"- {reason}" for reason in reasons),
+                    )
+                )
+        self.write({"state": "done"})
+
+    def _auto_set_done(self):
+        """Set to 'done' the open obligations that support it (see
+        `_supports_auto_done`) and satisfy all the conditions; the others are
+        silently left as is. Called after journal entries linked to
+        obligations are posted."""
+        for po in self.filtered(lambda po: po.state == "open"):
+            if not po._supports_auto_done():
+                continue
+            if any(po._iter_not_done_reasons()):
+                continue
+            # sudo: this is a side effect of posting a journal entry. The
+            # user who posts an invoice or a recognition entry does not
+            # necessarily have write access on performance obligations.
+            po_sudo = po.sudo()
+            po_sudo.write({"state": "done"})
+            po_sudo._message_log(
+                body=_(
+                    "Automatically set to done: the total amount is "
+                    "recognized and invoiced."
+                )
+            )
+
+    def action_reopen(self):
+        self._reopen()
