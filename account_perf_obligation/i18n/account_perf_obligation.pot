@@ -15,6 +15,12 @@ msgstr ""
 
 #. module: account_perf_obligation
 #. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid "%(count)s draft journal items are linked to it."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
 #: code:addons/account_perf_obligation/models/perf_obligation_source_mixin.py:0
 msgid "%(model)s must implement _get_perf_obligation_amount()."
 msgstr ""
@@ -39,6 +45,12 @@ msgstr ""
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "<span class=\"o_form_label\">Performance Obligation</span>"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid "A performance obligation that is done cannot be deleted."
 msgstr ""
 
 #. module: account_perf_obligation
@@ -100,6 +112,19 @@ msgid "Attachment Count"
 msgstr ""
 
 #. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid "Automatically set back to Open: %(reason)s"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Automatically set to done: the total amount is recognized and invoiced."
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,help:account_perf_obligation.field_res_company__po_expense_credit_bs_account_id
 #: model:ir.model.fields,help:account_perf_obligation.field_res_config_settings__po_expense_credit_bs_account_id
 msgid "Balance sheet account for accrued expense."
@@ -142,6 +167,23 @@ msgid ""
 "Cannot delete performance obligation '%(name)s': it has posted accounting "
 "entries. Consider updating the performance obligation amount to 0 if the "
 "obligation has been cancelled."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/account_move_line.py:0
+msgid ""
+"Cannot have draft entries (%(moves)s) linked to done performance obligation "
+"%(obligations)s. Reopen it first."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/account_move.py:0
+msgid ""
+"Cannot post %(move)s: performance obligation %(obligation)s is done. There "
+"should not be draft moves linked to a done performance obligation. Please "
+"report the issue."
 msgstr ""
 
 #. module: account_perf_obligation
@@ -258,6 +300,13 @@ msgstr ""
 #. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__distribution_analytic_account_ids
 msgid "Distribution Analytic Account"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation__state__done
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_search
+msgid "Done"
 msgstr ""
 
 #. module: account_perf_obligation
@@ -574,6 +623,18 @@ msgid "Number of messages with delivery error"
 msgstr ""
 
 #. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid "Only an open obligation can be set to done."
+msgstr ""
+
+#. module: account_perf_obligation
+#: model:ir.model.fields.selection,name:account_perf_obligation.selection__perf_obligation__state__open
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_search
+msgid "Open"
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,help:account_perf_obligation.field_perf_obligation__pl_account_id
 msgid ""
 "Optional. If set, overrides the P&L account defined in the accounting "
@@ -688,6 +749,30 @@ msgstr ""
 #: model:ir.ui.menu,name:account_perf_obligation.menu_perf_obligation_list
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.res_config_settings_view_form_perf_obligation
 msgid "Performance Obligations"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Performance obligation %(name)s cannot be set to done:\n"
+"%(reasons)s"
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Performance obligation %(name)s is done and can no longer be modified. "
+"Reopen it first."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"Performance obligation %(name)s is done: its schedule can no longer be "
+"regenerated."
 msgstr ""
 
 #. module: account_perf_obligation
@@ -835,6 +920,11 @@ msgstr ""
 
 #. module: account_perf_obligation
 #: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
+msgid "Reopen"
+msgstr ""
+
+#. module: account_perf_obligation
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_form
 msgid "Reporting"
 msgstr ""
 
@@ -871,10 +961,16 @@ msgid ""
 msgstr ""
 
 #. module: account_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation__state
+msgid "State"
+msgstr ""
+
+#. module: account_perf_obligation
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense__state
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_expense_monthly__state
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income__state
 #: model:ir.model.fields,field_description:account_perf_obligation.field_perf_obligation_schedule_income_monthly__state
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation.perf_obligation_search
 msgid "Status"
 msgstr ""
 
@@ -910,8 +1006,32 @@ msgstr ""
 #. odoo-python
 #: code:addons/account_perf_obligation/models/perf_obligation.py:0
 msgid ""
+"The invoiced amount (%(invoiced)s) differs from the total amount "
+"(%(total)s)."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
 "The partner of performance obligation %(name)s must be a parent contact: "
 "%(partner)s is a child of %(parent)s."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"The recognition schedule is pending regeneration: the remaining recognition "
+"entries are not generated yet."
+msgstr ""
+
+#. module: account_perf_obligation
+#. odoo-python
+#: code:addons/account_perf_obligation/models/perf_obligation.py:0
+msgid ""
+"The recognized amount (%(recognized)s) differs from the total amount "
+"(%(total)s)."
 msgstr ""
 
 #. module: account_perf_obligation
