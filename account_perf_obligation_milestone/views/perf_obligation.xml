@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="perf_obligation_form_inherit_milestone" model="ir.ui.view">
+        <field name="name">perf.obligation.form.inherit.milestone</field>
+        <field name="model">perf.obligation</field>
+        <field name="inherit_id" ref="account_perf_obligation.perf_obligation_form" />
+        <field name="arch" type="xml">
+            <page name="schedule_monthly" position="after">
+                <page
+                    string="Milestones"
+                    name="milestones"
+                    invisible="recognition_at_date_method != 'daily'"
+                >
+                    <div class="text-muted mb-2">
+                        Each milestone is the cumulative amount to recognize at the end of its date.
+                        The amount is recognized linearly between milestones, then up to the total amount at the end of the recognition period.
+                        Milestones outside the recognition period (in red) are ignored.
+                    </div>
+                    <field name="milestone_ids" nolabel="1" readonly="state == 'done'">
+                        <list editable="bottom" decoration-danger="is_out_of_period">
+                            <field name="date" />
+                            <field name="name" />
+                            <field name="currency_id" column_invisible="1" />
+                            <field name="is_out_of_period" column_invisible="1" />
+                            <field name="amount" />
+                        </list>
+                    </field>
+                </page>
+            </page>
+        </field>
+    </record>
+</odoo>
