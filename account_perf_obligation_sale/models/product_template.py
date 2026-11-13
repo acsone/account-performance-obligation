@@ -11,6 +11,7 @@ class ProductTemplate(models.Model):
     perf_obligation_sale_auto_create = fields.Boolean(
         string="Auto-create Performance Obligation",
         default=False,
+        tracking=True,
     )
     perf_obligation_sale_recognition_method = fields.Selection(
         selection=[
@@ -21,18 +22,21 @@ class ProductTemplate(models.Model):
         string="Revenue Recognition Duration",
         help="Determines how the start and end dates of the performance "
         "obligation are computed when it is created.",
+        tracking=True,
     )
     perf_obligation_sale_months_duration = fields.Integer(
         string="Recognition Duration (months)",
         help="Number of months over which the performance obligation "
         "is recognized. Used when the recognition method is "
         "'Over several months'.",
+        tracking=True,
     )
     perf_obligation_sale_days_duration = fields.Integer(
         string="Recognition Duration (days)",
         help="Number of days over which the performance obligation "
         "is recognized. Used when the recognition method is "
         "'Over several days'.",
+        tracking=True,
     )
 
     @api.constrains(
