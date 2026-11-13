@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_perf_obligation_milestone_user,perf.obligation.milestone.user,model_perf_obligation_milestone,account.group_account_user,1,0,0,0
+access_perf_obligation_milestone_manager,perf.obligation.milestone.manager,model_perf_obligation_milestone,account.group_account_manager,1,1,1,1
