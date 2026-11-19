@@ -34,6 +34,15 @@ class PerfObligation(models.Model):
         required=True,
         tracking=True,
     )
+    not_in_service = fields.Boolean(
+        default=True,
+        copy=False,
+        tracking=True,
+        help="Check while the service is not delivered yet. Nothing is "
+        "recognized for such an obligation: when recognition entries are "
+        "posted, its start date is postponed instead. Uncheck it once the "
+        "service really starts.",
+    )
     company_id = fields.Many2one(
         comodel_name="res.company",
         required=True,
@@ -1090,11 +1099,35 @@ class PerfObligation(models.Model):
             companies = obligations.company_id if obligations else self.env.companies
         reco_journals = self._get_recognition_journals_for_companies(companies)
         # Only open obligations are posted ('done' ones are locked).
+        # Obligations not in service: nothing is posted, their start is postponed
+        # (hook, see _postpone_not_in_service_obligations).
+        not_in_service_domain = [
+            ("state", "=", "open"),
+            ("not_in_service", "=", True),
+            ("company_id", "in", companies.ids),
+        ]
+        if obligations is not None:
+            not_in_service_domain.append(("id", "in", obligations.ids))
+        self.env["perf.obligation"].search(
+            not_in_service_domain
+        )._postpone_not_in_service_obligations(date)
+        # Only open obligations in service are posted ('done' ones are locked).
         domain = [
             ("journal_id", "in", reco_journals.ids),
             ("state", "=", "draft"),
             ("date", "<=", date),
             ("line_ids.perf_obligation_id.state", "=", "open"),
+            (
+                "line_ids",
+                "any",
+                [
+                    (
+                        "perf_obligation_id",
+                        "any",
+                        [("state", "=", "open"), ("not_in_service", "=", False)],
+                    )
+                ],
+            ),
         ]
         if obligations is not None:
             domain.append(("line_ids.perf_obligation_id", "in", obligations.ids))
@@ -1159,6 +1192,28 @@ class PerfObligation(models.Model):
                         name=po.display_name,
                     )
                 )
+
+    def _start(self):
+        """Put the obligations in service (uncheck 'Not in Service').
+
+        To be called by the modules that know when the service really starts
+        (contract dates, activation event, ...). Obligations already in service
+        are left untouched.
+        """
+        self.filtered("not_in_service").write({"not_in_service": False})
+
+    def _postpone_not_in_service_obligations(self, date):
+        """Hook called on the open obligations flagged as not in service that are
+        in scope of a recognition posting run dated *date*.
+
+        Nothing is posted for them. Modules that know the start date of the
+        service must:
+          - ignore the obligations whose start date is after *date*;
+          - move the start date of the others to the first day of the next
+            month and regenerate their schedule.
+        Without any start date notion (base module), this is a no-op.
+        """
+        return
 
     def _iter_not_done_reasons(self):
         """Yield the reasons why this obligation cannot be set to 'done'.
