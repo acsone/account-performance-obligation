@@ -127,8 +127,8 @@ class TestState(PerfObligationCommon):
         self.assertEqual(po.state, "open")
 
     def test_post_all_does_not_post_done_obligations(self):
-        po_open = self._create_obligation(total_amount=2000)
-        po_done = self._create_obligation(total_amount=2000)
+        po_open = self._create_obligation(total_amount=2000, not_in_service=False)
+        po_done = self._create_obligation(total_amount=2000, not_in_service=False)
         for po in (po_open, po_done):
             self._post_invoice(po, 1000)
         move_open = po_open._recognize(500, "2026-01-31", "Jan")

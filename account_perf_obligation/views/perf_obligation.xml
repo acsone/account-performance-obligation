@@ -15,6 +15,7 @@
                     decoration-warning="state == 'open'"
                     decoration-success="state == 'done'"
                 />
+                <field name="not_in_service" optional="show" />
                 <field name="product_id" optional="hide" />
                 <field name="partner_id" optional="show" />
                 <field name="currency_id" column_invisible="1" />
@@ -97,6 +98,7 @@
                     <group col="2">
                         <group name="recognition_info" string="Recognition">
                             <field name="currency_id" invisible="1" />
+                            <field name="not_in_service" readonly="state == 'done'" />
                             <field
                                 name="perf_type"
                                 string="Type"
@@ -272,6 +274,11 @@
                 <field name="partner_id" />
                 <filter name="open" string="Open" domain="[('state', '=', 'open')]" />
                 <filter name="done" string="Done" domain="[('state', '=', 'done')]" />
+                <filter
+                    name="not_in_service"
+                    string="Not in Service"
+                    domain="[('not_in_service', '=', True)]"
+                />
                 <separator />
                 <filter
                     name="income"
