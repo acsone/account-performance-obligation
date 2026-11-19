@@ -44,15 +44,11 @@ class SaleOrderLine(models.Model):
     def _prepare_perf_obligation_vals(self):
         """Return the values dict for the performance obligation to create."""
         self.ensure_one()
-        start_date, end_date = self._get_perf_obligation_dates()
+        method = self.product_id.perf_obligation_at_date_method or "daily"
         vals = {
             "perf_type": "income",
             "total_amount": self._get_perf_obligation_amount(),
-            "start_date": start_date,
-            "end_date": end_date,
-            "recognition_at_date_method": "daily"
-            if (start_date and end_date)
-            else False,
+            "recognition_at_date_method": method,
             "description": _(
                 "Auto-created from sale order %(order)s - %(product)s",
                 order=self.order_id.name,
@@ -62,6 +58,20 @@ class SaleOrderLine(models.Model):
             "partner_id": self._get_perf_obligation_partner().id,
             "analytic_distribution": self.analytic_distribution,
         }
+        if method == "daily":
+            start_date, end_date = self._get_perf_obligation_dates()
+            vals.update(
+                {
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "recognition_at_date_method": (
+                        "daily" if (start_date and end_date) else False
+                    ),
+                }
+            )
+        # For the other recognition methods the dates are not deduced from the
+        # product: they are filled in manually on the obligation, and are
+        # therefore not part of the values (never overwritten on resync).
         income_account = self._get_perf_obligation_income_account()
         if income_account:
             vals["pl_account_id"] = income_account.id
