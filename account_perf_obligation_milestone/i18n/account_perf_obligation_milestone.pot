@@ -1,0 +1,124 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* account_perf_obligation_milestone
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.constraint,message:account_perf_obligation_milestone.constraint_perf_obligation_milestone_perf_obligation_date_uniq
+msgid "A performance obligation cannot have two milestones on the same date."
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__amount
+msgid "Cumulative Amount"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,help:account_perf_obligation_milestone.field_perf_obligation_milestone__amount
+msgid ""
+"Cumulative amount that must be recognized at the end of this date (not the "
+"amount of the step)."
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__currency_id
+msgid "Currency"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__date
+msgid "Date"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__name
+msgid "Description"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation_milestone.perf_obligation_form_inherit_milestone
+msgid ""
+"Each milestone is the cumulative amount to recognize at the end of its date.\n"
+"                        The amount is recognized linearly between milestones, then up to the total amount at the end of the recognition period.\n"
+"                        Milestones dated outside the recognition period (in red) are ignored. The\n"
+"                        period includes the start date but not the end date, where the total amount\n"
+"                        is recognized."
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__id
+msgid "ID"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__is_ignored
+msgid "Is Ignored"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#. odoo-python
+#: code:addons/account_perf_obligation_milestone/models/perf_obligation.py:0
+msgid ""
+"Milestone amounts of performance obligation %(name)s are cumulative: they "
+"must have the same sign as the total amount and not exceed it (milestone of "
+"%(date)s)."
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation__milestone_ids
+#: model_terms:ir.ui.view,arch_db:account_perf_obligation_milestone.perf_obligation_form_inherit_milestone
+msgid "Milestones"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model,name:account_perf_obligation_milestone.model_perf_obligation
+#: model:ir.model.fields,field_description:account_perf_obligation_milestone.field_perf_obligation_milestone__perf_obligation_id
+msgid "Performance Obligation"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model,name:account_perf_obligation_milestone.model_perf_obligation_milestone
+msgid "Performance Obligation Milestone"
+msgstr ""
+
+#. module: account_perf_obligation_milestone
+#: model:ir.model.fields,help:account_perf_obligation_milestone.field_perf_obligation_milestone__is_ignored
+msgid ""
+"The milestone date is outside the recognition period (start date included, "
+"end date excluded): the milestone is ignored."
+msgstr ""
