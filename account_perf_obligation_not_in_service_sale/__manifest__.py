@@ -1,0 +1,18 @@
+# Copyright 2026 ACSONE SA/NV
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
+
+{
+    "name": "Performance Obligation - Not in Service - Sale",
+    "summary": """Put sale performance obligations in service upon order
+    confirmation""",
+    "version": "18.0.1.0.0",
+    "category": "Accounting",
+    "license": "LGPL-3",
+    "author": "ACSONE SA/NV",
+    "website": "https://github.com/acsone/account-performance-obligation",
+    "depends": [
+        "account_perf_obligation_not_in_service",
+        "account_perf_obligation_sale",
+    ],
+    "data": [],
+}
